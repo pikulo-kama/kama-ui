@@ -1,0 +1,28 @@
+[project]
+name = "kama-ui"
+license = {file = "LICENSE"}
+classifiers = [
+    "License :: OSI Approved :: GPLv3 License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+]
+version = "0.1.0"
+dependencies = [
+    "kama-util @ git+https://github.com/pikulo-kama/kama-util.git@v0.1.2",
+    "kama-db @ git+https://github.com/pikulo-kama/kama-db.git@v0.1.0",
+    "PyQt6 >= 6.10.0, < 7.0.0",
+    "pyqt6-sip >= 13.10.2, < 14.0.0",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest-cov >= 7.0.0, < 8.0.0"
+]
+
+[tool.coverage.run]
+source = ["kui"]
+disable_warnings = ["module-not-measured"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+addopts = "--cov=kui --cov-report=term-missing"

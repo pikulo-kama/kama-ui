@@ -1,0 +1,83 @@
+import os
+from typing import Any
+
+from kutil.file import read_file, save_file
+from kutil.file_extension import JSON
+
+
+class JsonConfigHolder:
+    """
+    Wrapper to work with JSON configuration.
+    Only allows read operations.
+    """
+
+    def __init__(self, config_path: str):
+
+        self._config_path = JSON.add_to(config_path)
+        self._data = dict()
+
+        self._before_file_open()
+
+        self._load_data()
+
+    def get_value(self, property_name, default_value=None):
+        """
+        Used to get property value from configuration.
+        """
+
+        if property_name not in self._data:
+            return default_value
+
+        return self._data.get(property_name)
+
+    def get(self):
+        """
+        Used to get full configuration as map.
+        """
+        return self._data
+
+    def _load_data(self):
+        """
+        Used to read configuration file
+        and store contents in holder.
+
+        Needed for testing purposes.
+        """
+        self._data = read_file(self._config_path, as_json=True)
+
+    def _before_file_open(self):
+        """
+        To be overridden in child classes.
+        Allows to perform additional operation before file opening began.
+        """
+        pass
+
+
+class EditableJsonConfigHolder(JsonConfigHolder):
+    """
+    Used to operate with JSON configurations.
+    Allows both read and write operations.
+    """
+
+    def set_value(self, property_name: str, value: Any):
+        """
+        Used to set json property in configuration.
+        """
+        self._data[property_name] = value
+        save_file(self._config_path, self._data, as_json=True)
+
+    def set(self, value: Any):
+        """
+        Used to set configuration.
+        This will fully replace existing configuration.
+        """
+        self._data = value
+        save_file(self._config_path, self._data, as_json=True)
+
+    def _before_file_open(self):
+
+        # Create any missing intermediate directories.
+        os.makedirs(os.path.dirname(self._config_path), exist_ok=True)
+
+        if not os.path.exists(self._config_path):
+            save_file(self._config_path, {}, as_json=True)
