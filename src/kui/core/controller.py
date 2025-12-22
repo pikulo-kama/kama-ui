@@ -1,11 +1,9 @@
-import logging
 from copy import deepcopy
 from typing import TYPE_CHECKING, List, Any, Final, Dict
 
 from PyQt6.QtCore import QThread
 from PyQt6.QtWidgets import QWidget
 
-from kui.core.app import KamaApplication
 from kui.core.component import KamaComponent, KamaComponentMixin
 from kui.core.provider import MetadataRequest, Operand, Section, ControllerSectionsRequest
 from kui.util.thread import execute_in_blocking_thread
@@ -16,43 +14,27 @@ from kutil.logger import get_logger
 from kutil.reflection import get_members, get_methods
 
 if TYPE_CHECKING:
+    from kui.core.app import KamaApplication
     from kui.core.manager import WidgetManager
 
 _logger = get_logger(__name__)
 
 
-def load_controllers(manager: "WidgetManager"):
-    """
-    Scans the package for WidgetController subclasses and initializes them.
+class ControllerRegistry:
 
-    This function excludes the base TemplateWidgetController to ensure only concrete
-    implementations are loaded into the application context.
+    def __init__(self, application: "KamaApplication"):
+        self.__app = application
+        self.__packages = []
 
-    Args:
-        manager (WidgetManager): The global widget manager instance.
+    @property
+    def controllers(self):
+        for package in self.__packages:
+            for member_name, member in get_members(package, WidgetController):
+                yield member_name, member
 
-    Returns:
-        dict: A mapping of controller names to initialized WidgetController instances.
-    """
-
-    controller_map = {}
-
-    for member_name, member in get_members(__package__, WidgetController):
-
-        # Don't include base template controller
-        # since it is not concrete implementation.
-        if member == TemplateWidgetController:
-            continue
-
-        controller: WidgetController = member(manager)
-        controller.load_sections()
-
-        controller_map[member_name] = controller
-
-    if _logger.isEnabledFor(logging.DEBUG):
-        _logger.debug("Controllers have been loaded: %s", ", ".join(controller_map.keys()))
-
-    return controller_map
+    def add_package(self, package_name: str):
+        for member_name, member in get_members(package_name, WidgetController):
+            self.__app.window.manager.add_controller(member_name, member)
 
 
 class WidgetController:
@@ -294,13 +276,13 @@ class TemplateWidgetController(WidgetController):
         for metadata in footer_segments.values():
             self.manager.build(metadata)
 
-    def _get_data(self) -> list[Any]:
+    def _get_data(self) -> list[Any]:  # noqa
         """
         Retrieves the dataset used to populate the template.
         """
         return []
 
-    def resolve(self, element: Any, value: str, *args, **kw):
+    def resolve(self, element: Any, value: str, *args, **kw):  # noqa
         """
         Logic for resolving template-specific tokens based on the current data element.
         """

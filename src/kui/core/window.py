@@ -41,6 +41,10 @@ class KamaWindow(QMainWindow):
         self.__is_initialized = False
 
     @property
+    def manager(self):
+        return self.__manager
+
+    @property
     def root(self):
         """
         Central window widget.

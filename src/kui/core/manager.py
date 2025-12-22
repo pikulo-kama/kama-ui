@@ -13,8 +13,9 @@ from kui.component.tab_bar import KamaTabBar
 from kui.component.toggle import KamaToggle
 from kui.component.wait_bar import KamaWaitBar
 from kui.component.widget import KamaWidget
+from kui.core.app import KamaApplication
 from kui.core.component import KamaComponent, KamaComponentMixin, KamaLayout
-from kui.core.controller import load_controllers, WidgetController
+from kui.core.controller import WidgetController
 from kui.component.layout import KamaVBoxLayout, KamaHBoxLayout, KamaGridLayout
 from kui.command.build import WidgetBuildCommand
 from kui.command.delete import WidgetDeleteCommand
@@ -164,7 +165,7 @@ class WidgetManager:
         self.__widget_types: dict[str, WidgetType] = {}
         self.__layout_types: dict[str, UIObjectType] = {}
         self.__widgets: dict[str, KamaComponent] = {}
-        self.__controllers: dict[str, WidgetController] = load_controllers(self)
+        self.__controllers: dict[str, WidgetController] = {}
 
         self.__initialize_manager()
 
@@ -384,3 +385,20 @@ class WidgetManager:
 
         self.execute(AddWidgetTypeCommand(widget_types))
         self.execute(AddLayoutTypeCommand(layout_types))
+
+    def add_controller(self, name: str, controller_type: Type):
+        controller: "WidgetController" = controller_type(self)
+        controller.load_sections()
+
+        self.__controllers[name] = controller
+
+    def load_controllers(self):
+
+        registry = KamaApplication.instance().controller_registry
+
+        for member_name, member in registry.controllers:
+
+            controller: "WidgetController" = member(self)
+            controller.load_sections()
+
+            self.__controllers[member_name] = controller
