@@ -3,7 +3,7 @@ import sys
 from kui.core.constants import Directory
 
 
-def get_project_root_package(package: str) -> str:
+def get_project_root_package(target_package: str = None) -> str:
     """
     Returns the name of the package where the main script is located.
     If run as 'python -m savegem.app.main', it returns 'savegem.app'.
@@ -16,7 +16,10 @@ def get_project_root_package(package: str) -> str:
     if main_module and hasattr(main_module, '__package__') and main_module.__package__:
         start_package = main_module.__package__
 
-    return f"{start_package}.{package}"
+    if target_package is None:
+        return start_package
+
+    return f"{start_package}.{target_package}"
 
 
 def resolve_config(config_name: str):

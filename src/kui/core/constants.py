@@ -1,5 +1,6 @@
 import os
 from typing import Final
+from kutil.file import get_runtime_root
 
 
 """
@@ -29,7 +30,7 @@ class Directory:
 
     @property
     def ProjectRoot(self):  # noqa
-        return os.path.dirname(os.path.abspath(__file__))
+        return os.path.dirname(get_runtime_root())
 
     @property
     def Config(self):  # noqa

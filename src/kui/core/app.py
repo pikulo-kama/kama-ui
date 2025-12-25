@@ -17,43 +17,55 @@ from kui.util.file import resolve_config, resolve_resource, resolve_temp_resourc
 
 
 def window():
-    return KamaApplication.instance().window
+    return KamaApplication().window
 
 
 def tr(text_resource_key: str, *args):
-    text_resources = KamaApplication.instance().text_resources
+    text_resources = KamaApplication().text_resources
     return text_resources.get(text_resource_key, *args)
 
 
 def holder():
-    return KamaApplication.instance().data
+    return KamaApplication().data
 
 
 def prop(property_name: str):
-    return KamaApplication.instance().config_property(property_name)
+    return KamaApplication().config_property(property_name)
+
 
 def style():
-    return KamaApplication.instance().style_builder
+    return KamaApplication().style_builder
 
 
-class KamaApplication:
+class SingletonMeta(type):
+    """
+    The Singleton class can be implemented in different ways in Python. Some
+    possible methods include: base class, decorator, metaclass. We will use the
+    metaclass because it is best suited for this purpose.
+    """
 
-    __instance: "KamaApplication"
+    _instances = {}
 
-    def __new__(cls, *args, **kwargs):
-        if cls.__instance is None:
-            cls._instance = super().__new__(cls)
+    def __call__(cls, *args, **kwargs):
+        """
+        Possible changes to the value of the `__init__` argument do not affect
+        the returned instance.
+        """
+        if cls not in cls._instances:
+            instance = super().__call__(*args, **kwargs)
+            cls._instances[cls] = instance
+        return cls._instances[cls]
 
-        return cls.__instance
+class KamaApplication(metaclass=SingletonMeta):
 
     def __init__(self):
         self.__application = QApplication(sys.argv)
+        self.__config = JsonConfigHolder(resolve_config("app"))
         self.__style_builder = StyleBuilder()
-        self.__window = KamaWindow(self)
         self.__startup_job = StartupJob(self)
+        self.__window = KamaWindow(self)
         self.__text_resources = TextResourceManager()
         self.__data_holder = DataHolder()
-        self.__config = JsonConfigHolder(resolve_config("app"))
         self.__dynamic_resources: list[DynamicResource] = []
         self.__color_mode = None
 
@@ -62,10 +74,6 @@ class KamaApplication:
 
         self.__fonts: dict[str, KamaFont] = {}
         self.__colors: dict[str, KamaComposedColor] = {}
-
-    @classmethod
-    def instance(cls):
-        return cls.__instance
 
     @property
     def color_mode(self):
