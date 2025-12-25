@@ -11,30 +11,13 @@ from kui.core.metadata import WidgetMetadata
 from kui.core.resolver import ContentResolver
 from kui.core.worker import KamaWorker
 from kutil.logger import get_logger
-from kutil.reflection import get_members, get_methods
+from kutil.reflection import get_methods
 
 if TYPE_CHECKING:
     from kui.core.app import KamaApplication
     from kui.core.manager import WidgetManager
 
 _logger = get_logger(__name__)
-
-
-class ControllerRegistry:
-
-    def __init__(self, application: "KamaApplication"):
-        self.__app = application
-        self.__packages = []
-
-    @property
-    def controllers(self):
-        for package in self.__packages:
-            for member_name, member in get_members(package, WidgetController):
-                yield member_name, member
-
-    def add_package(self, package_name: str):
-        for member_name, member in get_members(package_name, WidgetController):
-            self.__app.window.manager.add_controller(member_name, member)
 
 
 class WidgetController:

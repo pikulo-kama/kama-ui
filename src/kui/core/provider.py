@@ -1,16 +1,17 @@
 import dataclasses
-import enum
-
-from kui.core.controller import WidgetController
+from enum import Enum, auto
+from typing import TYPE_CHECKING
 from kui.core.metadata import WidgetMetadata
 
+if TYPE_CHECKING:
+    from kui.core.controller import WidgetController
 
-@enum.Enum
-class Operand:
-    EQ = enum.auto()
-    NE = enum.auto()
-    GT = enum.auto()
-    LT = enum.auto()
+
+class Operand(Enum):
+    EQ = auto()
+    NE = auto()
+    GT = auto()
+    LT = auto()
 
 
 @dataclasses.dataclass
@@ -22,7 +23,7 @@ class MetadataRequest:
 
 @dataclasses.dataclass
 class ControllerSectionsRequest:
-    controller: WidgetController
+    controller: "WidgetController"
 
 
 @dataclasses.dataclass

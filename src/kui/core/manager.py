@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING, Callable, Type
 
+from kutil.reflection import get_members
+
 from kui.command.type import AddWidgetTypeCommand, AddLayoutTypeCommand
 from kui.component.button import KamaPushButton
 from kui.component.combobox import KamaComboBox
@@ -13,7 +15,6 @@ from kui.component.tab_bar import KamaTabBar
 from kui.component.toggle import KamaToggle
 from kui.component.wait_bar import KamaWaitBar
 from kui.component.widget import KamaWidget
-from kui.core.app import KamaApplication
 from kui.core.component import KamaComponent, KamaComponentMixin, KamaLayout
 from kui.core.controller import WidgetController
 from kui.component.layout import KamaVBoxLayout, KamaHBoxLayout, KamaGridLayout
@@ -26,6 +27,7 @@ from kui.core.metadata import WidgetMetadata
 from kutil.logger import get_logger
 
 from kui.dto.type import WidgetType, UIObjectType
+from kui.util.file import get_project_root_package
 
 if TYPE_CHECKING:
     from kui.core.window import KamaWindow
@@ -386,18 +388,10 @@ class WidgetManager:
         self.execute(AddWidgetTypeCommand(widget_types))
         self.execute(AddLayoutTypeCommand(layout_types))
 
-    def add_controller(self, name: str, controller_type: Type):
-        controller: "WidgetController" = controller_type(self)
-        controller.load_sections()
-
-        self.__controllers[name] = controller
-
     def load_controllers(self):
+        controllers_package_name = get_project_root_package("controller")
 
-        registry = KamaApplication.instance().controller_registry
-
-        for member_name, member in registry.controllers:
-
+        for member_name, member in get_members(controllers_package_name, WidgetController):
             controller: "WidgetController" = member(self)
             controller.load_sections()
 

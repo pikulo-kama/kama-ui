@@ -4,7 +4,6 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QApplication
 from kutil.file import read_file, save_file
 
-from kui.core.controller import ControllerRegistry
 from kui.core.holder import DataHolder
 from kui.core.json_holder import JsonConfigHolder
 from kui.core.provider import MetadataProvider, ControllerSectionProvider
@@ -50,7 +49,6 @@ class KamaApplication:
     def __init__(self):
         self.__application = QApplication(sys.argv)
         self.__style_builder = StyleBuilder()
-        self.__controller_registry = ControllerRegistry(self)
         self.__window = KamaWindow(self)
         self.__startup_job = StartupJob(self)
         self.__text_resources = TextResourceManager()
@@ -68,10 +66,6 @@ class KamaApplication:
     @classmethod
     def instance(cls):
         return cls.__instance
-
-    @property
-    def controller_registry(self):
-        return self.__controller_registry
 
     @property
     def color_mode(self):

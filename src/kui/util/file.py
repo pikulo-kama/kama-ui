@@ -1,6 +1,22 @@
 import os
-
+import sys
 from kui.core.constants import Directory
+
+
+def get_project_root_package(package: str) -> str:
+    """
+    Returns the name of the package where the main script is located.
+    If run as 'python -m savegem.app.main', it returns 'savegem.app'.
+    """
+
+    # Look at the __main__ module (the script that started the execution)
+    start_package = "standalone"
+    main_module = sys.modules.get('__main__')
+
+    if main_module and hasattr(main_module, '__package__') and main_module.__package__:
+        start_package = main_module.__package__
+
+    return f"{start_package}.{package}"
 
 
 def resolve_config(config_name: str):

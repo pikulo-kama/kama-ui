@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, TYPE_CHECKING
 
 from PyQt6.QtCore import pyqtSignal, QSettings
 from PyQt6.QtGui import QCloseEvent
@@ -6,9 +6,11 @@ from PyQt6.QtWidgets import QMainWindow, QApplication, QWidget, QHBoxLayout
 from kutil.logger import get_logger
 
 from kui.command.build import WidgetSectionBuildCommand
-from kui.core.app import KamaApplication
 from kui.core.constants import Directory
 from kui.core.manager import WidgetManager
+
+if TYPE_CHECKING:
+    from kui.core.app import KamaApplication
 
 _logger = get_logger(__name__)
 
@@ -21,7 +23,7 @@ class KamaWindow(QMainWindow):
     before_destroy = pyqtSignal()
     after_init = pyqtSignal()
 
-    def __init__(self, application: KamaApplication):
+    def __init__(self, application: "KamaApplication"):
         super().__init__()
 
         self.__application = application
