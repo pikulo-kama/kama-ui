@@ -4,7 +4,6 @@ from typing import Optional
 
 from PyQt6.QtCore import Qt
 
-from kui.core.app import style
 from kui.core.resolver import ContentResolver
 from kui.dto.type import WidgetType, UIObjectType
 from kutil.logger import get_logger
@@ -82,7 +81,7 @@ class WidgetMetadata:
         self.__alignment = alignment
         self.__content = content
         self.__tooltip = tooltip
-        self.__stylesheet = style().resolve(stylesheet)
+        self.__stylesheet = stylesheet
         self.__properties = properties or {}
         self.__refresh_events = refresh_events or []
         self.__refresh_event_meta = refresh_events_meta or {}

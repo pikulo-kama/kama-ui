@@ -10,7 +10,7 @@ from kui.core.json_holder import JsonConfigHolder
 from kui.core.provider import MetadataProvider, ControllerSectionProvider
 from kui.core.startup import StartupJob, KamaStartupWorker
 from kui.core.style import ColorMode, StyleBuilder
-from kui.core.text_resource import TextResourceHolder
+from kamatr.manager import TextResourceManager
 from kui.core.window import KamaWindow
 from kui.dto.style import KamaFont, KamaComposedColor
 from kui.dto.type import DynamicResource
@@ -53,7 +53,7 @@ class KamaApplication:
         self.__controller_registry = ControllerRegistry(self)
         self.__window = KamaWindow(self)
         self.__startup_job = StartupJob(self)
-        self.__text_resources = TextResourceHolder()
+        self.__text_resources = TextResourceManager()
         self.__data_holder = DataHolder()
         self.__config = JsonConfigHolder(resolve_config("app"))
         self.__dynamic_resources: list[DynamicResource] = []
@@ -120,7 +120,7 @@ class KamaApplication:
         return self.__style_builder
 
     @property
-    def text_resources(self) -> TextResourceHolder:
+    def text_resources(self) -> TextResourceManager:
         return self.__text_resources
 
     @property

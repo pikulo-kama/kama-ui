@@ -8,7 +8,7 @@ from kui.core.resolver import resolve_content
 from kutil.logger import get_logger
 
 if TYPE_CHECKING:
-    from kui.core.app import KamaApplication
+    from kui.core.app import KamaApplication, style
     from kui.core.manager import ManagerContext
 
 
@@ -97,8 +97,9 @@ class WidgetBuildCommand(WidgetCommand):
             widget.setProperty(key, value)
 
         if len(meta.stylesheet) > 0:
-            _logger.debug("stylesheet=%s", meta.stylesheet)
-            widget.setStyleSheet(meta.stylesheet)
+            stylesheet = style().resolve(meta.stylesheet)
+            _logger.debug("stylesheet=%s", stylesheet)
+            widget.setStyleSheet(stylesheet)
 
         if meta.width:
             _logger.debug("width=%d", meta.width)

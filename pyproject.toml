@@ -8,8 +8,8 @@ classifiers = [
 ]
 version = "0.1.0"
 dependencies = [
-    "kama-util @ git+https://github.com/pikulo-kama/kama-util.git@v0.1.2",
-    "kama-db @ git+https://github.com/pikulo-kama/kama-db.git@v0.1.0",
+    "kama-util @ git+https://github.com/pikulo-kama/kama-util.git",
+    "kama-tr @ git+https://github.com/pikulo-kama/kama-tr.git",
     "PyQt6 >= 6.10.0, < 7.0.0",
     "pyqt6-sip >= 13.10.2, < 14.0.0",
 ]
