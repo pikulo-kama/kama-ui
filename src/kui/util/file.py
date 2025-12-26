@@ -1,21 +1,21 @@
 import os
 import sys
 from importlib import resources
+from pathlib import Path
+
 from kui.core.constants import Directory
 
 
-def get_project_root_package(target_package: str = None) -> str:
+def resolve_root_package(*package_list: str) -> str:
     """
     Returns the name of the package where the main script is located.
     If run as 'python -m savegem.app.main', it returns 'savegem.app'.
     """
 
-    root_package = _get_root_package()
+    package_list = list(package_list)
+    package_list.insert(0, get_root_package())
 
-    if root_package is None:
-        return "standalone"
-
-    return f"{root_package}.{target_package}"
+    return ".".join(package_list)
 
 
 def resolve_config(config_name: str):
@@ -53,7 +53,7 @@ def resolve_temp_resource(file_name: str):
 
 
 def resolve_application_data(file_name: str):
-    package_path = str(resources.files(_get_root_package()))
+    package_path = str(resources.files(get_root_package()))
     return os.path.join(package_path, file_name)
 
 
@@ -84,11 +84,29 @@ def resolve_project_data(file_name: str):
     """
     return os.path.join(Directory().ProjectRoot, file_name)
 
+def get_entrypoint_path():
+    if getattr(sys, 'frozen', False):
+        return Path(sys.executable).resolve()
 
-def _get_root_package():
+    # Fallback to sys.argv[0] if __main__ lacks __file__
+    main_module = sys.modules.get("__main__")
+    main_file = getattr(main_module, "__file__", sys.argv[0])
+
+    return Path(main_file).resolve()
+
+def get_root_package():
     main_module = sys.modules.get('__main__')
+    root_package = getattr(main_module, "__package__", "")
 
-    if main_module and hasattr(main_module, '__package__') and main_module.__package__:
-        return main_module.__package__
+    if len(root_package) > 0:
+        return root_package
 
-    return None
+    parts = []
+    entry_path = get_entrypoint_path()
+    current = entry_path.parent
+
+    while (current / "__init__.py").exists():
+        parts.append(current.name)
+        current = current.parent
+
+    return ".".join(reversed(parts))

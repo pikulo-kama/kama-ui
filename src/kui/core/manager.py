@@ -27,7 +27,7 @@ from kui.core.metadata import WidgetMetadata
 from kutil.logger import get_logger
 
 from kui.dto.type import WidgetType, UIObjectType
-from kui.util.file import get_project_root_package
+from kui.util.file import resolve_root_package
 
 if TYPE_CHECKING:
     from kui.core.window import KamaWindow
@@ -389,7 +389,7 @@ class WidgetManager:
         self.execute(AddLayoutTypeCommand(layout_types))
 
     def load_controllers(self):
-        controllers_package_name = get_project_root_package("controller")
+        controllers_package_name = resolve_root_package("controller")
 
         for member_name, member in get_members(controllers_package_name, WidgetController):
             controller: "WidgetController" = member(self)
