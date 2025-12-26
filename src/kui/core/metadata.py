@@ -9,6 +9,15 @@ from kutil.logger import get_logger
 
 
 _logger = get_logger(__name__)
+_alignment_map = {
+    "left": Qt.AlignmentFlag.AlignLeft,
+    "top": Qt.AlignmentFlag.AlignTop,
+    "center": Qt.AlignmentFlag.AlignCenter,
+    "hcenter": Qt.AlignmentFlag.AlignHCenter,
+    "vcenter": Qt.AlignmentFlag.AlignVCenter,
+    "right": Qt.AlignmentFlag.AlignRight,
+    "bottom": Qt.AlignmentFlag.AlignBottom
+}
 
 
 @dataclass
@@ -48,6 +57,7 @@ class WidgetMetadata:
                  margin_bottom: int = None,
                  style_object_name: str = None,
                  alignment: Qt.AlignmentFlag = Qt.AlignmentFlag(0),
+                 alignment_string: str = None,
                  content: str = None,
                  tooltip: str = None,
                  stylesheet: str = "",
@@ -78,7 +88,7 @@ class WidgetMetadata:
         self.__margin_top = margin_top or 0
         self.__margin_right = margin_right or 0
         self.__margin_bottom = margin_bottom or 0
-        self.__alignment = alignment
+        self.__alignment = alignment or self.__parse_alignment(alignment_string)
         self.__content = content
         self.__tooltip = tooltip
         self.__stylesheet = stylesheet
@@ -396,3 +406,19 @@ class WidgetMetadata:
 
                 _logger.debug("%s=%s", name, value)
                 self.__properties[name] = value
+
+    @staticmethod
+    def __parse_alignment(alignment: str) -> Qt.AlignmentFlag:
+        """
+        Converts a hyphen-separated alignment string into Qt AlignmentFlags.
+        """
+
+        alignment_prop = Qt.AlignmentFlag(0)
+
+        if alignment is None:
+            return alignment_prop
+
+        for part in alignment.split("-"):
+            alignment_prop |= _alignment_map.get(part)
+
+        return alignment_prop
