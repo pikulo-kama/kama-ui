@@ -29,8 +29,8 @@ class KamaWindow(QMainWindow):
         self.__application = application
         self.__manager = WidgetManager(self)
         self.__settings = QSettings(
-            application.config_property("author"),
-            application.config_property("name")
+            application.config.get("author"),
+            application.config.get("name")
         )
 
         self.__root = QWidget()
@@ -76,7 +76,7 @@ class KamaWindow(QMainWindow):
 
         title = self.__application.text_resources.get(
             "window_Title",
-            self.__application.config_property("name")
+            self.__application.config.get("name", "Kama Application")
         )
         self.setWindowTitle(title)
         _logger.info("Building UI using section '%s'.", section)
@@ -99,7 +99,7 @@ class KamaWindow(QMainWindow):
         self.__manager.event_refresh(event)
         title = self.__application.text_resources.get(
             "window_Title",
-            self.__application.config_property("name")
+            self.__application.config.get("name", "Kama Application")
         )
         self.setWindowTitle(title)
 
@@ -171,11 +171,11 @@ class KamaWindow(QMainWindow):
         screen_width = QApplication.primaryScreen().size().width()
         screen_height = QApplication.primaryScreen().size().height()
 
-        min_window_width = self.__application.config_property("minWindowWidth")
-        min_window_height = self.__application.config_property("minWindowHeight")
+        min_window_width = self.__application.config.get("minWindowWidth", 0)
+        min_window_height = self.__application.config.get("minWindowHeight", 0)
 
-        window_width = self.__application.config_property("windowWidth")
-        window_height = self.__application.config_property("windowHeight")
+        window_width = self.__application.config.get("windowWidth", 1920)
+        window_height = self.__application.config.get("windowHeight", 1080)
 
         user_screen_width = self.__settings.value("windowWidth", window_width)
         user_screen_height = self.__settings.value("windowHeight", window_height)

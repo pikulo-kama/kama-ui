@@ -3,10 +3,10 @@ from importlib.metadata import entry_points
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QApplication
+from kui.core.yaml_holder import ApplicationConfig
 from kutil.file import read_file, save_file
 
 from kui.core.holder import DataHolder
-from kui.core.json_holder import JsonConfigHolder
 from kui.core.provider import MetadataProvider, ControllerSectionProvider, JsonControllerSectionProvider, \
     JsonMetadataProvider
 from kui.core.startup import StartupJob, KamaStartupWorker
@@ -15,7 +15,7 @@ from kamatr.manager import TextResourceManager
 from kui.core.window import KamaWindow
 from kui.dto.style import KamaFont, KamaComposedColor
 from kui.dto.type import DynamicResource
-from kui.util.file import resolve_config, resolve_resource, resolve_temp_resource
+from kui.util.file import resolve_resource, resolve_temp_resource, resolve_application_data
 
 
 def window():
@@ -32,7 +32,7 @@ def holder():
 
 
 def prop(property_name: str):
-    return KamaApplication().config_property(property_name)
+    return KamaApplication().config.get(property_name)
 
 
 def style():
@@ -63,7 +63,7 @@ class KamaApplication(metaclass=SingletonMeta):
 
     def __init__(self):
         self.__application = QApplication(sys.argv)
-        self.__config = JsonConfigHolder(resolve_config("app"))
+        self.__config = ApplicationConfig(resolve_application_data("kamaconfig.yaml"))
         self.__style_builder = StyleBuilder()
         self.__startup_job = StartupJob(self)
         self.__window = KamaWindow(self)
@@ -146,18 +146,9 @@ class KamaApplication(metaclass=SingletonMeta):
 
         return self.__application.exec()
 
-    def config_property(self, property_name: str):
-        """
-        Used to get property value from main configuration file (config/app.json)
-        """
-
-        parts = property_name.split(".")
-        value = self.__config.get_value(parts.pop(0), {})
-
-        for property_part in parts:
-            value = value.get(property_part, {})
-
-        return value
+    @property
+    def config(self):
+        return self.__config
 
     def add_font(self, font: KamaFont):
         self.__fonts[font.font_code] = font

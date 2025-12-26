@@ -1,5 +1,6 @@
 import os
 import sys
+from importlib import resources
 from kui.core.constants import Directory
 
 
@@ -9,17 +10,12 @@ def get_project_root_package(target_package: str = None) -> str:
     If run as 'python -m savegem.app.main', it returns 'savegem.app'.
     """
 
-    # Look at the __main__ module (the script that started the execution)
-    start_package = "standalone"
-    main_module = sys.modules.get('__main__')
+    root_package = _get_root_package()
 
-    if main_module and hasattr(main_module, '__package__') and main_module.__package__:
-        start_package = main_module.__package__
+    if root_package is None:
+        return "standalone"
 
-    if target_package is None:
-        return start_package
-
-    return f"{start_package}.{target_package}"
+    return f"{root_package}.{target_package}"
 
 
 def resolve_config(config_name: str):
@@ -56,6 +52,11 @@ def resolve_temp_resource(file_name: str):
     return os.path.join(Directory().TempResources, file_name)
 
 
+def resolve_application_data(file_name: str):
+    package_path = str(resources.files(_get_root_package()))
+    return os.path.join(package_path, file_name)
+
+
 def resolve_app_data(file_name: str):
     """
     Used to resolve file in '{APP_DATA}' directory.
@@ -82,3 +83,12 @@ def resolve_project_data(file_name: str):
     Used to resolve file in '{PROJECT_ROOT}' directory.
     """
     return os.path.join(Directory().ProjectRoot, file_name)
+
+
+def _get_root_package():
+    main_module = sys.modules.get('__main__')
+
+    if main_module and hasattr(main_module, '__package__') and main_module.__package__:
+        return main_module.__package__
+
+    return None
