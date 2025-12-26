@@ -37,7 +37,6 @@ class WidgetMetadata:
                  layout_type: str = None,
                  grid_columns: int = None,
                  parent_widget_id: str = None,
-                 is_interactable: bool = False,
                  controller: str = None,
                  order_id: int = None,
                  spacing: int = None,
@@ -64,7 +63,7 @@ class WidgetMetadata:
         self.__section_id = section_id
         self.__parent_widget_id = parent_widget_id
         self.__parent: Optional[WidgetMetadata] = None
-        self.__is_interactable = is_interactable
+        self.__is_interactable = False
         self.__controller = controller
         self.__order_id = order_id or 0
 
@@ -182,6 +181,10 @@ class WidgetMetadata:
     @property
     def is_interactable(self):
         return self.__is_interactable
+
+    @is_interactable.setter
+    def is_interactable(self, interactable: bool):
+        self.__is_interactable = interactable
 
     @property
     def controller(self) -> str:

@@ -57,7 +57,9 @@ class WidgetBuildCommand(WidgetCommand):
         """
 
         widget_type = context.get_widget_type(meta.widget_type_name)
-        widget: KamaComponent = widget_type()
+        widget: KamaComponent = widget_type.type()
+
+        meta.is_interactable = widget_type.is_interactable
         widget.metadata = meta
 
         _logger.debug("Building widget %s", widget.metadata.name)
