@@ -1,6 +1,7 @@
 from typing import Any
 
 import yaml
+from kui.util.file import resolve_app_data
 
 
 class ApplicationConfig:
@@ -20,5 +21,19 @@ class ApplicationConfig:
 
         if value == {}:
             value = default_value
+
+        if isinstance(value, str):
+            value = self.__resolve_tokens(value)
+
+        return value
+
+    @staticmethod
+    def __resolve_tokens(value: str):
+
+        app_data_token = "AppData:"
+
+        if app_data_token in value:
+            path = value.replace(app_data_token, "")
+            value = resolve_app_data(path)
 
         return value

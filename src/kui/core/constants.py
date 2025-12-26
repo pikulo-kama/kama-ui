@@ -3,11 +3,11 @@ from typing import Final
 from kutil.file import get_runtime_root
 
 
+QBool: Final = lambda value: "true" if value else "false"
 """
 Used to transform regular boolean value
 into QSS compatible.
 """
-QBool: Final = lambda value: "true" if value else "false"
 
 
 class QAttr:
@@ -20,7 +20,6 @@ class QAttr:
     Kind: Final = "kind"
     Disabled: Final = "is-disabled"
     Hidden: Final = "hidden"
-
 
 
 class Directory:
@@ -73,6 +72,7 @@ class Directory:
     @property
     def Logback(self):  # noqa
         return os.path.join(self.AppDataRoot, "Logback")
+
 
 UTF_8: Final = "utf-8"
 SHA_256: Final = "sha256"
