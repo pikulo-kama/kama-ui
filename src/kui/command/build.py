@@ -41,10 +41,10 @@ class WidgetBuildCommand(WidgetCommand):
         """
 
         for meta in self.__metadata:
-            context.add_widget(self._build_widget(meta))
+            context.add_widget(self._build_widget(meta, context))
 
     @staticmethod
-    def _build_widget(meta: WidgetMetadata) -> KamaComponent:
+    def _build_widget(meta: WidgetMetadata, context: "ManagerContext") -> KamaComponent:
         """
         Constructs a single QCustomComponent instance and configures its
         visual and logical state based on the metadata row.
@@ -56,16 +56,18 @@ class WidgetBuildCommand(WidgetCommand):
             QCustomComponent: The fully configured widget instance.
         """
 
-        widget: KamaComponent = meta.widget_type.type()
+        widget_type = context.get_widget_type(meta.widget_type_name)
+        widget: KamaComponent = widget_type()
         widget.metadata = meta
 
         _logger.debug("Building widget %s", widget.metadata.name)
-        _logger.debug("type=%s", widget.metadata.widget_type.name)
+        _logger.debug("type=%s", widget.metadata.widget_type_name)
 
-        if meta.layout_type is not None:
-            _logger.debug("layout=%s", meta.layout_type.name)
+        if meta.layout_type_name is not None:
+            _logger.debug("layout=%s", meta.layout_type_name)
 
-            widget.setLayout(meta.layout_type.type())
+            layout_type = context.get_layout_type(meta.layout_type_name)
+            widget.setLayout(layout_type())
             widget.layout().setContentsMargins(
                 meta.margin_left,
                 meta.margin_top,

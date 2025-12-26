@@ -76,7 +76,7 @@ class ManagerContext:
     def get_widget_type(self, name: str):
         return self.__widget_types.get(name)
 
-    def get_layout_types(self, name: str):
+    def get_layout_type(self, name: str):
         return self.__widget_types.get(name)
 
     def add_widget_type(self, widget_type: WidgetType):

@@ -1,4 +1,5 @@
 import sys
+from importlib.metadata import entry_points
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QApplication
@@ -140,7 +141,7 @@ class KamaApplication(metaclass=SingletonMeta):
         return self.__window
 
     def exec(self):
-
+        self.__discover_plugins()
         self.__startup_job.start()
 
         return self.__application.exec()
@@ -169,6 +170,14 @@ class KamaApplication(metaclass=SingletonMeta):
 
     def add_startup_task(self, startup_task: KamaStartupWorker):
         self.__startup_job.add_task(startup_task)
+
+    @staticmethod
+    def __discover_plugins():
+        plugins = entry_points(group="kama_ui.plugins")
+
+        for plugin in plugins:
+            plugin_class = plugin.load()
+            print(plugin_class)
 
     def create_dynamic_resources(self):
         """

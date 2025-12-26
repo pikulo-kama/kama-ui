@@ -81,7 +81,7 @@ class KamaComponentMixin:
         _logger.debug("Enabling widget '%s'", self.metadata.name)
         self.__disabled = False
 
-        if self.metadata.widget_type.is_interactable:
+        if self.metadata.is_interactable:
             self.setEnabled(True)  # noqa
             self.setCursor(Qt.CursorShape.PointingHandCursor)  # noqa
 
@@ -96,7 +96,7 @@ class KamaComponentMixin:
         _logger.debug("Disabling widget '%s'", self.metadata.name)
         self.__disabled = True
 
-        if self.metadata.widget_type.is_interactable:
+        if self.metadata.is_interactable:
             self.setEnabled(False)  # noqa
             self.setCursor(QApplication.activeWindow().cursor())  # noqa
 
@@ -178,7 +178,7 @@ class KamaComponentMixin:
         Returns a string representation of the component for logging/debugging.
         """
 
-        type_name = self.metadata.widget_type.name
+        type_name = self.metadata.widget_type_name
         name = self.metadata.name
         order_id = self.metadata.order_id
         parent_name = self.metadata.parent_widget_name

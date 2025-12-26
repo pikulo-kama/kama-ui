@@ -5,7 +5,6 @@ from typing import Optional
 from PyQt6.QtCore import Qt
 
 from kui.core.resolver import ContentResolver
-from kui.dto.type import WidgetType, UIObjectType
 from kutil.logger import get_logger
 
 
@@ -34,10 +33,11 @@ class WidgetMetadata:
     def __init__(self,
                  widget_id: str,
                  section_id: str,
-                 widget_type: WidgetType,
-                 layout_type: UIObjectType = None,
+                 widget_type: str,
+                 layout_type: str = None,
                  grid_columns: int = None,
                  parent_widget_id: str = None,
+                 is_interactable: bool = False,
                  controller: str = None,
                  order_id: int = None,
                  spacing: int = None,
@@ -64,6 +64,7 @@ class WidgetMetadata:
         self.__section_id = section_id
         self.__parent_widget_id = parent_widget_id
         self.__parent: Optional[WidgetMetadata] = None
+        self.__is_interactable = is_interactable
         self.__controller = controller
         self.__order_id = order_id or 0
 
@@ -179,6 +180,10 @@ class WidgetMetadata:
         return f"{self.section_id}.{self.parent_widget_id}"
 
     @property
+    def is_interactable(self):
+        return self.__is_interactable
+
+    @property
     def controller(self) -> str:
         """
         Retrieves the name of the associated controller class.
@@ -220,14 +225,14 @@ class WidgetMetadata:
         self.__order_id = order_id
 
     @property
-    def widget_type(self) -> WidgetType:
+    def widget_type_name(self) -> str:
         """
         Retrieves the type metadata (e.g., QPushButton, QLabel).
         """
         return self.__widget_type
 
     @property
-    def layout_type(self) -> UIObjectType:
+    def layout_type_name(self) -> str:
         """
         Retrieves the layout metadata (e.g., QVBoxLayout).
         """
