@@ -5,7 +5,7 @@ from PyQt6.QtCore import QThread
 from PyQt6.QtWidgets import QWidget
 
 from kui.core.component import KamaComponent, KamaComponentMixin
-from kui.core.provider import MetadataRequest, Operand, Section, ControllerSectionsRequest
+from kui.core.provider import Section
 from kui.util.thread import execute_in_blocking_thread
 from kui.core.metadata import WidgetMetadata
 from kui.core.resolver import ContentResolver
@@ -55,8 +55,7 @@ class WidgetController:
         with this specific controller.
         """
 
-        request = ControllerSectionsRequest(self)
-        self.__sections = KamaApplication.instance().section_provider.provide(request)
+        self.__sections = KamaApplication().section_provider.provide(self)
 
         if not self.__sections.is_empty:
             _logger.info("Loaded %d section(s) for controller '%s'", len(self.__sections.rows), self.__class__.__name__)
@@ -295,8 +294,7 @@ class TemplateWidgetController(WidgetController):
         Groups metadata into logical segments based on their root ancestors.
         """
 
-        request = MetadataRequest("section_id", Operand.EQ, section_id)
-        metadata = KamaApplication.instance().metadata_provider.provide(request)
+        metadata = KamaApplication().metadata_provider.provide(section_id)
         grouped_widgets = {}
 
         for widget_meta in metadata:

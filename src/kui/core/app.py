@@ -6,7 +6,8 @@ from kutil.file import read_file, save_file
 
 from kui.core.holder import DataHolder
 from kui.core.json_holder import JsonConfigHolder
-from kui.core.provider import MetadataProvider, ControllerSectionProvider
+from kui.core.provider import MetadataProvider, ControllerSectionProvider, JsonControllerSectionProvider, \
+    JsonMetadataProvider
 from kui.core.startup import StartupJob, KamaStartupWorker
 from kui.core.style import ColorMode, StyleBuilder
 from kamatr.manager import TextResourceManager
@@ -54,6 +55,7 @@ class SingletonMeta(type):
         if cls not in cls._instances:
             instance = super().__call__(*args, **kwargs)
             cls._instances[cls] = instance
+
         return cls._instances[cls]
 
 class KamaApplication(metaclass=SingletonMeta):
@@ -69,8 +71,8 @@ class KamaApplication(metaclass=SingletonMeta):
         self.__dynamic_resources: list[DynamicResource] = []
         self.__color_mode = None
 
-        self.__metadata_provider = MetadataProvider()
-        self.__section_provider = ControllerSectionProvider()
+        self.__metadata_provider = JsonMetadataProvider()
+        self.__section_provider = JsonControllerSectionProvider()
 
         self.__fonts: dict[str, KamaFont] = {}
         self.__colors: dict[str, KamaComposedColor] = {}

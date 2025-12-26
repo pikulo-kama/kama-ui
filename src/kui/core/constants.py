@@ -30,7 +30,7 @@ class Directory:
 
     @property
     def ProjectRoot(self):  # noqa
-        return os.path.dirname(get_runtime_root())
+        return get_runtime_root()
 
     @property
     def Config(self):  # noqa

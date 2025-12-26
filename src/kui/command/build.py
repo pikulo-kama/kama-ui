@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING
 from kui.core.component import KamaComponent
 from kui.core.command import WidgetCommand
 from kui.core.metadata import WidgetMetadata
-from kui.core.provider import MetadataRequest, Operand
 from kui.core.resolver import resolve_content
 from kutil.logger import get_logger
 
@@ -123,7 +122,5 @@ class WidgetSectionBuildCommand(WidgetBuildCommand):
         Initializes the command by fetching all metadata for the requested section.
         """
 
-        request = MetadataRequest("section_id", Operand.EQ, section_id)
-        metadata = application.metadata_provider.provide(request)
-
+        metadata = application.metadata_provider.provide(section_id)
         super().__init__(metadata)
