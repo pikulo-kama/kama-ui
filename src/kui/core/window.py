@@ -5,7 +5,6 @@ from PyQt6.QtGui import QCloseEvent
 from PyQt6.QtWidgets import QMainWindow, QApplication, QWidget, QHBoxLayout
 from kutil.logger import get_logger
 
-from kui.command.build import WidgetSectionBuildCommand
 from kui.core.constants import Directory
 from kui.core.manager import WidgetManager
 
@@ -83,7 +82,7 @@ class KamaWindow(QMainWindow):
 
         self.reload_styles()
         self.__manager.delete()
-        self.__manager.execute(WidgetSectionBuildCommand(self.__application, section))
+        self.__manager.build_section(section)
         self.__manager.refresh()
         self.is_blocked = False
 
@@ -111,7 +110,7 @@ class KamaWindow(QMainWindow):
 
         _logger.debug("Presenting notification dialog with message %s", message)
         self.__application.data.add("dialogMessage", message)
-        self.__manager.execute(WidgetSectionBuildCommand(self.__application, "notification"))
+        self.__manager.build_section("notification")
 
     def confirmation(self, message: str, callback: Callable):
         """
@@ -123,7 +122,7 @@ class KamaWindow(QMainWindow):
         _logger.debug("Presenting confirmation dialog with message %s", message)
         self.__application.data.add("dialogMessage", message)
         self.__application.data.add("confirmationCallback", callback)
-        self.__manager.execute(WidgetSectionBuildCommand(self.__application, "confirmation"))
+        self.__manager.build_section("confirmation")
 
     @property
     def is_blocked(self):

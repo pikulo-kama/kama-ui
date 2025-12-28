@@ -1,11 +1,11 @@
 import re
-from dataclasses import dataclass
-from typing import Optional
-
 from PyQt6.QtCore import Qt
-
-from kui.core.resolver import ContentResolver
+from dataclasses import dataclass
+from typing import Optional, TYPE_CHECKING
 from kutil.logger import get_logger
+
+if TYPE_CHECKING:
+    from kui.core.resolver import ContentResolver
 
 
 _logger = get_logger(__name__)
@@ -95,7 +95,7 @@ class WidgetMetadata:
         self.__properties = properties or {}
         self.__refresh_events = refresh_events or []
         self.__refresh_event_meta = refresh_events_meta or {}
-        self.__resolvers: list[ContentResolver] = []
+        self.__resolvers: list["ContentResolver"] = []
 
         self.__object_name = None
         self.__parse_style_object_name(style_object_name)
@@ -197,7 +197,7 @@ class WidgetMetadata:
         return self.__controller
 
     @property
-    def resolvers(self) -> dict[str, ContentResolver]:
+    def resolvers(self) -> dict[str, "ContentResolver"]:
         """
         Returns a mapping of resolver names to instances associated with this widget.
         """
@@ -210,7 +210,7 @@ class WidgetMetadata:
 
         return resolvers
 
-    def add_resolver(self, resolver: ContentResolver):
+    def add_resolver(self, resolver: "ContentResolver"):
         """
         Registers a new content resolver for dynamic token resolution.
         """

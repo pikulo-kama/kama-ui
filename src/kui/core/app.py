@@ -73,6 +73,7 @@ class KamaApplication(metaclass=SingletonMeta):
         self.__data_holder = DataHolder()
         self.__dynamic_resources: list[DynamicResource] = []
         self.__color_mode = None
+        self.__locale = None
 
         self.__metadata_provider = JsonMetadataProvider()
         self.__section_provider = JsonControllerSectionProvider()
@@ -90,6 +91,14 @@ class KamaApplication(metaclass=SingletonMeta):
     @color_mode.setter
     def color_mode(self, color_mode: str):
         self.__color_mode = color_mode
+
+    @property
+    def locale(self):
+        return self.__locale or self.config.get("locale", "en_US")
+
+    @locale.setter
+    def locale(self, locale: str):
+        self.__locale = locale
 
     def get_color(self, color_code: str):
         color = self.__colors.get(color_code)
@@ -119,6 +128,10 @@ class KamaApplication(metaclass=SingletonMeta):
         self.__section_provider = section_provider
 
     @property
+    def discovery(self):
+        return self.__discovery
+
+    @property
     def fonts(self):
         return self.__fonts
 
@@ -129,6 +142,9 @@ class KamaApplication(metaclass=SingletonMeta):
     @property
     def text_resources(self) -> TextResourceManager:
         return self.__text_resources
+
+    def tr(self, text_resource_key: str, *args):
+        return self.text_resources.get(text_resource_key, args)
 
     @property
     def data(self) -> DataHolder:
