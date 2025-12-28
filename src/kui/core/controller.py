@@ -288,8 +288,7 @@ class TemplateWidgetController(WidgetController):
         Groups metadata into logical segments based on their root ancestors.
         """
 
-        metadata = KamaApplication().metadata_provider.provide(section_id)
-        self.__application.metadata_provider.provide(section_id)
+        metadata = self.__application.metadata_provider.provide(section_id)
         grouped_widgets = {}
 
         for widget_meta in metadata:

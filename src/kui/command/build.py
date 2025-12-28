@@ -6,7 +6,6 @@ from kui.core.metadata import WidgetMetadata
 from kutil.logger import get_logger
 
 if TYPE_CHECKING:
-    from kui.core.app import style
     from kui.core.manager import ManagerContext
 
 
@@ -42,8 +41,7 @@ class WidgetBuildCommand(WidgetCommand):
         for meta in self.__metadata:
             context.add_widget(self._build_widget(meta, context))
 
-    @staticmethod
-    def _build_widget(meta: WidgetMetadata, context: "ManagerContext") -> KamaComponent:
+    def _build_widget(self, meta: WidgetMetadata, context: "ManagerContext") -> KamaComponent:
         """
         Constructs a single QCustomComponent instance and configures its
         visual and logical state based on the metadata row.
@@ -99,7 +97,7 @@ class WidgetBuildCommand(WidgetCommand):
             widget.setProperty(key, value)
 
         if len(meta.stylesheet) > 0:
-            stylesheet = style().resolve(meta.stylesheet)
+            stylesheet = self.application.style_builder.resolve(meta.stylesheet)
             _logger.debug("stylesheet=%s", stylesheet)
             widget.setStyleSheet(stylesheet)
 

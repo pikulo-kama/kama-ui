@@ -188,6 +188,8 @@ class WidgetManager:
             self.__widget_types,
             self.__layout_types
         )
+
+        command.application = self.__application
         command.execute(context)
 
         # Add new widgets.
@@ -397,5 +399,5 @@ class WidgetManager:
     def load_controllers(self):
 
         for member_name, member in get_members(resolve_root_package("controller"), WidgetController):
-            controller: "WidgetController" = member(self)
+            controller: "WidgetController" = member(self.__application, self)
             self.__controllers[member_name] = controller

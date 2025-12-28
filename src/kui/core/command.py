@@ -1,6 +1,7 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
+    from kui.core.app import KamaApplication
     from kui.core.component import KamaComponentMixin
     from kui.core.manager import ManagerContext, WidgetFilter
 
@@ -13,6 +14,17 @@ class WidgetCommand:
     This follows the Command pattern, encapsulating all information needed
     to perform an action on a set of UI components within a given context.
     """
+
+    def __init__(self):
+        self.__application: Optional["KamaApplication"] = None
+
+    @property
+    def application(self) -> "KamaApplication":
+        return self.__application
+
+    @application.setter
+    def application(self, application: "KamaApplication"):
+        self.__application = application
 
     def execute(self, context: "ManagerContext"):  # pragma: no cover
         """
@@ -41,6 +53,8 @@ class FilterWidgetCommand(WidgetCommand):
             widget_filter: A callable or filter object used to
                            validate widget metadata.
         """
+
+        super().__init__()
         self.__widget_filter = widget_filter
 
     def _is_applicable(self, widget: "KamaComponentMixin"):
