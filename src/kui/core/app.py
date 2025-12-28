@@ -169,6 +169,7 @@ class KamaApplication(metaclass=SingletonMeta):
 
     def exec(self):
         self.__discover_plugins()
+        self.__window.manager.load_controllers()
         self.__collect_startup_tasks()
         self.__startup_job.start()
 

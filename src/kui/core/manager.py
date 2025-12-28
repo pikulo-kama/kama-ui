@@ -395,9 +395,8 @@ class WidgetManager:
         self.execute(AddLayoutTypeCommand(layout_types))
 
     def load_controllers(self):
-        controllers_package_name = resolve_root_package("controller")
 
-        for member_name, member in get_members(controllers_package_name, WidgetController):
+        for member_name, member in get_members(resolve_root_package("controller"), WidgetController):
             controller: "WidgetController" = member(self)
             controller.load_sections()
 
