@@ -1,3 +1,4 @@
+from kui.util.file import resolve_application_data
 from kutil.logger import get_logger
 from kutil.reflection import get_members
 from kui.core.resolver import ContentResolver
@@ -23,7 +24,11 @@ def get_core_resolvers():
 
     if len(__resolvers) == 0:
         for member_name, member in get_members(__package__, ContentResolver):
-            _logger.debug("Loading content resolver with name %s", member_name)
+            _logger.debug("Loading core content resolver with name %s", member_name)
+            __resolvers[member_name.lower()] = member()
+
+        for member_name, member in get_members(resolve_application_data("resolver"), ContentResolver):
+            _logger.debug("Loading custom content resolver with name %s", member_name)
             __resolvers[member_name.lower()] = member()
 
     return __resolvers

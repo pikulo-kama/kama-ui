@@ -96,9 +96,9 @@ def get_entrypoint_path():
 
 def get_root_package():
     main_module = sys.modules.get('__main__')
-    root_package = getattr(main_module, "__package__", "")
+    root_package = getattr(main_module, "__package__")
 
-    if len(root_package) > 0:
+    if root_package:
         return root_package
 
     parts = []

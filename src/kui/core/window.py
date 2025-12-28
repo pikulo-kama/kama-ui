@@ -27,7 +27,7 @@ class KamaWindow(QMainWindow):
         super().__init__()
 
         self.__application = application
-        self.__manager = WidgetManager(self)
+        self.__manager = WidgetManager(application, self)
         self.__settings = QSettings(
             application.config.get("author"),
             application.config.get("name")

@@ -31,6 +31,7 @@ from kui.util.file import resolve_root_package
 
 if TYPE_CHECKING:
     from kui.core.window import KamaWindow
+    from kui.core.app import KamaApplication
     from kui.core.command import WidgetCommand
 
 _logger = get_logger(__name__)
@@ -155,7 +156,7 @@ class WidgetManager:
     Manages the lifecycle, rendering, and controller invocation for all GUI widgets.
     """
 
-    def __init__(self, window: "KamaWindow"):
+    def __init__(self, application: "KamaApplication", window: "KamaWindow"):
         """
         Initializes the manager and loads the widget controllers.
 
@@ -163,6 +164,7 @@ class WidgetManager:
             window: Reference to the main GUI application.
         """
 
+        self.__application = application
         self.__window = window
         self.__widget_types: dict[str, WidgetType] = {}
         self.__layout_types: dict[str, UIObjectType] = {}
@@ -209,6 +211,10 @@ class WidgetManager:
             metadata: Metadata defining the widgets to build.
         """
         self.execute(WidgetBuildCommand(metadata))
+
+    def build_section(self, section_id: str):
+        metadata = self.__application.metadata_provider.provide(section_id)
+        self.build(metadata)
 
     def refresh(self, widget_filter: WidgetFilter = None):
         """

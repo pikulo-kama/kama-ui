@@ -1,10 +1,12 @@
 import re
+
+from kui.resolver import get_core_resolvers
 from kutil.logger import get_logger
 
 _logger = get_logger(__name__)
 
 
-def resolve_content(content: str, resolvers: dict[str, "ContentResolver"]):
+def resolve_content(content: str, resolvers: dict[str, "ContentResolver"] = None):
     """
     Recursively resolves special tokens within a string and returns the final
     object or formatted string.
@@ -22,6 +24,9 @@ def resolve_content(content: str, resolvers: dict[str, "ContentResolver"]):
         Any: The fully resolved content, which could be a string, QPixmap,
              or other object types.
     """
+
+    if resolvers is None:
+        resolvers = get_core_resolvers()
 
     while True:
 

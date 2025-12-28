@@ -6,7 +6,7 @@ from kui.core.metadata import WidgetMetadata
 from kutil.logger import get_logger
 
 if TYPE_CHECKING:
-    from kui.core.app import KamaApplication, style
+    from kui.core.app import style
     from kui.core.manager import ManagerContext
 
 
@@ -112,18 +112,3 @@ class WidgetBuildCommand(WidgetCommand):
             widget.setFixedHeight(meta.height)
 
         return widget
-
-
-class WidgetSectionBuildCommand(WidgetBuildCommand):
-    """
-    A specialized build command that targets all widgets within a specific
-    UI section by querying the database.
-    """
-
-    def __init__(self, application: "KamaApplication", section_id: str):
-        """
-        Initializes the command by fetching all metadata for the requested section.
-        """
-
-        metadata = application.metadata_provider.provide(section_id)
-        super().__init__(metadata)
