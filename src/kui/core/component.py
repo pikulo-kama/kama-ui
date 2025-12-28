@@ -39,6 +39,10 @@ class KamaComponentMixin:
         """
         pass
 
+    def set_tooltip(self, content):
+        content = self._resolve_content(content)
+        self.setTooltip(content)  # noqa
+
     def apply_alignment(self):
         """
         Applies the alignment settings defined in the widget's metadata
@@ -145,7 +149,7 @@ class KamaComponentMixin:
             self.set_content(self.metadata.content)
 
         if self.metadata.tooltip is not None:
-            self.setToolTip(self.metadata.tooltip)  # noqa
+            self.set_tooltip(self.metadata.tooltip)
 
         if refresh_children:
             _logger.debug("Refreshing child widgets")

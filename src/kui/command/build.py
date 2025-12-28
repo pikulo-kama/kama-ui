@@ -87,7 +87,7 @@ class WidgetBuildCommand(WidgetCommand):
 
         if meta.tooltip is not None:
             _logger.debug("tooltip=%s", meta.tooltip)
-            widget.setToolTip(meta.tooltip)
+            widget.set_tooltip(meta.tooltip)
 
         if meta.object_name is not None:
             _logger.debug("object_name=%s", meta.object_name)
