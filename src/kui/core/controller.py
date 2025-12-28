@@ -29,7 +29,7 @@ class WidgetController:
     duration of the application.
     """
 
-    def __init__(self, manager: "WidgetManager"):
+    def __init__(self, application: "KamaApplication", manager: "WidgetManager"):
         """
         Initializes the controller with a reference to the WidgetManager.
         """
@@ -47,18 +47,7 @@ class WidgetController:
         # valid anymore, because of this we need to be able
         # to clear this data when refresh is happening.
         self.__state = {}
-        self.__sections: list[Section] = []
-
-    def load_sections(self):
-        """
-        Retrieves UI section metadata from the database for sections associated
-        with this specific controller.
-        """
-
-        self.__sections = KamaApplication().section_provider.provide(self)
-
-        if not self.__sections.is_empty:
-            _logger.info("Loaded %d section(s) for controller '%s'", len(self.__sections.rows), self.__class__.__name__)
+        self.__sections: list[Section] = application.section_provider.provide(self)
 
     def setup(self, widget: QWidget):  # pragma: no cover
         """
@@ -97,6 +86,10 @@ class WidgetController:
         Returns the database rows for sections managed by this controller.
         """
         return self.__sections
+
+    @sections.setter
+    def sections(self, section_list: list):
+        self.__sections = section_list
 
     def reset_state(self):
         """
@@ -188,12 +181,13 @@ class TemplateWidgetController(WidgetController):
 
     HandlerPrefix: Final = "handle__"
 
-    def __init__(self, manager: "WidgetManager"):
+    def __init__(self, application: "KamaApplication", manager: "WidgetManager"):
         """
         Initializes the template controller and maps handler methods for dynamic widgets.
         """
 
-        super().__init__(manager)
+        super().__init__(application, manager)
+        self.__application = application
         self.__handlers = {}
 
         for name, member in get_methods(self, lambda method: method.startswith(self.HandlerPrefix)):
@@ -295,6 +289,7 @@ class TemplateWidgetController(WidgetController):
         """
 
         metadata = KamaApplication().metadata_provider.provide(section_id)
+        self.__application.metadata_provider.provide(section_id)
         grouped_widgets = {}
 
         for widget_meta in metadata:

@@ -398,6 +398,4 @@ class WidgetManager:
 
         for member_name, member in get_members(resolve_root_package("controller"), WidgetController):
             controller: "WidgetController" = member(self)
-            controller.load_sections()
-
             self.__controllers[member_name] = controller
