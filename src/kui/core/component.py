@@ -41,7 +41,7 @@ class KamaComponentMixin:
 
     def set_tooltip(self, content):
         content = self._resolve_content(content)
-        self.setTooltip(content)  # noqa
+        self.setToolTip(content)  # noqa
 
     def apply_alignment(self):
         """

@@ -41,6 +41,24 @@ class KamaWindow(QMainWindow):
         self.__is_ui_blocked = False
         self.__is_initialized = False
 
+        self.resize_window()
+
+    @property
+    def window_width(self):
+        return self.__application.config.get("window.width", 1920)
+
+    @property
+    def window_height(self):
+        return self.__application.config.get("window.height", 1080)
+
+    @property
+    def min_width(self):
+        return self.__application.config.get("window.min-width", 1080)
+
+    @property
+    def min_height(self):
+        return self.__application.config.get("window.min-height", 720)
+
     @property
     def manager(self):
         return self.__manager
@@ -161,6 +179,13 @@ class KamaWindow(QMainWindow):
         self.before_destroy.emit()  # noqa
         _logger.info("Application shut down.")
 
+    def resize_window(self):
+        user_screen_width = self.__settings.value("windowWidth", self.window_width)
+        user_screen_height = self.__settings.value("windowHeight", self.window_height)
+
+        self.setMinimumSize(self.min_width, self.min_height)
+        self.resize(user_screen_width, user_screen_height)
+
     def center_window(self):
         """
         Used to center application window.
@@ -170,18 +195,10 @@ class KamaWindow(QMainWindow):
         screen_width = QApplication.primaryScreen().size().width()
         screen_height = QApplication.primaryScreen().size().height()
 
-        min_window_width = self.__application.config.get("minWindowWidth", 0)
-        min_window_height = self.__application.config.get("minWindowHeight", 0)
-
-        window_width = self.__application.config.get("windowWidth", 1920)
-        window_height = self.__application.config.get("windowHeight", 1080)
-
-        user_screen_width = self.__settings.value("windowWidth", window_width)
-        user_screen_height = self.__settings.value("windowHeight", window_height)
+        user_screen_width = self.__settings.value("windowWidth", self.window_width)
+        user_screen_height = self.__settings.value("windowHeight", self.window_height)
 
         x = int((screen_width - user_screen_width) / 2)
         y = int((screen_height - user_screen_height) / 2)
 
-        self.setMinimumSize(min_window_width, min_window_height)
-        self.resize(user_screen_width, user_screen_height)
         self.move(x, y)
