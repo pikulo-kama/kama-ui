@@ -1,8 +1,7 @@
 from typing import TYPE_CHECKING
 
-from kui.core.component import KamaComponentMixin
-
 if TYPE_CHECKING:
+    from kui.core.component import KamaComponentMixin
     from kui.core.manager import ManagerContext, WidgetFilter
 
 
@@ -44,7 +43,7 @@ class FilterWidgetCommand(WidgetCommand):
         """
         self.__widget_filter = widget_filter
 
-    def _is_applicable(self, widget: KamaComponentMixin):
+    def _is_applicable(self, widget: "KamaComponentMixin"):
         """
         Checks if the provided widget matches the filter criteria.
 

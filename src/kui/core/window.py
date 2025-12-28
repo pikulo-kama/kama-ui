@@ -28,8 +28,8 @@ class KamaWindow(QMainWindow):
         self.__application = application
         self.__manager = WidgetManager(application, self)
         self.__settings = QSettings(
-            application.config.get("author"),
-            application.config.get("name")
+            application.config.get("application.author"),
+            application.name
         )
 
         self.__root = QWidget()
@@ -75,7 +75,7 @@ class KamaWindow(QMainWindow):
 
         title = self.__application.text_resources.get(
             "window_Title",
-            self.__application.config.get("name", "Kama Application")
+            self.__application.name
         )
         self.setWindowTitle(title)
         _logger.info("Building UI using section '%s'.", section)
@@ -98,7 +98,7 @@ class KamaWindow(QMainWindow):
         self.__manager.event_refresh(event)
         title = self.__application.text_resources.get(
             "window_Title",
-            self.__application.config.get("name", "Kama Application")
+            self.__application.name
         )
         self.setWindowTitle(title)
 

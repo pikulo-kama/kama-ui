@@ -24,7 +24,7 @@ class ProjectDiscovery:
 
     def get_app_data_root(self, *path: str):
         app_data_directory = os.getenv("APPDATA") or ""
-        app_name = self.__application.config.get("name", "KamaUI")
+        app_name = self.__application.name
 
         return os.path.join(app_data_directory, app_name, *path)
 

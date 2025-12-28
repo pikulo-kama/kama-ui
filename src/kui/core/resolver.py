@@ -1,8 +1,11 @@
 import re
 
-from kui.resolver import get_core_resolvers
+from kui.util.file import resolve_root_package
 from kutil.logger import get_logger
+from kutil.reflection import get_members
 
+
+__resolvers: dict[str, "ContentResolver"] = {}
 _logger = get_logger(__name__)
 
 
@@ -78,6 +81,35 @@ def resolve_content(content: str, resolvers: dict[str, "ContentResolver"] = None
             resolved_content = content.replace(full_token, resolved_content)
 
         content = resolved_content
+
+
+def get_core_resolvers():
+    """
+    Returns a global registry of available ContentResolver instances.
+
+    If the registry is empty, it uses reflection to scan the package
+    for subclasses of ContentResolver and initializes them.
+
+    Returns:
+        dict[str, ContentResolver]: A dictionary mapping lowercase resolver
+                                     class names to their instances.
+    """
+
+    global __resolvers
+
+    if len(__resolvers) == 0:
+
+        import kui.resolver as resolver_module
+
+        for member_name, member in get_members(resolver_module.__package__, ContentResolver):
+            _logger.debug("Loading core content resolver with name %s", member_name)
+            __resolvers[member_name.lower()] = member()
+
+        for member_name, member in get_members(resolve_root_package("resolver"), ContentResolver):
+            _logger.debug("Loading custom content resolver with name %s", member_name)
+            __resolvers[member_name.lower()] = member()
+
+    return __resolvers
 
 
 class ContentResolver:

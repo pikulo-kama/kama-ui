@@ -16,7 +16,8 @@ from kamatr.manager import TextResourceManager
 from kui.core.window import KamaWindow
 from kui.dto.style import KamaFont, KamaComposedColor
 from kui.dto.type import DynamicResource
-from kui.util.file import resolve_resource, resolve_temp_resource, resolve_application_data
+from kui.util.file import resolve_resource, resolve_temp_resource, resolve_application_data, resolve_root_package
+from kutil.reflection import get_members
 
 
 def window():
@@ -80,6 +81,10 @@ class KamaApplication(metaclass=SingletonMeta):
 
         self.__fonts: dict[str, KamaFont] = {}
         self.__colors: dict[str, KamaComposedColor] = {}
+
+    @property
+    def name(self):
+        return self.__config.get("application.name", "KamaUI")
 
     @property
     def color_mode(self):
@@ -160,6 +165,7 @@ class KamaApplication(metaclass=SingletonMeta):
 
     def exec(self):
         self.__discover_plugins()
+        self.__collect_startup_tasks()
         self.__startup_job.start()
 
         return self.__application.exec()
@@ -232,3 +238,9 @@ class KamaApplication(metaclass=SingletonMeta):
             mode = ColorMode.Dark
 
         return mode
+
+    def __collect_startup_tasks(self):
+
+        for member_name, member in get_members(resolve_root_package("startup"), KamaStartupWorker):
+            task: KamaStartupWorker = member()
+            self.__startup_job.add_task(task)

@@ -4,8 +4,7 @@ from PyQt6.QtCore import Qt, QEvent
 from PyQt6.QtWidgets import QWidget, QApplication, QLayout
 
 from kui.core.metadata import WidgetMetadata
-from kui.core.resolver import resolve_content
-from kui.resolver import get_core_resolvers
+from kui.core.resolver import resolve_content, get_core_resolvers
 from kutil.logger import get_logger
 
 
