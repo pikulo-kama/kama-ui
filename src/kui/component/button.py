@@ -44,6 +44,8 @@ class KamaPushButton(KamaComponentMixin, QPushButton):
                                                text string to display.
         """
 
+        content = self._resolve_content(content)
+
         if isinstance(content, QIconWrapper):
             self.setIcon(content.icon)
             self.setIconSize(QSize(content.width, content.height))

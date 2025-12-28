@@ -3,6 +3,7 @@ from importlib.metadata import entry_points
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QApplication
+from kui.core.discovery import ProjectDiscovery
 from kui.core.yaml_holder import ApplicationConfig
 from kutil.file import read_file, save_file
 
@@ -64,6 +65,7 @@ class KamaApplication(metaclass=SingletonMeta):
     def __init__(self):
         self.__application = QApplication(sys.argv)
         self.__config = ApplicationConfig(resolve_application_data("kamaconfig.yaml"))
+        self.__discovery = ProjectDiscovery(self)
         self.__style_builder = StyleBuilder()
         self.__startup_job = StartupJob(self)
         self.__window = KamaWindow(self)

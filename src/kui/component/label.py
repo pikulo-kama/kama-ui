@@ -30,6 +30,8 @@ class KamaLabel(KamaComponentMixin, QLabel):
             content (Union[QPixmap, str]): The resolved content to display.
         """
 
+        content = self._resolve_content(content)
+
         if isinstance(content, QPixmap):
             self.setPixmap(content)
         else:

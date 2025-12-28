@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING
 from kui.core.component import KamaComponent
 from kui.core.command import WidgetCommand
 from kui.core.metadata import WidgetMetadata
-from kui.core.resolver import resolve_content
 from kutil.logger import get_logger
 
 if TYPE_CHECKING:
@@ -69,7 +68,7 @@ class WidgetBuildCommand(WidgetCommand):
             _logger.debug("layout=%s", meta.layout_type_name)
 
             layout_type = context.get_layout_type(meta.layout_type_name)
-            widget.setLayout(layout_type())
+            widget.setLayout(layout_type.type())
             widget.layout().setContentsMargins(
                 meta.margin_left,
                 meta.margin_top,
@@ -84,11 +83,11 @@ class WidgetBuildCommand(WidgetCommand):
 
         if meta.content is not None:
             _logger.debug("content=%s", meta.content)
-            widget.set_content(resolve_content(meta.content, extra_resolvers=meta.resolvers))
+            widget.set_content(meta.content)
 
         if meta.tooltip is not None:
             _logger.debug("tooltip=%s", meta.tooltip)
-            widget.setToolTip(resolve_content(meta.tooltip, extra_resolvers=meta.resolvers))
+            widget.setToolTip(meta.tooltip)
 
         if meta.object_name is not None:
             _logger.debug("object_name=%s", meta.object_name)

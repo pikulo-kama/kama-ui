@@ -5,6 +5,7 @@ from PyQt6.QtWidgets import QWidget, QApplication, QLayout
 
 from kui.core.metadata import WidgetMetadata
 from kui.core.resolver import resolve_content
+from kui.resolver import get_core_resolvers
 from kutil.logger import get_logger
 
 
@@ -142,16 +143,10 @@ class KamaComponentMixin:
         _logger.debug("Refreshing widget '%s'", self.metadata.name)
 
         if self.metadata.content is not None:
-            content = resolve_content(self.metadata.content, extra_resolvers=self.metadata.resolvers)
-            self.set_content(content)
-
-            _logger.debug("Content=%s", content)
+            self.set_content(self.metadata.content)
 
         if self.metadata.tooltip is not None:
-            tooltip = resolve_content(self.metadata.tooltip, extra_resolvers=self.metadata.resolvers)
-            self.setToolTip(tooltip)  # noqa
-
-            _logger.debug("Tooltip=%s", tooltip)
+            self.setToolTip(self.metadata.tooltip)  # noqa
 
         if refresh_children:
             _logger.debug("Refreshing child widgets")
@@ -172,6 +167,13 @@ class KamaComponentMixin:
 
         for child in self.findChildren(KamaComponentMixin):  # noqa
             child.update_styles()
+
+    def _resolve_content(self, content: str):
+
+        resolvers = get_core_resolvers() or {}
+        resolvers = {**resolvers, **self.metadata.resolvers}
+
+        return resolve_content(content, resolvers)
 
     def __str__(self):
         """

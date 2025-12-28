@@ -1,14 +1,10 @@
 import re
-
 from kutil.logger import get_logger
-from kutil.reflection import get_members
-
 
 _logger = get_logger(__name__)
-__resolvers: dict[str, "ContentResolver"] = {}
 
 
-def resolve_content(content: str, extra_resolvers: dict[str, "ContentResolver"] = None):
+def resolve_content(content: str, resolvers: dict[str, "ContentResolver"]):
     """
     Recursively resolves special tokens within a string and returns the final
     object or formatted string.
@@ -19,17 +15,13 @@ def resolve_content(content: str, extra_resolvers: dict[str, "ContentResolver"] 
 
     Args:
         content (str): The string containing potential tokens to resolve.
-        extra_resolvers (dict): Optional dictionary of contextual resolvers
+        resolvers (dict): Dictionary of contextual resolvers
                                 to supplement global ones.
 
     Returns:
         Any: The fully resolved content, which could be a string, QPixmap,
              or other object types.
     """
-
-    resolvers = get_resolvers()
-    extra_resolvers = extra_resolvers or {}
-    resolvers = {**resolvers, **extra_resolvers}
 
     while True:
 
@@ -49,20 +41,20 @@ def resolve_content(content: str, extra_resolvers: dict[str, "ContentResolver"] 
         properties: list = match.group(2).split(",")
 
         # Recursively check for nested tokens.
-        parameter = resolve_content(properties.pop(0), extra_resolvers=extra_resolvers)
+        parameter = resolve_content(properties.pop(0), resolvers)
         args = []
         kw = {}
 
         # Collect token properties.
         for prop in properties:
             prop_parts = prop.split(":")
-            key = resolve_content(prop_parts[0].strip(), extra_resolvers=extra_resolvers)
+            key = resolve_content(prop_parts[0].strip(), resolvers)
 
             if len(prop_parts) == 1:
                 args.append(key)
 
             elif len(prop_parts) == 2:
-                value = resolve_content(prop_parts[1].strip(), extra_resolvers=extra_resolvers)
+                value = resolve_content(prop_parts[1].strip(), resolvers)
 
                 if value.isdigit():
                     value = int(value)
@@ -81,28 +73,6 @@ def resolve_content(content: str, extra_resolvers: dict[str, "ContentResolver"] 
             resolved_content = content.replace(full_token, resolved_content)
 
         content = resolved_content
-
-
-def get_resolvers():
-    """
-    Returns a global registry of available ContentResolver instances.
-
-    If the registry is empty, it uses reflection to scan the package
-    for subclasses of ContentResolver and initializes them.
-
-    Returns:
-        dict[str, ContentResolver]: A dictionary mapping lowercase resolver
-                                     class names to their instances.
-    """
-
-    global __resolvers
-
-    if len(__resolvers) == 0:
-        for member_name, member in get_members(__package__, ContentResolver):
-            _logger.debug("Loading content resolver with name %s", member_name)
-            __resolvers[member_name.lower()] = member()
-
-    return __resolvers
 
 
 class ContentResolver:

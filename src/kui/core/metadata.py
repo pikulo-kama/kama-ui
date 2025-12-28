@@ -139,13 +139,6 @@ class WidgetMetadata:
         return self.__section_id
 
     @property
-    def is_root_section(self) -> bool:
-        """
-        Checks if the widget belongs to the root UI section.
-        """
-        return self.__section_id is None
-
-    @property
     def parent(self) -> "WidgetMetadata":
         """
         Retrieves the parent metadata object if linked.
