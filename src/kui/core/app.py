@@ -105,6 +105,10 @@ class KamaApplication(metaclass=SingletonMeta):
     def locale(self, locale: str):
         self.__locale = locale
 
+    @property
+    def locales(self):
+        return self.__text_resources.locales
+
     def get_color(self, color_code: str):
         color = self.__colors.get(color_code)
 
