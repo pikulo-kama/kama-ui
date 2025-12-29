@@ -1,4 +1,4 @@
-from kui.core.app import holder
+from kui.core.app import KamaApplication
 from kui.core.resolver import ContentResolver
 from kutil.logger import get_logger
 
@@ -31,7 +31,8 @@ class DataResolver(ContentResolver):
                  is missing or not a string.
         """
 
-        data = holder().get(key)
+        application = KamaApplication()
+        data = application.data.get(key)
 
         if isinstance(data, str):
             _logger.debug("Resolved %s to %s", key, data)

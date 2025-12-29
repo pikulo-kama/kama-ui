@@ -131,6 +131,8 @@ class KamaWindow(QMainWindow):
 
         _logger.debug("Presenting notification dialog with message %s", message)
         self.__application.data.add("dialogMessage", message)
+
+        self.__manager.delete(lambda meta: meta.section_id == "notification")
         self.__manager.build_section("notification")
 
     def confirmation(self, message: str, callback: Callable):
@@ -143,6 +145,8 @@ class KamaWindow(QMainWindow):
         _logger.debug("Presenting confirmation dialog with message %s", message)
         self.__application.data.add("dialogMessage", message)
         self.__application.data.add("confirmationCallback", callback)
+
+        self.__manager.delete(lambda meta: meta.section_id == "confirmation")
         self.__manager.build_section("confirmation")
 
     @property

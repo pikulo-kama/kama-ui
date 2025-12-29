@@ -136,7 +136,7 @@ class KamaApplication(metaclass=SingletonMeta):
         return self.__text_resources
 
     def tr(self, text_resource_key: str, *args):
-        return self.text_resources.get(text_resource_key, args)
+        return self.text_resources.get(text_resource_key, *args)
 
     @property
     def data(self) -> DataHolder:
