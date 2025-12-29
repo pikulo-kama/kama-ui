@@ -15,20 +15,20 @@ def execute_in_blocking_thread(thread: QThread, worker: "KamaWorker"):
 
     from kui.core.app import KamaApplication
 
-    window = KamaApplication.instance().window
+    application = KamaApplication()
 
-    if window.is_blocked:
+    if application.window.is_blocked:
         return
 
     def on_finish():
-        window.setCursor(Qt.CursorShape.ArrowCursor)
-        window.is_blocked = False
+        application.window.setCursor(Qt.CursorShape.ArrowCursor)
+        application.window.is_blocked = False
 
-    thread.finished.connect(on_finish)  # noqa
+    worker.finished.connect(on_finish)  # noqa
     execute_in_thread(thread, worker)
 
-    window.setCursor(Qt.CursorShape.WaitCursor)
-    window.is_blocked = True
+    application.window.setCursor(Qt.CursorShape.WaitCursor)
+    application.window.is_blocked = True
 
 
 def execute_in_thread(thread: QThread, worker: "KamaWorker"):

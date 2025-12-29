@@ -3,21 +3,8 @@ from typing import TYPE_CHECKING, Callable, Type
 from kutil.reflection import get_members
 
 from kui.command.type import AddWidgetTypeCommand, AddLayoutTypeCommand
-from kui.component.button import KamaPushButton
-from kui.component.combobox import KamaComboBox
-from kui.component.dialog import KamaDialog
-from kui.component.divider import KamaHDivider, KamaVDivider
-from kui.component.label import KamaLabel, KamaWordWrapLabel, KamaRichLabel
-from kui.component.list import KamaScrollableWidget
-from kui.component.progress_button import KamaProgressPushButton
-from kui.component.spacer import KamaSpacer
-from kui.component.tab_bar import KamaTabBar
-from kui.component.toggle import KamaToggle
-from kui.component.wait_bar import KamaWaitBar
-from kui.component.widget import KamaWidget
-from kui.core.component import KamaComponent, KamaComponentMixin, KamaLayout
+from kui.core.component import KamaComponent, KamaComponentMixin, KamaLayout, KamaLayoutMixin
 from kui.core.controller import WidgetController
-from kui.component.layout import KamaVBoxLayout, KamaHBoxLayout, KamaGridLayout
 from kui.command.build import WidgetBuildCommand
 from kui.command.delete import WidgetDeleteCommand
 from kui.command.disable import WidgetDisableCommand
@@ -25,8 +12,6 @@ from kui.command.enable import WidgetEnableCommand
 from kui.command.refresh import WidgetEventRefreshCommand, WidgetRefreshCommand
 from kui.core.metadata import WidgetMetadata
 from kutil.logger import get_logger
-
-from kui.dto.type import WidgetType, UIObjectType
 from kui.util.file import resolve_root_package
 
 if TYPE_CHECKING:
@@ -53,8 +38,8 @@ class ManagerContext:
                  manager: "WidgetManager",
                  widgets: list[KamaComponent],
                  controllers: dict[str, WidgetController],
-                 widget_types: dict[str, WidgetType],
-                 layout_types: dict[str, UIObjectType]):
+                 widget_types: dict[str, Type["KamaComponentMixin"]],
+                 layout_types: dict[str, Type["KamaLayoutMixin"]]):
         """
         Initializes the context with current manager state.
 
@@ -80,10 +65,10 @@ class ManagerContext:
     def get_layout_type(self, name: str):
         return self.__layout_types.get(name)
 
-    def add_widget_type(self, widget_type: WidgetType):
+    def add_widget_type(self, widget_type: Type["KamaComponentMixin"]):
         self.__new_widget_types.append(widget_type)
 
-    def add_layout_type(self, layout_type: UIObjectType):
+    def add_layout_type(self, layout_type: Type["KamaLayoutMixin"]):
         self.__new_layout_types.append(layout_type)
 
     def add_widget(self, widget: KamaComponent):
@@ -143,11 +128,11 @@ class ManagerContext:
         return list(set(self.__removed_widgets))
 
     @property
-    def new_widget_types(self) -> list[WidgetType]:
+    def new_widget_types(self) -> list[Type["KamaComponentMixin"]]:
         return self.__new_widget_types
 
     @property
-    def new_layout_types(self) -> list[UIObjectType]:
+    def new_layout_types(self) -> list[Type["KamaLayoutMixin"]]:
         return self.__new_layout_types
 
 
@@ -166,12 +151,12 @@ class WidgetManager:
 
         self.__application = application
         self.__window = window
-        self.__widget_types: dict[str, WidgetType] = {}
-        self.__layout_types: dict[str, UIObjectType] = {}
+        self.__widget_types: dict[str, Type["KamaComponentMixin"]] = {}
+        self.__layout_types: dict[str, Type["KamaLayoutMixin"]] = {}
         self.__widgets: dict[str, KamaComponent] = {}
         self.__controllers: dict[str, WidgetController] = {}
 
-        self.__initialize_manager()
+        self.__load_components()
 
     def execute(self, command: "WidgetCommand"):
         """
@@ -200,10 +185,12 @@ class WidgetManager:
 
         # Add widget and layout types.
         for widget_type in context.new_widget_types:
-            self.__widget_types[widget_type.name] = widget_type
+            name = widget_type.__name__.replace("Kama", "K")
+            self.__widget_types[name] = widget_type
 
         for layout_type in context.new_layout_types:
-            self.__layout_types[layout_type.name] = layout_type
+            name = layout_type.__name__.replace("Kama", "K")
+            self.__layout_types[name] = layout_type
 
     def build(self, metadata: list[WidgetMetadata]):
         """
@@ -367,31 +354,27 @@ class WidgetManager:
             for child in widget.findChildren(KamaComponentMixin):
                 remove_widget(child)
 
-    def __initialize_manager(self):
+    def __load_components(self):
 
-        widget_types = [
-            WidgetType("KWidget", KamaWidget, False),
-            WidgetType("KLabel", KamaLabel, False),
-            WidgetType("KWordWrapLabel", KamaWordWrapLabel, False),
-            WidgetType("KRichLabel", KamaRichLabel, False),
-            WidgetType("KPushButton", KamaPushButton, True),
-            WidgetType("KProgressPushButton", KamaProgressPushButton, True),
-            WidgetType("KScrollableWidget", KamaScrollableWidget, False),
-            WidgetType("KSpacer", KamaSpacer, False),
-            WidgetType("KHDivider", KamaHDivider, False),
-            WidgetType("KVDivider", KamaVDivider, False),
-            WidgetType("KTabBar", KamaTabBar, True),
-            WidgetType("KToggle", KamaToggle, True),
-            WidgetType("KComboBox", KamaComboBox, True),
-            WidgetType("KWaitBar", KamaWaitBar, False),
-            WidgetType("KDialog", KamaDialog, False)
-        ]
+        import kui.component as component_package
 
-        layout_types = [
-            UIObjectType("KVBoxLayout", KamaVBoxLayout),
-            UIObjectType("KHBoxLayout", KamaHBoxLayout),
-            UIObjectType("KGridLayout", KamaGridLayout),
-        ]
+        widget_types = []
+        layout_types = []
+
+        core_package = component_package.__package__
+        custom_package = resolve_root_package("component")
+
+        for member_name, member in get_members(core_package, KamaComponentMixin):
+            widget_types.append(member)
+
+        for member_name, member in get_members(core_package, KamaLayoutMixin):
+            layout_types.append(member)
+
+        for member_name, member in get_members(custom_package, KamaComponentMixin):
+            widget_types.append(member)
+
+        for member_name, member in get_members(custom_package, KamaLayoutMixin):
+            layout_types.append(member)
 
         self.execute(AddWidgetTypeCommand(widget_types))
         self.execute(AddLayoutTypeCommand(layout_types))

@@ -26,6 +26,18 @@ class KamaComponentMixin:
         """
         self.__metadata: Optional[WidgetMetadata] = None
         self.__disabled = False
+        self.__is_interactable = False
+
+    @property
+    def is_interactable(self):
+        if self.metadata.is_interactable is not None:
+            return self.metadata.is_interactable
+
+        return self.__is_interactable
+
+    @is_interactable.setter
+    def is_interactable(self, interactable: bool):
+        self.__is_interactable = interactable
 
     def set_content(self, content):  # pragma: no cover
         """
@@ -85,7 +97,7 @@ class KamaComponentMixin:
         _logger.debug("Enabling widget '%s'", self.metadata.name)
         self.__disabled = False
 
-        if self.metadata.is_interactable:
+        if self.is_interactable:
             self.setEnabled(True)  # noqa
             self.setCursor(Qt.CursorShape.PointingHandCursor)  # noqa
 
@@ -100,7 +112,7 @@ class KamaComponentMixin:
         _logger.debug("Disabling widget '%s'", self.metadata.name)
         self.__disabled = True
 
-        if self.metadata.is_interactable:
+        if self.is_interactable:
             self.setEnabled(False)  # noqa
             self.setCursor(QApplication.activeWindow().cursor())  # noqa
 

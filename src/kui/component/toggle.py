@@ -23,6 +23,7 @@ class KamaToggle(KamaComponentMixin, QPushButton):
         QPushButton.__init__(self, *args, **kw)
         KamaComponentMixin.__init__(self)
 
+        self.is_interactable = True
         self.setCheckable(True)
         self.__polishRecursionGuard = False
 

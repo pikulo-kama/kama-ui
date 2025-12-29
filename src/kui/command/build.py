@@ -54,9 +54,7 @@ class WidgetBuildCommand(WidgetCommand):
         """
 
         widget_type = context.get_widget_type(meta.widget_type_name)
-        widget: KamaComponent = widget_type.type()
-
-        meta.is_interactable = widget_type.is_interactable
+        widget: KamaComponent = widget_type()
         widget.metadata = meta
 
         _logger.debug("Building widget %s", widget.metadata.name)
@@ -66,7 +64,7 @@ class WidgetBuildCommand(WidgetCommand):
             _logger.debug("layout=%s", meta.layout_type_name)
 
             layout_type = context.get_layout_type(meta.layout_type_name)
-            widget.setLayout(layout_type.type())
+            widget.setLayout(layout_type())
             widget.layout().setContentsMargins(
                 meta.margin_left,
                 meta.margin_top,

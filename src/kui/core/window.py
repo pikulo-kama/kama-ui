@@ -94,11 +94,7 @@ class KamaWindow(QMainWindow):
         Used to build window and all of its components.
         """
 
-        title = self.__application.text_resources.get(
-            "window_Title",
-            self.__application.name
-        )
-        self.setWindowTitle(title)
+        self.setWindowTitle(self.__application.name)
         _logger.info("Building UI using section '%s'.", section)
 
         self.reload_styles()
@@ -115,13 +111,7 @@ class KamaWindow(QMainWindow):
         """
 
         _logger.info("Refreshing UI with event '%s'.", event)
-
         self.__manager.event_refresh(event)
-        title = self.__application.text_resources.get(
-            "window_Title",
-            self.__application.name
-        )
-        self.setWindowTitle(title)
 
     def notification(self, message: str):
         """

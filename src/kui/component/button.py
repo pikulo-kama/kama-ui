@@ -30,6 +30,7 @@ class KamaPushButton(KamaComponentMixin, QPushButton):
         KamaComponentMixin.__init__(self)
 
         self.__is_enabled = True
+        self.is_interactable = True
         self.setProperty(QAttr.Disabled, QBool(False))
 
     def set_content(self, content):

@@ -23,6 +23,8 @@ class KamaComboBox(KamaComponentMixin, QComboBox):
 
         QComboBox.__init__(self, *args, **kw)
         KamaComponentMixin.__init__(self)
+
+        self.is_interactable = True
         self.__is_enabled = True
         self.__item_delegate = NoFocusDelegate(self.view())
 

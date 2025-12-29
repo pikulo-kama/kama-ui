@@ -1,15 +1,16 @@
-from typing import TYPE_CHECKING
-
+from typing import TYPE_CHECKING, Type
 from kui.core.command import WidgetCommand
-from kui.dto.type import WidgetType, UIObjectType
 
 if TYPE_CHECKING:
     from kui.core.manager import ManagerContext
+    from kui.core.component import KamaComponentMixin
+    from kui.core.component import KamaLayoutMixin
 
 
 class AddWidgetTypeCommand(WidgetCommand):
 
-    def __init__(self, widget_types: list[WidgetType]):
+    def __init__(self, widget_types: list[Type["KamaComponentMixin"]]):
+        super().__init__()
         self.__widget_types = widget_types
 
     def execute(self, context: "ManagerContext"):
@@ -19,7 +20,8 @@ class AddWidgetTypeCommand(WidgetCommand):
 
 class AddLayoutTypeCommand(WidgetCommand):
 
-    def __init__(self, layout_types: list[UIObjectType]):
+    def __init__(self, layout_types: list[Type["KamaLayoutMixin"]]):
+        super().__init__()
         self.__layout_types = layout_types
 
     def execute(self, context: "ManagerContext"):

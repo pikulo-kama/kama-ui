@@ -26,6 +26,9 @@ include-package-data = true
 [tool.setuptools.package-data]
 "kui.stylesheet" = ["*.qss"]
 
+[project.entry-points."pyinstaller40.hook_names"]
+hook_names = "kui._pyinstaller_hooks"
+
 [tool.coverage.run]
 source = ["kui"]
 disable_warnings = ["module-not-measured"]

@@ -15,8 +15,9 @@ from kui.core.startup import StartupJob, KamaStartupWorker
 from kui.core.style import ColorMode, StyleBuilder
 from kamatr.manager import TextResourceManager
 from kui.core.window import KamaWindow
-from kui.dto.style import KamaFont, KamaComposedColor
-from kui.dto.type import DynamicResource
+from kui.style.font import KamaFont
+from kui.style.color import KamaComposedColor
+from kui.style.image import DynamicResource
 from kui.style.color import ColorResolver, RgbaColorResolver
 from kui.style.font import FontResolver
 from kui.style.image import ImageResolver

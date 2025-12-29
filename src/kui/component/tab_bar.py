@@ -19,3 +19,5 @@ class KamaTabBar(KamaComponentMixin, QTabBar):
 
         QTabBar.__init__(self, *args, **kw)
         KamaComponentMixin.__init__(self)
+
+        self.is_interactable = True
