@@ -1,4 +1,3 @@
-from kui.core.app import KamaApplication
 from kui.core.style import StyleResolver
 
 
@@ -9,7 +8,6 @@ class FontResolver(StyleResolver):
 
     def resolve(self, match):
         font_code = match.group(1)
-        app = KamaApplication.instance()
-        font = app.fonts.get(font_code)
+        font = self.application.fonts.get(font_code)
 
         return font.qss

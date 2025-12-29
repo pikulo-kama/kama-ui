@@ -17,6 +17,9 @@ from kamatr.manager import TextResourceManager
 from kui.core.window import KamaWindow
 from kui.dto.style import KamaFont, KamaComposedColor
 from kui.dto.type import DynamicResource
+from kui.style.color import ColorResolver, RgbaColorResolver
+from kui.style.font import FontResolver
+from kui.style.image import ImageResolver
 from kui.util.file import resolve_resource, resolve_temp_resource, resolve_application_data, resolve_root_package
 from kutil.reflection import get_members
 
@@ -48,7 +51,7 @@ class KamaApplication(metaclass=SingletonMeta):
         self.__application = QApplication(sys.argv)
         self.__config = ApplicationConfig(resolve_application_data("kamaconfig.yaml"))
         self.__discovery = ProjectDiscovery(self)
-        self.__style_builder = StyleBuilder()
+        self.__style_builder = StyleBuilder(self)
         self.__startup_job = StartupJob(self)
         self.__window = KamaWindow(self)
         self.__text_resources = TextResourceManager()
@@ -150,6 +153,12 @@ class KamaApplication(metaclass=SingletonMeta):
     def exec(self):
         self.__discover_plugins()
         self.__window.manager.load_controllers()
+
+        self.__style_builder.add_resolver(ColorResolver())
+        self.__style_builder.add_resolver(RgbaColorResolver())
+        self.__style_builder.add_resolver(FontResolver())
+        self.__style_builder.add_resolver(ImageResolver())
+
         self.__collect_startup_tasks()
         self.__startup_job.start()
 

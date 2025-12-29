@@ -1,10 +1,13 @@
 import os
 import re
 from pathlib import Path
-from typing import Final
+from typing import Final, TYPE_CHECKING, Optional
 
 from kutil.file import read_file
 from kutil.logger import get_logger
+
+if TYPE_CHECKING:
+    from kui.core.app import KamaApplication
 
 _logger = get_logger(__name__)
 
@@ -21,7 +24,16 @@ class ColorMode:
 class StyleResolver:
 
     def __init__(self, regex: str):
+        self.__application: Optional["KamaApplication"] = None
         self.__regex = regex
+
+    @property
+    def application(self) -> "KamaApplication":
+        return self.__application
+
+    @application.setter
+    def application(self, application: "KamaApplication"):
+        self.__application = application
 
     @property
     def regex(self):
@@ -33,10 +45,12 @@ class StyleResolver:
 
 class StyleBuilder:
 
-    def __init__(self):
+    def __init__(self, application: "KamaApplication"):
+        self.__application = application
         self.__resolvers: list[StyleResolver] = []
 
     def add_resolver(self, resolver: StyleResolver):
+        resolver.application = self.__application
         self.__resolvers.append(resolver)
 
     def load_stylesheet(self, directory: str):
