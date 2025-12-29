@@ -183,11 +183,8 @@ class KamaApplication(metaclass=SingletonMeta):
 
     @staticmethod
     def __discover_plugins():
-        plugins = entry_points(group="kama_ui.plugins")
-
-        for plugin in plugins:
-            plugin_class = plugin.load()
-            print(plugin_class)
+        for plugin in entry_points(group="kama_ui.plugins"):
+            plugin.load()
 
     def create_dynamic_resources(self):
         """
