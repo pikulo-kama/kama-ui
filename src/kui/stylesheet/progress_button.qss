@@ -1,0 +1,69 @@
+
+QProgressBar {
+    outline: 1px dashed transparent;
+    background-color: transparent;
+    border: none;
+    border-radius: 5px;
+    text-align: center;
+    font: font("label");
+    font-weight: bold;
+}
+
+QProgressBar::chunk {
+    border-radius: 5px;
+}
+
+KamaProgressPushButton {
+    outline: 1px dashed transparent;
+    background-color: color("surface-a10");
+    color: color("text-primary");
+    border: 1px solid color("surface-a30");
+    font: font("label");
+}
+
+/* Remove icon when progress bar is active. */
+KamaProgressPushButton[in-progress="true"] {
+    color: transparent;
+    icon: none;
+}
+
+KamaProgressPushButton,
+KamaProgressPushButton:pressed,
+KamaProgressPushButton[is-disabled="true"]:hover,
+QProgressBar:pressed {
+    background-color: color("surface-a10");
+    color: color("text-primary");
+    border: 1px solid color("surface-a30");
+}
+
+QProgressBar {
+    color: color("text-primary");
+}
+
+KamaProgressPushButton:hover,
+QProgressBar::chunk,
+QProgressBar::chunk:hover {
+    background-color: color("surface-a20");
+}
+
+
+/* Style for primary button */
+KamaProgressPushButton[kind="primary"],
+KamaProgressPushButton[kind="primary"]:pressed,
+KamaProgressPushButton[kind="primary"][is-disabled="true"]:hover,
+QProgressBar[kind="KamaProgressPushButton-primary"]:pressed {
+    background-color: color("primary-a20");
+    border-color: color("primary-a20");
+    color: color("text-inverted");
+}
+
+QProgressBar[kind="KamaProgressPushButton-primary"] {
+    color: color("text-inverted");
+}
+
+KamaProgressPushButton[kind="primary"]:hover,
+QProgressBar[kind="KamaProgressPushButton-primary"]::chunk,
+QProgressBar[kind="KamaProgressPushButton-primary"]::chunk:hover {
+    background-color: color("primary-a10");
+    color: color("text-inverted");
+}

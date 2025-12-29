@@ -6,6 +6,7 @@ from PyQt6.QtWidgets import QApplication
 from kui.core.discovery import ProjectDiscovery
 from kui.core.yaml_holder import ApplicationConfig
 from kutil.file import read_file, save_file
+from kutil.meta import SingletonMeta
 
 from kui.core.holder import DataHolder
 from kui.core.provider import MetadataProvider, ControllerSectionProvider, JsonControllerSectionProvider, \
@@ -41,26 +42,6 @@ def style():
     return KamaApplication().style_builder
 
 
-class SingletonMeta(type):
-    """
-    The Singleton class can be implemented in different ways in Python. Some
-    possible methods include: base class, decorator, metaclass. We will use the
-    metaclass because it is best suited for this purpose.
-    """
-
-    _instances = {}
-
-    def __call__(cls, *args, **kwargs):
-        """
-        Possible changes to the value of the `__init__` argument do not affect
-        the returned instance.
-        """
-        if cls not in cls._instances:
-            instance = super().__call__(*args, **kwargs)
-            cls._instances[cls] = instance
-
-        return cls._instances[cls]
-
 class KamaApplication(metaclass=SingletonMeta):
 
     def __init__(self):
@@ -74,7 +55,6 @@ class KamaApplication(metaclass=SingletonMeta):
         self.__data_holder = DataHolder()
         self.__dynamic_resources: list[DynamicResource] = []
         self.__color_mode = None
-        self.__locale = None
 
         self.__metadata_provider = JsonMetadataProvider()
         self.__section_provider = JsonControllerSectionProvider()
@@ -99,11 +79,11 @@ class KamaApplication(metaclass=SingletonMeta):
 
     @property
     def locale(self):
-        return self.__locale or self.config.get("locale", "en_US")
+        return self.text_resources.locale or self.config.get("locale", "en_US")
 
     @locale.setter
     def locale(self, locale: str):
-        self.__locale = locale
+        self.text_resources.locale = locale
 
     @property
     def locales(self):

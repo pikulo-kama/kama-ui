@@ -1,0 +1,88 @@
+
+QLabel {
+    padding: 0px;
+    margin: 0px;
+
+    color: color("text-primary");
+}
+
+KamaLabel#heroText {
+    font: font("hero");
+}
+
+KamaLabel#heroTextInverted {
+    font: font("hero");
+    color: color("text-inverted");
+}
+
+KamaLabel#sectionTitleText {
+    font: font("section-title");
+}
+
+KamaLabel#sectionTitleTextInverted {
+    font: font("section-title");
+    color: color("text-inverted");
+}
+
+KamaLabel#subtitleText {
+    font: font("subtitle");
+}
+
+KamaLabel#subtitleTextInverted {
+    font: font("subtitle");
+    color: color("text-inverted");
+}
+
+KamaLabel#cardTitleText {
+    font: font("card-title");
+}
+
+KamaLabel#cardTitleTextInverted {
+    font: font("card-title");
+    color: color("text-inverted");
+}
+
+KamaLabel#accentText {
+    font: font("accent");
+}
+
+KamaLabel#accentTextInverted {
+    font: font("accent");
+    color: color("text-inverted");
+}
+
+KamaLabel#bodyText {
+    font: font("body");
+}
+
+KamaLabel#bodyTextInverted {
+    font: font("body");
+    color: color("text-inverted");
+}
+
+KamaLabel#label {
+    font: font("label");
+}
+
+KamaLabel#labelTextInverted {
+    font: font("label");
+    color: color("text-inverted");
+}
+
+KamaLabel#smallText {
+    font: font("small");
+}
+
+KamaLabel#smallTextInverted {
+    font: font("small");
+    color: color("text-inverted");
+}
+
+KamaLabel#captionText {
+    font: font("caption");
+}
+
+KamaLabel#captionTextInverted {
+    font: font("caption");
+    color: color("text-inverted");
+}

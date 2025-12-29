@@ -4,8 +4,6 @@ from PyQt6.QtCore import pyqtSignal, QSettings
 from PyQt6.QtGui import QCloseEvent
 from PyQt6.QtWidgets import QMainWindow, QApplication, QWidget, QHBoxLayout
 from kutil.logger import get_logger
-
-from kui.core.constants import Directory
 from kui.core.manager import WidgetManager
 
 if TYPE_CHECKING:
@@ -81,7 +79,12 @@ class KamaWindow(QMainWindow):
         _logger.info("Application loop has been started.")
 
     def reload_styles(self):
-        stylesheet = self.__application.style_builder.load_stylesheet(Directory().Styles)
+        import kui.stylesheet as stylesheet_module
+
+        core_stylesheet = self.__application.style_builder.load_stylesheet(stylesheet_module.__path__)
+        user_stylesheet_directory = self.__application.discovery.get_styles_directory()
+        user_stylesheet = self.__application.style_builder.load_stylesheet(user_stylesheet_directory)
+        stylesheet = core_stylesheet + "\n" + user_stylesheet
 
         self.__application.create_dynamic_resources()
         self.__application.qt_app.setStyleSheet(stylesheet)
