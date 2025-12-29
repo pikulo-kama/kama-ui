@@ -5,7 +5,7 @@ KamaComboBox {
     color: color("text-primary");
     outline: 1px solid transparent;
     border-radius: 5px;
-    font: font("secondary-xs");
+    font: font("small");
     padding: 5px 10px;
 }
 

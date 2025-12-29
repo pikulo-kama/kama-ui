@@ -2,7 +2,7 @@
 
 KamaToggle {
     qproperty-track_color: color("surface-a20");
-    qproperty-thumb_color: color("light-a20");
+    qproperty-thumb_color: color("text-primary");
 }
 
 KamaToggle[checked="true"] {

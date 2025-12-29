@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QScrollArea
+from PyQt6.QtWidgets import QScrollArea, QFrame
 
 from kui.core.component import KamaComponentMixin, KamaLayout
 from kui.component.widget import KamaWidget
@@ -22,6 +22,8 @@ class KamaScrollableWidget(KamaComponentMixin, QScrollArea):
 
         QScrollArea.__init__(self)
         KamaComponentMixin.__init__(self)
+
+        self.setFrameShape(QFrame.Shape.NoFrame)
 
         self.__content = KamaWidget()
         self.__content.setObjectName("scrollableRoot")
