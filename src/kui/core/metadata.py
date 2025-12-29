@@ -73,7 +73,7 @@ class WidgetMetadata:
         self.__section_id = section_id
         self.__parent_widget_id = parent_widget_id
         self.__parent: Optional[WidgetMetadata] = None
-        self.__is_interactable = False
+        self.__is_interactable = None
         self.__controller = controller
         self.__order_id = order_id or 0
 
