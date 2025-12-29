@@ -55,7 +55,8 @@ class StyleBuilder:
 
             if Path(file_path).is_dir():
                 style_string += self.load_stylesheet(file_path)
-            else:
+
+            elif file_path.endswith(".qss"):
                 style_string += read_file(file_path)
 
         return self.resolve(style_string)

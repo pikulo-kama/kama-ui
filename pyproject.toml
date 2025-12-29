@@ -20,6 +20,12 @@ test = [
     "pytest-cov >= 7.0.0, < 8.0.0"
 ]
 
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.package-data]
+"kui.stylesheet" = ["*.qss"]
+
 [tool.coverage.run]
 source = ["kui"]
 disable_warnings = ["module-not-measured"]
