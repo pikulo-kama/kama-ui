@@ -207,10 +207,11 @@ class KamaApplication(metaclass=SingletonMeta):
             if resolved_color is not None:
                 current_color = resolved_color
 
+            self.discovery.get_resources_directory(resource.resource_path)
             resource_content = read_file(resolve_resource(resource.resource_path, include_temporary=False))
 
             if current_color is not None:
-                resource_content = resource_content.replace("currentColor", current_color)
+                resource_content = resource_content.replace("currentColor", current_color.color_hex)
 
             save_file(resolve_temp_resource(resource.resource_name), resource_content)
 

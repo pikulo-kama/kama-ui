@@ -31,7 +31,12 @@ class ProjectDiscovery:
     def get_config_directory(self, *path: str):
         return os.path.join(self.get_project_root(), self.Config, *path)
 
-    def get_resources_directory(self, *path: str):
+    def get_resources_directory(self, *path: str, include_temporary: bool = True):
+        temp_resource_path = self.get_temp_resources_directory(*path)
+
+        if include_temporary and os.path.exists(temp_resource_path):
+            return temp_resource_path
+
         return os.path.join(self.get_project_root(), self.Resources, *path)
 
     def get_styles_directory(self, *path: str):
