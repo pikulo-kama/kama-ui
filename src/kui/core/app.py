@@ -10,8 +10,7 @@ from kutil.file import read_file, save_file
 from kutil.meta import SingletonMeta
 
 from kui.core.holder import DataHolder
-from kui.core.provider import MetadataProvider, ControllerSectionProvider, JsonControllerSectionProvider, \
-    JsonMetadataProvider
+from kui.core.provider import MetadataProvider, ControllerSectionProvider
 from kui.core.startup import StartupJob, KamaStartupWorker
 from kui.core.style import ColorMode, StyleBuilder
 from kamatr.manager import TextResourceManager
@@ -22,7 +21,7 @@ from kui.style.image import DynamicResource
 from kui.style.color import ColorResolver, RgbaColorResolver
 from kui.style.font import FontResolver
 from kui.style.image import ImageResolver
-from kui.util.file import resolve_resource, resolve_temp_resource, resolve_root_package
+from kui.util.file import resolve_root_package
 from kutil.reflection import get_members
 
 
@@ -31,7 +30,7 @@ class KamaApplication(metaclass=SingletonMeta):
     def __init__(self):
         self.__application = QApplication(sys.argv)
         self.__discovery = ProjectDiscovery(self)
-        self.__config = YamlHolder(self.discovery.get_project_root("kamaconfig"))
+        self.__config = YamlHolder(self.discovery.project("kamaconfig"))
         self.__style_builder = StyleBuilder(self)
         self.__startup_job = StartupJob(self)
         self.__window = KamaWindow(self)
@@ -40,8 +39,8 @@ class KamaApplication(metaclass=SingletonMeta):
         self.__dynamic_resources: list[DynamicResource] = []
         self.__color_mode = None
 
-        self.__metadata_provider = JsonMetadataProvider()
-        self.__section_provider = JsonControllerSectionProvider()
+        self.__metadata_provider = MetadataProvider()
+        self.__section_provider = ControllerSectionProvider()
 
         self.__fonts: dict[str, KamaFont] = {}
         self.__colors: dict[str, KamaComposedColor] = {}
@@ -116,16 +115,12 @@ class KamaApplication(metaclass=SingletonMeta):
     def text_resources(self) -> TextResourceManager:
         return self.__text_resources
 
-    def tr(self, text_resource_key: str, *args):
-        return self.text_resources.get(text_resource_key, *args)
-
     @property
     def data(self) -> DataHolder:
         return self.__data_holder
 
-    @property
-    def qt_app(self) -> QApplication:
-        return self.__application
+    def set_stylesheet(self, stylesheet: str):
+        self.__application.setStyleSheet(stylesheet)
 
     @property
     def window(self) -> KamaWindow:
@@ -154,7 +149,7 @@ class KamaApplication(metaclass=SingletonMeta):
 
         if app_data_token in value:
             path = value.replace(app_data_token, "")
-            value = self.__discovery.get_app_data_root(path)
+            value = self.__discovery.app_data(path)
 
         return value
 
@@ -194,13 +189,14 @@ class KamaApplication(metaclass=SingletonMeta):
             if resolved_color is not None:
                 current_color = resolved_color
 
-            self.discovery.get_resources_directory(resource.resource_path)
-            resource_content = read_file(resolve_resource(resource.resource_path, include_temporary=False))
+            resource_path = self.discovery.resources(resource.resource_path, include_temporary=False)
+            resource_content = read_file(resource_path)
 
             if current_color is not None:
                 resource_content = resource_content.replace("currentColor", current_color.color_hex)
 
-            save_file(resolve_temp_resource(resource.resource_name), resource_content)
+            temp_resource_path = self.discovery.temp_resources(resource.resource_name)
+            save_file(temp_resource_path, resource_content)
 
     @staticmethod
     def __get_system_color_mode():

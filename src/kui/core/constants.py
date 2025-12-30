@@ -75,4 +75,3 @@ class Directory:
 
 
 UTF_8: Final = "utf-8"
-SHA_256: Final = "sha256"

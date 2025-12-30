@@ -1,7 +1,7 @@
 from PyQt6.QtGui import QPixmap
 
 from kui.core.resolver import ContentResolver
-from kui.util.file import resolve_resource
+from kui.core.shortcut import resolve_resource
 from kui.util.graphics import scale_image, round_image
 from kutil.logger import get_logger
 

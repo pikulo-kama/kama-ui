@@ -19,37 +19,37 @@ class ProjectDiscovery:
         self.__application = application
 
     @classmethod
-    def get_project_root(cls, *path: str):
-        return os.path.join(get_runtime_root(), *path)
+    def project(cls, *paths: str):
+        return os.path.join(get_runtime_root(), *paths)
 
-    def get_app_data_root(self, *path: str):
+    def app_data(self, *paths: str):
         app_data_directory = os.getenv("APPDATA") or ""
         app_name = self.__application.name
 
-        return os.path.join(app_data_directory, app_name, *path)
+        return os.path.join(app_data_directory, app_name, *paths)
 
-    def get_config_directory(self, *path: str):
-        return os.path.join(self.get_project_root(), self.Config, *path)
+    def config(self, *paths: str):
+        return os.path.join(self.project(), self.Config, *paths)
 
-    def get_resources_directory(self, *path: str, include_temporary: bool = True):
-        temp_resource_path = self.get_temp_resources_directory(*path)
+    def resources(self, *paths: str, include_temporary: bool = True):
+        temp_resource_path = self.temp_resources(*paths)
 
         if include_temporary and os.path.exists(temp_resource_path):
             return temp_resource_path
 
-        return os.path.join(self.get_project_root(), self.Resources, *path)
+        return os.path.join(self.project(), self.Resources, *paths)
 
-    def get_styles_directory(self, *path: str):
-        return os.path.join(self.get_project_root(), self.Styles, *path)
+    def styles(self, *paths: str):
+        return os.path.join(self.project(), self.Styles, *paths)
 
-    def get_logback_directory(self, *path: str):
-        return os.path.join(self.get_app_data_root(), self.Logback, *path)
+    def logback(self, *paths: str):
+        return os.path.join(self.app_data(), self.Logback, *paths)
 
-    def get_logs_directory(self, *path: str):
-        return os.path.join(self.get_app_data_root(), self.Logs, *path)
+    def logs(self, *paths: str):
+        return os.path.join(self.app_data(), self.Logs, *paths)
 
-    def get_output_directory(self, *path: str):
-        return os.path.join(self.get_app_data_root(), self.Output, *path)
+    def output(self, *paths: str):
+        return os.path.join(self.app_data(), self.Output, *paths)
 
-    def get_temp_resources_directory(self, *path: str):
-        return os.path.join(self.get_output_directory(), self.Resources, *path)
+    def temp_resources(self, *paths: str):
+        return os.path.join(self.output(), self.Resources, *paths)

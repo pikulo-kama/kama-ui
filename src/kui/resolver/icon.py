@@ -4,7 +4,7 @@ from typing import Final
 from PyQt6.QtGui import QIcon
 
 from kui.core.resolver import ContentResolver
-from kui.util.file import resolve_resource
+from kui.core.shortcut import resolve_resource
 from kutil.logger import get_logger
 
 

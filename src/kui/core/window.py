@@ -82,12 +82,12 @@ class KamaWindow(QMainWindow):
         import kui.stylesheet as stylesheet_module
 
         core_stylesheet = self.__application.style_builder.load_stylesheet(stylesheet_module.__path__[0])
-        user_stylesheet_directory = self.__application.discovery.get_styles_directory()
+        user_stylesheet_directory = self.__application.discovery.styles()
         user_stylesheet = self.__application.style_builder.load_stylesheet(user_stylesheet_directory)
         stylesheet = core_stylesheet + "\n" + user_stylesheet
 
         self.__application.create_dynamic_resources()
-        self.__application.qt_app.setStyleSheet(stylesheet)
+        self.__application.set_stylesheet(stylesheet)
 
     def build(self, section: str):
         """

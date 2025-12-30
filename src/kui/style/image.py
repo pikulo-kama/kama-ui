@@ -17,6 +17,6 @@ class ImageResolver(StyleResolver):
 
     def resolve(self, match):
         image_name = match.group(1)
-        image_path = self.application.discovery.get_resources_directory(image_name)
+        image_path = self.application.discovery.resources(image_name)
 
         return f"url('{image_path.replace(os.path.sep, "/")}')"
