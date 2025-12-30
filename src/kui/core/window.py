@@ -26,7 +26,7 @@ class KamaWindow(QMainWindow):
         self.__application = application
         self.__manager = WidgetManager(application, self)
         self.__settings = QSettings(
-            application.config.get("application.author"),
+            application.prop("application.author", "KamaUI"),
             application.name
         )
 
@@ -43,19 +43,19 @@ class KamaWindow(QMainWindow):
 
     @property
     def window_width(self):
-        return self.__application.config.get("window.width", 1920)
+        return self.__application.prop("window.width", 1920)
 
     @property
     def window_height(self):
-        return self.__application.config.get("window.height", 1080)
+        return self.__application.prop("window.height", 1080)
 
     @property
     def min_width(self):
-        return self.__application.config.get("window.min-width", 1080)
+        return self.__application.prop("window.min-width", 1080)
 
     @property
     def min_height(self):
-        return self.__application.config.get("window.min-height", 720)
+        return self.__application.prop("window.min-height", 720)
 
     @property
     def manager(self):

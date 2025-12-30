@@ -1,15 +1,34 @@
+import os.path
 from typing import Any
 
 import yaml
-from kui.util.file import resolve_app_data
+from kutil.file_type import YML, YAML
+from kutil.logger import get_logger
 
 
-class ApplicationConfig:
+_logger = get_logger(__name__)
+
+
+class YamlHolder:
 
     def __init__(self, config_path: str):
         self.__data = {}
 
-        with open(config_path, "r", encoding="utf-8") as file:
+        file_path = None
+        yml_file_path = YML.add_extension(config_path)
+        yaml_file_path = YAML.add_extension(config_path)
+
+        if os.path.exists(yaml_file_path):
+            file_path = yaml_file_path
+
+        elif os.path.exists(yml_file_path):
+            file_path = yml_file_path
+
+        if file_path is None:
+            _logger.error("KamaUI configuration file is missing.")
+            return
+
+        with open(file_path, "r", encoding="utf-8") as file:
             self.__data = yaml.safe_load(file)
 
     def get(self, property_name: str, default_value: Any = None):
@@ -21,19 +40,5 @@ class ApplicationConfig:
 
         if value == {}:
             value = default_value
-
-        if isinstance(value, str):
-            value = self.__resolve_tokens(value)
-
-        return value
-
-    @staticmethod
-    def __resolve_tokens(value: str):
-
-        app_data_token = "AppData:"
-
-        if app_data_token in value:
-            path = value.replace(app_data_token, "")
-            value = resolve_app_data(path)
 
         return value

@@ -1,10 +1,11 @@
 import sys
 from importlib.metadata import entry_points
+from typing import Any
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QApplication
 from kui.core.discovery import ProjectDiscovery
-from kui.core.yaml_holder import ApplicationConfig
+from kui.core.yaml_holder import YamlHolder
 from kutil.file import read_file, save_file
 from kutil.meta import SingletonMeta
 
@@ -21,7 +22,7 @@ from kui.style.image import DynamicResource
 from kui.style.color import ColorResolver, RgbaColorResolver
 from kui.style.font import FontResolver
 from kui.style.image import ImageResolver
-from kui.util.file import resolve_resource, resolve_temp_resource, resolve_application_data, resolve_root_package
+from kui.util.file import resolve_resource, resolve_temp_resource, resolve_root_package
 from kutil.reflection import get_members
 
 
@@ -38,8 +39,8 @@ def holder():
     return KamaApplication().data
 
 
-def prop(property_name: str):
-    return KamaApplication().config.get(property_name)
+def prop(property_name: str, default_value: Any = None):
+    return KamaApplication().prop(property_name, default_value)
 
 
 def style():
@@ -50,8 +51,8 @@ class KamaApplication(metaclass=SingletonMeta):
 
     def __init__(self):
         self.__application = QApplication(sys.argv)
-        self.__config = ApplicationConfig(resolve_application_data("kamaconfig.yaml"))
         self.__discovery = ProjectDiscovery(self)
+        self.__config = YamlHolder(self.discovery.get_project_root("kamaconfig"))
         self.__style_builder = StyleBuilder(self)
         self.__startup_job = StartupJob(self)
         self.__window = KamaWindow(self)
@@ -68,7 +69,7 @@ class KamaApplication(metaclass=SingletonMeta):
 
     @property
     def name(self):
-        return self.__config.get("application.name", "KamaUI")
+        return self.prop("application.name", "KamaUI")
 
     @property
     def color_mode(self):
@@ -83,7 +84,7 @@ class KamaApplication(metaclass=SingletonMeta):
 
     @property
     def locale(self):
-        return self.text_resources.locale or self.config.get("locale", "en_US")
+        return self.text_resources.locale or self.prop("locale", "en_US")
 
     @locale.setter
     def locale(self, locale: str):
@@ -165,9 +166,18 @@ class KamaApplication(metaclass=SingletonMeta):
 
         return self.__application.exec()
 
-    @property
-    def config(self):
-        return self.__config
+    def prop(self, property_name: str, default_value: Any = None):
+        app_data_token = ":AppData:"
+        value = self.__config.get(property_name, default_value)
+
+        if not isinstance(value, str):
+            return value
+
+        if app_data_token in value:
+            path = value.replace(app_data_token, "")
+            value = self.__discovery.get_app_data_root(path)
+
+        return value
 
     def add_font(self, font: KamaFont):
         self.__fonts[font.font_code] = font

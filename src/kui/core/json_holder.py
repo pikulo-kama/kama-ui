@@ -2,7 +2,7 @@ import os
 from typing import Any
 
 from kutil.file import read_file, save_file
-from kutil.file_extension import JSON
+from kutil.file_type import JSON
 
 
 class JsonConfigHolder:
@@ -13,7 +13,7 @@ class JsonConfigHolder:
 
     def __init__(self, config_path: str):
 
-        self._config_path = JSON.add_to(config_path)
+        self._config_path = JSON.add_extension(config_path)
         self._data = dict()
 
         self._before_file_open()
