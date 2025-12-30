@@ -18,44 +18,51 @@ def prop(property_name: str, default_value: Any = None):
     return KamaApplication().prop(property_name, default_value)
 
 
+def resolve_project_file(*paths: str):
+    """
+    Used to resolve file in '{PROJECT_ROOT}' directory.
+    """
+    return KamaApplication().discovery.project(*paths)
+
+
 def resolve_config(*paths: str):
     """
-    Used to resolve file in '{PROJECT_ROOT}/config' directory.
+    Used to resolve file in '{PROJECT_ROOT}/Config' directory.
     """
     return KamaApplication().discovery.config(*paths)
 
 
 def resolve_resource(*paths: str, include_temporary: bool = True):
     """
-    Used to resolve file in '{PROJECT_ROOT}/resource' directory.
+    Used to resolve file in '{PROJECT_ROOT}/Resource' directory.
     """
     return KamaApplication().discovery.resources(*paths, include_temporary=include_temporary)
 
 
 def resolve_temp_file(*paths: str):
     """
-    Used to resolve file in '{APP_DATA}/SaveGem/output' directory.
+    Used to resolve file in '{APP_DATA}/{app_name}/Output' directory.
     """
     return KamaApplication().discovery.output(*paths)
 
 
 def resolve_temp_resource(*paths: str):
     """
-    Used to resolve file in '{APP_DATA}/Output/Resources' directory.
+    Used to resolve file in '{APP_DATA}/{app_name}/Output/Resources' directory.
     """
     return KamaApplication().discovery.temp_resources(*paths)
 
 
 def resolve_app_data(*paths: str):
     """
-    Used to resolve file in '{APP_DATA}' directory.
+    Used to resolve file in '{APP_DATA}/{app_name}' directory.
     """
     return KamaApplication().discovery.app_data(*paths)
 
 
 def resolve_log(*paths: str):
     """
-    Used to resolve file in '{APP_DATA}/logs' directory.
+    Used to resolve file in '{APP_DATA}/{app_name}/Logs' directory.
     """
     return KamaApplication().discovery.logs(*paths)
 
@@ -63,12 +70,6 @@ def resolve_log(*paths: str):
 def resolve_logback(*paths: str):
     """
     Used to resolve logging configuration file.
+    File is located in '{AppData}/{app_name}/Logback'
     """
     return KamaApplication().discovery.logback(*paths)
-
-#
-# def resolve_project_data(*paths: str):
-#     """
-#     Used to resolve file in '{PROJECT_ROOT}' directory.
-#     """
-#     return os.path.join(Directory().ProjectRoot, file_name)
