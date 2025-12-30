@@ -1,8 +1,6 @@
 import sys
 from pathlib import Path
 
-from kutil.file import save_file
-
 
 def get_project_dir() -> Path:
     """
@@ -72,15 +70,11 @@ def get_root_package():
     # 3. Match the physical path against loaded modules
     # This is the "magic" part: we look for which loaded module
     # matches the directory of our entry point.
-
-    # Todo: debugging
-    data: dict = {"entry_file": entry_file.name}
     module_name = None
 
     for name, module in sys.modules.items():
         if hasattr(module, '__file__') and module.__file__:
             module_path = Path(module.__file__).resolve()
-            data[name] = module_path.name
 
             if module_path.parent == entry_file.parent and '.' in name:
                 module_name = name
@@ -89,5 +83,4 @@ def get_root_package():
     if module_name is None:
         raise RuntimeError("Can't determine application root package.")
 
-    save_file("C:\\Users\\djara\\AppData\\Roaming\\SaveGem\\test.json", data, as_json=True)
     return module_name
