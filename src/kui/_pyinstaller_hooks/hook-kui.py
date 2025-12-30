@@ -1,8 +1,14 @@
+from PyInstaller.utils.hooks import collect_submodules, collect_data_files  # noqa
 import os.path
 import sys
 
 
-datas = []
+datas = collect_data_files("kui.stylesheet")
+hiddenimports = (
+    collect_submodules("kui.component") +
+    collect_submodules("kui.resolver")
+)
+
 base_path = os.path.dirname(os.path.abspath(__file__))
 possible_files = [
     "kamaconfig.yaml",
