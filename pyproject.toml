@@ -33,8 +33,8 @@ where = ["src"]
 [tool.setuptools.package-data]
 "kui.stylesheet" = ["*.qss"]
 
-[project.entry-points."pyinstaller40.hook_registration"]
-kama_ui = "kui._pyinstaller_hooks"
+[project.entry-points."pyinstaller40"]
+hook-dirs = "kui._pyinstaller_hooks:get_hook_dirs"
 
 [tool.coverage.run]
 source = ["kui"]
