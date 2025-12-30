@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from kui.core.metadata import WidgetMetadata
 from kui.util.file import resolve_config
 from kutil.file import read_file
-from kutil.file_extension import JSON
+from kutil.file_type import JSON
 
 if TYPE_CHECKING:
     from kui.core.controller import WidgetController
@@ -33,7 +33,7 @@ class JsonMetadataProvider(MetadataProvider):
     def provide(self, section_id: str) -> list[WidgetMetadata]:
 
         metadata = []
-        section_file_name = JSON.add_to(section_id)
+        section_file_name = JSON.add_extension(section_id)
         metadata_file_path = resolve_config(os.path.join("widgets", section_file_name))
 
         if not os.path.exists(metadata_file_path):
@@ -53,7 +53,7 @@ class JsonControllerSectionProvider(ControllerSectionProvider):
     def provide(self, controller: "WidgetController") -> list[Section]:
 
         sections = []
-        config_file_name = JSON.add_to(controller.__class__.__name__)
+        config_file_name = JSON.add_extension(controller.__class__.__name__)
         section_file_path = resolve_config(os.path.join("sections", config_file_name))
 
         if not os.path.exists(section_file_path):
