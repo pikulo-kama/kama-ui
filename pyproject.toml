@@ -1,8 +1,12 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "kama-ui"
 license = {file = "LICENSE"}
 classifiers = [
-    "License :: OSI Approved :: GPLv3 License",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
 ]
@@ -23,11 +27,14 @@ test = [
 [tool.setuptools]
 include-package-data = true
 
+[tool.setuptools.packages.find]
+where = ["src"]
+
 [tool.setuptools.package-data]
 "kui.stylesheet" = ["*.qss"]
 
-[project.entry-points."pyinstaller40.hook_names"]
-hook_names = "kui._pyinstaller_hooks"
+[project.entry-points."pyinstaller40.hook_registration"]
+kama_ui = "kui._pyinstaller_hooks"
 
 [tool.coverage.run]
 source = ["kui"]

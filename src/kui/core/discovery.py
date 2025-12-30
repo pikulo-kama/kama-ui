@@ -1,6 +1,6 @@
 import os.path
 from typing import TYPE_CHECKING
-from kutil.file import get_runtime_root
+from kui.util.file import get_project_dir
 
 if TYPE_CHECKING:
     from kui.core.app import KamaApplication
@@ -13,7 +13,7 @@ class ProjectDiscovery:
 
     @property
     def ProjectRoot(self):  # noqa
-        return get_runtime_root()
+        return get_project_dir()
 
     @property
     def AppData(self):  # noqa

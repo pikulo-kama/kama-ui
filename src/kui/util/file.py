@@ -1,6 +1,41 @@
 import sys
 from pathlib import Path
 
+from kutil.file import save_file
+
+
+def get_project_dir() -> Path:
+    """
+    Returns the root directory of the application.
+    Works for:
+    1. Standard Python scripts (searching for markers).
+    2. Compiled .exe files (PyInstaller/Nuitka).
+    """
+
+    # 1. Check if the app is running as a compiled bundle (.exe)
+    if getattr(sys, "frozen", False):
+        # If frozen, sys.executable is the path to the actual .exe file
+        return Path(sys.executable).parent
+
+    # 2. If running as a normal script, use the marker-based search
+    # Starting from the script entry point
+    start_path = Path(sys.argv[0]).resolve()
+
+    if not start_path.exists():
+        start_path = Path.cwd().resolve()
+
+    root_markers = {"kamaconfig.yaml", "kamaconfig.yml"}
+
+    for parent in [start_path] + list(start_path.parents):
+        for marker in root_markers:
+            marker_path = parent / marker
+
+            if marker_path.exists():
+                return parent
+
+    # Fallback to current working directory
+    return Path.cwd().resolve()
+
 
 def resolve_root_package(*package_list: str) -> str:
     """
@@ -14,45 +49,45 @@ def resolve_root_package(*package_list: str) -> str:
     return ".".join(package_list)
 
 
-def get_entrypoint_path():
-    if getattr(sys, 'frozen', False):
-        return Path(sys.executable).resolve()
+def get_entry_point() -> Path:
+    main_module = sys.modules.get('__main__')
 
-    # Fallback to sys.argv[0] if __main__ lacks __file__
-    main_module = sys.modules.get("__main__")
-    main_file = getattr(main_module, "__file__", sys.argv[0])
+    if hasattr(sys, 'frozen'):
+        return Path(sys.executable if sys.frozen else sys.argv[0]).resolve()
 
-    return Path(main_file).resolve()
+    if hasattr(main_module, "__file__"):
+        return Path(main_module.__file__).resolve()
+
+    raise RuntimeError("Can't determine path of entry point.")
 
 
 def get_root_package():
+    entry_file = get_entry_point()
     main_module = sys.modules.get('__main__')
-    entry_file = None
 
     # 1. Check if the entry point already knows its package
     if hasattr(main_module, '__package__') and main_module.__package__:
         return main_module.__package__
 
-    # 2. Get the physical path of the entry point
-    # In PyInstaller, this will be the path to the EXE or the injected script
-    if hasattr(sys, 'frozen'):
-        entry_file = Path(sys.executable if sys.frozen else sys.argv[0]).resolve()
-
-    elif hasattr(main_module, "__file__"):
-        entry_file = Path(main_module.__file__).resolve()
-
-    if not entry_file:
-        raise RuntimeError("Can't determine path to entry point.")
-
     # 3. Match the physical path against loaded modules
     # This is the "magic" part: we look for which loaded module
     # matches the directory of our entry point.
 
+    # Todo: debugging
+    data: dict = {"entry_file": entry_file.name}
+    module_name = None
+
     for name, module in sys.modules.items():
         if hasattr(module, '__file__') and module.__file__:
             module_path = Path(module.__file__).resolve()
+            data[name] = module_path.name
 
             if module_path.parent == entry_file.parent and '.' in name:
-                return name
+                module_name = name
+                break
 
-    raise RuntimeError("Can't determine application root package.")
+    if module_name is None:
+        raise RuntimeError("Can't determine application root package.")
+
+    save_file("C:\\Users\\djara\\AppData\\Roaming\\SaveGem\\test.json", data, as_json=True)
+    return module_name

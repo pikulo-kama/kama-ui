@@ -156,8 +156,6 @@ class WidgetManager:
         self.__widgets: dict[str, KamaComponent] = {}
         self.__controllers: dict[str, WidgetController] = {}
 
-        self.__load_components()
-
     def execute(self, command: "WidgetCommand"):
         """
         Executes a widget command and applies the resulting additions or removals.
@@ -354,7 +352,7 @@ class WidgetManager:
             for child in widget.findChildren(KamaComponentMixin):
                 remove_widget(child)
 
-    def __load_components(self):
+    def load_components(self):
 
         import kui.component as component_package
 

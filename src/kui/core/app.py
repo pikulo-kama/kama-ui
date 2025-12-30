@@ -128,6 +128,7 @@ class KamaApplication(metaclass=SingletonMeta):
 
     def exec(self):
         self.__discover_plugins()
+        self.__window.manager.load_components()
         self.__window.manager.load_controllers()
 
         self.__style_builder.add_resolver(ColorResolver())
