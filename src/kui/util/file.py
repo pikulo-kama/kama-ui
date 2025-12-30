@@ -24,19 +24,35 @@ def get_entrypoint_path():
 
     return Path(main_file).resolve()
 
+
 def get_root_package():
     main_module = sys.modules.get('__main__')
-    root_package = getattr(main_module, "__package__")
+    entry_file = None
 
-    if root_package:
-        return root_package
+    # 1. Check if the entry point already knows its package
+    if hasattr(main_module, '__package__') and main_module.__package__:
+        return main_module.__package__
 
-    parts = []
-    entry_path = get_entrypoint_path()
-    current = entry_path.parent
+    # 2. Get the physical path of the entry point
+    # In PyInstaller, this will be the path to the EXE or the injected script
+    if hasattr(sys, 'frozen'):
+        entry_file = Path(sys.executable if sys.frozen else sys.argv[0]).resolve()
 
-    while (current / "__init__.py").exists():
-        parts.append(current.name)
-        current = current.parent
+    elif hasattr(main_module, "__file__"):
+        entry_file = Path(main_module.__file__).resolve()
 
-    return ".".join(reversed(parts))
+    if not entry_file:
+        raise RuntimeError("Can't determine path to entry point.")
+
+    # 3. Match the physical path against loaded modules
+    # This is the "magic" part: we look for which loaded module
+    # matches the directory of our entry point.
+
+    for name, module in sys.modules.items():
+        if hasattr(module, '__file__') and module.__file__:
+            module_path = Path(module.__file__).resolve()
+
+            if module_path.parent == entry_file.parent and '.' in name:
+                return name
+
+    raise RuntimeError("Can't determine application root package.")
