@@ -1,5 +1,5 @@
 from kui.core.resolver import ContentResolver
-from kui.core.app import prop
+from kui.core.shortcut import prop
 from kutil.logger import get_logger
 
 

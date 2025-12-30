@@ -1,4 +1,4 @@
-from kui.core.app import tr
+from kui.core.shortcut import tr
 from kui.core.resolver import ContentResolver
 from kutil.logger import get_logger
 

@@ -26,27 +26,6 @@ from kui.util.file import resolve_resource, resolve_temp_resource, resolve_root_
 from kutil.reflection import get_members
 
 
-def window():
-    return KamaApplication().window
-
-
-def tr(text_resource_key: str, *args):
-    text_resources = KamaApplication().text_resources
-    return text_resources.get(text_resource_key, *args)
-
-
-def holder():
-    return KamaApplication().data
-
-
-def prop(property_name: str, default_value: Any = None):
-    return KamaApplication().prop(property_name, default_value)
-
-
-def style():
-    return KamaApplication().style_builder
-
-
 class KamaApplication(metaclass=SingletonMeta):
 
     def __init__(self):
