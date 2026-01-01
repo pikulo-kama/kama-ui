@@ -1,6 +1,5 @@
 import re
 
-from kui.util.file import resolve_root_package
 from kutil.logger import get_logger
 from kutil.reflection import get_members
 
@@ -100,12 +99,17 @@ def get_core_resolvers():
     if len(__resolvers) == 0:
 
         import kui.resolver as resolver_module
+        from kui.core.app import KamaApplication
 
-        for member_name, member in get_members(resolver_module.__package__, ContentResolver):
+        application = KamaApplication()
+        core_package = resolver_module.__package__
+        custom_package = application.prop("application.resolver-package", "")
+
+        for member_name, member in get_members(core_package, ContentResolver):
             _logger.debug("Loading core content resolver with name %s", member_name)
             __resolvers[member_name.lower()] = member()
 
-        for member_name, member in get_members(resolve_root_package("resolver"), ContentResolver):
+        for member_name, member in get_members(custom_package, ContentResolver):
             _logger.debug("Loading custom content resolver with name %s", member_name)
             __resolvers[member_name.lower()] = member()
 

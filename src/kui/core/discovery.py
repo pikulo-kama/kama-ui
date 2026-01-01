@@ -16,6 +16,10 @@ class ProjectDiscovery:
         return get_project_dir()
 
     @property
+    def BasePackage(self):  # noqa
+        return self.__application.prop("application.base-package", "")
+
+    @property
     def AppData(self):  # noqa
         app_data_directory = os.getenv("APPDATA") or ""
         app_name = self.__application.name
@@ -49,6 +53,12 @@ class ProjectDiscovery:
     @property
     def TempResources(self):  # noqa
         return os.path.join(self.Output, "Resources")
+
+    def package(self, *paths: str):
+        paths = list(paths)
+        paths.insert(0, self.BasePackage)
+
+        return ".".join(paths)
 
     def project(self, *paths: str):
         return os.path.join(self.ProjectRoot, *paths)

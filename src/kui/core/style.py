@@ -1,10 +1,8 @@
-import os
 import re
-from pathlib import Path
 from typing import Final, TYPE_CHECKING, Optional
 
-from kutil.file import read_file
 from kutil.logger import get_logger
+from importlib.abc import Traversable
 
 if TYPE_CHECKING:
     from kui.core.app import KamaApplication
@@ -53,25 +51,20 @@ class StyleBuilder:
         resolver.application = self.__application
         self.__resolvers.append(resolver)
 
-    def load_stylesheet(self, directory: str):
+    def load_stylesheet(self, directory: Traversable):
         """
-        Used to load all stylesheets and combine
-        them into single string.
-
-        Will also load styles from nested directories.
+        Load all stylesheets recursively using Traversable API.
+        Works for both standard OS paths and bundled resources.
         """
 
         style_string = ""
 
-        # Get all style files and join them together.
-        for file_name in os.listdir(directory):
-            file_path = os.path.join(directory, file_name)
+        for entry in directory.iterdir():
+            if entry.is_dir():
+                style_string += self.load_stylesheet(entry)
 
-            if Path(file_path).is_dir():
-                style_string += self.load_stylesheet(file_path)
-
-            elif file_path.endswith(".qss"):
-                style_string += read_file(file_path)
+            elif entry.name.endswith(".qss"):
+                style_string += entry.read_text(encoding="utf-8")
 
         return self.resolve(style_string)
 

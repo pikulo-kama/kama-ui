@@ -1,6 +1,7 @@
 import dataclasses
 
 from kui.core.style import StyleResolver
+from kutil.file import save_file
 
 
 @dataclasses.dataclass
@@ -28,6 +29,7 @@ class ColorResolver(StyleResolver):
 
     def resolve(self, match):
         color_code = match.group(1)
+        save_file("C://Users//djara//AppData//Roaming//SaveGem//test.txt", str(color_code))
         color = self.application.get_color(color_code)
 
         return color.color_hex

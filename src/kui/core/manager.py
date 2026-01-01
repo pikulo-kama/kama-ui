@@ -12,7 +12,6 @@ from kui.command.enable import WidgetEnableCommand
 from kui.command.refresh import WidgetEventRefreshCommand, WidgetRefreshCommand
 from kui.core.metadata import WidgetMetadata
 from kutil.logger import get_logger
-from kui.util.file import resolve_root_package
 
 if TYPE_CHECKING:
     from kui.core.window import KamaWindow
@@ -360,7 +359,7 @@ class WidgetManager:
         layout_types = []
 
         core_package = component_package.__package__
-        custom_package = resolve_root_package("component")
+        custom_package = self.__application.prop("application.component-package", "")
 
         for member_name, member in get_members(core_package, KamaComponentMixin):
             widget_types.append(member)
@@ -378,7 +377,8 @@ class WidgetManager:
         self.execute(AddLayoutTypeCommand(layout_types))
 
     def load_controllers(self):
+        custom_package = self.__application.prop("application.controller-package", "")
 
-        for member_name, member in get_members(resolve_root_package("controller"), WidgetController):
+        for member_name, member in get_members(custom_package, WidgetController):
             controller: "WidgetController" = member(self.__application, self)
             self.__controllers[member_name] = controller

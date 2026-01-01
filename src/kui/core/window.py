@@ -1,9 +1,11 @@
+from importlib import resources
 from typing import Callable, TYPE_CHECKING
 
 from PyQt6.QtCore import pyqtSignal, QSettings
 from PyQt6.QtGui import QCloseEvent
 from PyQt6.QtWidgets import QMainWindow, QApplication, QWidget, QHBoxLayout
 from kutil.logger import get_logger
+from pathlib import Path
 from kui.core.manager import WidgetManager
 
 if TYPE_CHECKING:
@@ -81,8 +83,9 @@ class KamaWindow(QMainWindow):
     def reload_styles(self):
         import kui.stylesheet as stylesheet_module
 
-        core_stylesheet = self.__application.style_builder.load_stylesheet(stylesheet_module.__path__[0])
-        user_stylesheet_directory = self.__application.discovery.styles()
+        stylesheet_path = resources.files(stylesheet_module)
+        core_stylesheet = self.__application.style_builder.load_stylesheet(stylesheet_path)
+        user_stylesheet_directory = Path(self.__application.discovery.Styles)
         user_stylesheet = self.__application.style_builder.load_stylesheet(user_stylesheet_directory)
         stylesheet = core_stylesheet + "\n" + user_stylesheet
 

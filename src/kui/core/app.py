@@ -1,3 +1,4 @@
+import os.path
 import sys
 from importlib.metadata import entry_points
 from typing import Any
@@ -21,7 +22,7 @@ from kui.style.image import DynamicResource
 from kui.style.color import ColorResolver, RgbaColorResolver
 from kui.style.font import FontResolver
 from kui.style.image import ImageResolver
-from kui.util.file import resolve_root_package
+from kui.util.file import get_project_dir
 from kutil.reflection import get_members
 
 
@@ -29,8 +30,8 @@ class KamaApplication(metaclass=SingletonMeta):
 
     def __init__(self):
         self.__application = QApplication(sys.argv)
+        self.__config = YamlHolder(os.path.join(get_project_dir(), "kamaconfig"))
         self.__discovery = ProjectDiscovery(self)
-        self.__config = YamlHolder(self.discovery.project("kamaconfig"))
         self.__style_builder = StyleBuilder(self)
         self.__startup_job = StartupJob(self)
         self.__window = KamaWindow(self)
@@ -142,7 +143,10 @@ class KamaApplication(metaclass=SingletonMeta):
         return self.__application.exec()
 
     def prop(self, property_name: str, default_value: Any = None):
-        app_data_token = ":AppData:"
+        # todo: refactor
+        app_data_token = "{AppDataDirectory}"
+        base_package_token = "{base}"
+
         value = self.__config.get(property_name, default_value)
 
         if not isinstance(value, str):
@@ -151,6 +155,9 @@ class KamaApplication(metaclass=SingletonMeta):
         if app_data_token in value:
             path = value.replace(app_data_token, "")
             value = self.__discovery.app_data(path)
+
+        if base_package_token in value:
+            value = value.replace(base_package_token, self.prop("application.base-package", ""))
 
         return value
 
@@ -219,7 +226,8 @@ class KamaApplication(metaclass=SingletonMeta):
         return mode
 
     def __collect_startup_tasks(self):
+        custom_startup_package = self.prop("application.startup-package", "")
 
-        for member_name, member in get_members(resolve_root_package("startup"), KamaStartupWorker):
+        for member_name, member in get_members(custom_startup_package, KamaStartupWorker):
             task: KamaStartupWorker = member()
             self.__startup_job.add_task(task)
