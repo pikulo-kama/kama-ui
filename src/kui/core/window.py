@@ -2,9 +2,10 @@ from importlib import resources
 from typing import Callable, TYPE_CHECKING
 
 from PyQt6.QtCore import pyqtSignal, QSettings
-from PyQt6.QtGui import QCloseEvent
+from PyQt6.QtGui import QCloseEvent, QIcon
 from PyQt6.QtWidgets import QMainWindow, QApplication, QWidget, QHBoxLayout
 from kutil.logger import get_logger
+from kutil.file_type import SVG
 from pathlib import Path
 from kui.core.manager import WidgetManager
 
@@ -40,6 +41,9 @@ class KamaWindow(QMainWindow):
 
         self.__is_ui_blocked = False
         self.__is_initialized = False
+
+        self.setWindowTitle(self.__application.name)
+        self.setWindowIcon(QIcon(application.discovery.resources(SVG.add_extension("application"))))
 
         self.resize_window()
 
@@ -97,7 +101,6 @@ class KamaWindow(QMainWindow):
         Used to build window and all of its components.
         """
 
-        self.setWindowTitle(self.__application.name)
         _logger.info("Building UI using section '%s'.", section)
 
         self.reload_styles()
