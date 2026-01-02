@@ -43,7 +43,8 @@ class KamaWindow(QMainWindow):
         self.__is_initialized = False
 
         self.setWindowTitle(self.__application.name)
-        self.setWindowIcon(QIcon(application.discovery.resources(SVG.add_extension("application"))))
+        logo_name = application.prop("application.icon", SVG.add_extension("application"))
+        self.setWindowIcon(QIcon(application.discovery.resources(logo_name)))
 
         self.resize_window()
 
