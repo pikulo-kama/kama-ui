@@ -13,7 +13,7 @@ from kui.core.provider import ProviderManager
 from kui.core.startup import StartupJob, KamaStartupWorker
 from kui.core.style import StyleManager
 from kui.core.window import KamaWindow
-from kui.style.color import ColorResolver, RgbaColorResolver
+from kui.style.color import ColorResolver, RgbaResolver
 from kui.style.font import FontResolver
 from kui.style.image import ImageResolver
 
@@ -85,7 +85,7 @@ class KamaApplication(metaclass=SingletonMeta):
         self.window.manager.load_controllers()
 
         self.style.builder.add_resolver(ColorResolver())
-        self.style.builder.add_resolver(RgbaColorResolver())
+        self.style.builder.add_resolver(RgbaResolver())
         self.style.builder.add_resolver(FontResolver())
         self.style.builder.add_resolver(ImageResolver())
 

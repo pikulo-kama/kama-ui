@@ -6,6 +6,9 @@ from PyQt6.QtWidgets import QApplication
 from kutil.file import read_file, save_file
 from kutil.logger import get_logger
 from importlib.abc import Traversable
+
+from kutil.number import is_float
+
 from kui.core._service import AppService
 from kui.style.type import KamaComposedColor, KamaFont, DynamicResource
 
@@ -122,11 +125,11 @@ class StyleManager(AppService):
 
         return mode
 
+
 class StyleResolver:
 
-    def __init__(self, regex: str):
+    def __init__(self):
         self.__application: Optional["KamaApplication"] = None
-        self.__regex = regex
 
     @property
     def application(self) -> "KamaApplication":
@@ -136,11 +139,7 @@ class StyleResolver:
     def application(self, application: "KamaApplication"):
         self.__application = application
 
-    @property
-    def regex(self):
-        return self.__regex
-
-    def resolve(self, match) -> str:
+    def resolve(self, *args) -> str:
         return ""
 
 
@@ -148,11 +147,12 @@ class StyleBuilder(AppService):
 
     def __init__(self, application: "KamaApplication"):
         super().__init__(application)
-        self.__resolvers: list[StyleResolver] = []
+        self.__resolvers: dict[str, StyleResolver] = {}
 
     def add_resolver(self, resolver: StyleResolver):
+        resolver_name = resolver.__class__.__name__.replace("Resolver", "").lower()
         resolver.application = self.application
-        self.__resolvers.append(resolver)
+        self.__resolvers[resolver_name] = resolver
 
     def load_stylesheet(self, directory: Traversable):
         """
@@ -177,11 +177,36 @@ class StyleBuilder(AppService):
         properties in string.
         """
 
-        for resolver in self.__resolvers:
-            style_string = re.sub(
-                resolver.regex,
-                resolver.resolve,
-                style_string
-            )
+        resolved_values = []
+
+        for match in re.finditer(r"(\w+?(?=\())\((.*?(?=\)))\)", style_string):
+            value = match.group(0)
+            token = match.group(1)
+            args_string = match.group(2)
+            resolver = self.__resolvers.get(token)
+
+            if resolver is None:
+                _logger.error("Resolver for token '%s' was not found.", token)
+                continue
+
+            if value in resolved_values:
+                continue
+
+            raw_args = [arg.strip() for arg in args_string.split(",")]
+            args = []
+
+            for argument in raw_args:
+                if argument.isdigit():
+                    args.append(int(argument))
+
+                elif is_float(argument):
+                    args.append(float(argument))
+
+                else:
+                    args.append(argument[1:-1])
+
+            resolved_value = resolver.resolve(*args)
+            style_string = style_string.replace(value, resolved_value)
+            resolved_values.append(value)
 
         return style_string

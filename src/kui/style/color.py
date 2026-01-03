@@ -3,24 +3,13 @@ from kui.core.style import StyleResolver
 
 class ColorResolver(StyleResolver):
 
-    def __init__(self):
-        super().__init__(r"color\(['\"]([^'\"]+)['\"]\)")
-
-    def resolve(self, match):
-        color_code = match.group(1)
+    def resolve(self, color_code: str):
         color = self.application.style.get_color(color_code)
-
         return color.color_hex
 
 
-class RgbaColorResolver(StyleResolver):
+class RgbaResolver(StyleResolver):
 
-    def __init__(self):
-        super().__init__(r"rgba\(\s*['\"]([^'\"]+)['\"]\s*,\s*([^)]+)\s*\)")
-
-    def resolve(self, match):
-        color_code = match.group(1)
-        alpha = match.group(2)
+    def resolve(self, color_code: str, alpha: float):
         color = self.application.style.get_color(color_code)
-
         return color.rgba(alpha)
