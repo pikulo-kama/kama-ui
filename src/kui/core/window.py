@@ -8,6 +8,7 @@ from kutil.logger import get_logger
 from kutil.file_type import SVG
 from pathlib import Path
 from kui.core.manager import WidgetManager
+from kui.core._service import AppService
 
 if TYPE_CHECKING:
     from kui.core.app import KamaApplication
@@ -15,7 +16,7 @@ if TYPE_CHECKING:
 _logger = get_logger(__name__)
 
 
-class KamaWindow(QMainWindow):
+class KamaWindow(QMainWindow, AppService):
     """
     Main class to operate with application window.
     """
@@ -24,9 +25,9 @@ class KamaWindow(QMainWindow):
     after_init = pyqtSignal()
 
     def __init__(self, application: "KamaApplication"):
-        super().__init__()
+        QMainWindow.__init__(self)
+        AppService.__init__(self, application)
 
-        self.__application = application
         self.__manager = WidgetManager(application, self)
         self.__settings = QSettings(
             application.prop("application.author", "KamaUI"),
@@ -50,19 +51,19 @@ class KamaWindow(QMainWindow):
 
     @property
     def window_width(self):
-        return self.__application.prop("window.width", 1920)
+        return self.application.prop("window.width", 1920)
 
     @property
     def window_height(self):
-        return self.__application.prop("window.height", 1080)
+        return self.application.prop("window.height", 1080)
 
     @property
     def min_width(self):
-        return self.__application.prop("window.min-width", 1080)
+        return self.application.prop("window.min-width", 1080)
 
     @property
     def min_height(self):
-        return self.__application.prop("window.min-height", 720)
+        return self.application.prop("window.min-height", 720)
 
     @property
     def manager(self):
@@ -89,13 +90,13 @@ class KamaWindow(QMainWindow):
         import kui.stylesheet as stylesheet_module
 
         stylesheet_path = resources.files(stylesheet_module)
-        core_stylesheet = self.__application.style_builder.load_stylesheet(stylesheet_path)
-        user_stylesheet_directory = Path(self.__application.discovery.Styles)
-        user_stylesheet = self.__application.style_builder.load_stylesheet(user_stylesheet_directory)
+        core_stylesheet = self.application.style.builder.load_stylesheet(stylesheet_path)
+        user_stylesheet_directory = Path(self.application.discovery.Styles)
+        user_stylesheet = self.application.style.builder.load_stylesheet(user_stylesheet_directory)
         stylesheet = core_stylesheet + "\n" + user_stylesheet
 
-        self.__application.create_dynamic_resources()
-        self.__application.set_stylesheet(stylesheet)
+        self.application.style.create_dynamic_resources()
+        self.application.set_stylesheet(stylesheet)
 
     def build(self, section: str):
         """
@@ -127,7 +128,7 @@ class KamaWindow(QMainWindow):
         """
 
         _logger.debug("Presenting notification dialog with message %s", message)
-        self.__application.data.add("dialogMessage", message)
+        self.application.data.add("dialogMessage", message)
 
         self.__manager.delete(lambda meta: meta.section_id == "notification")
         self.__manager.build_section("notification")
@@ -140,8 +141,8 @@ class KamaWindow(QMainWindow):
         """
 
         _logger.debug("Presenting confirmation dialog with message %s", message)
-        self.__application.data.add("dialogMessage", message)
-        self.__application.data.add("confirmationCallback", callback)
+        self.application.data.add("dialogMessage", message)
+        self.application.data.add("confirmationCallback", callback)
 
         self.__manager.delete(lambda meta: meta.section_id == "confirmation")
         self.__manager.build_section("confirmation")

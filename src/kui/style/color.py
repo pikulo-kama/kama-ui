@@ -1,7 +1,6 @@
 import dataclasses
 
 from kui.core.style import StyleResolver
-from kutil.file import save_file
 
 
 @dataclasses.dataclass
@@ -22,6 +21,7 @@ class KamaComposedColor:
     light_color: KamaColor
     dark_color: KamaColor
 
+
 class ColorResolver(StyleResolver):
 
     def __init__(self):
@@ -29,8 +29,7 @@ class ColorResolver(StyleResolver):
 
     def resolve(self, match):
         color_code = match.group(1)
-        save_file("C://Users//djara//AppData//Roaming//SaveGem//test.txt", str(color_code))
-        color = self.application.get_color(color_code)
+        color = self.application.style.get_color(color_code)
 
         return color.color_hex
 
@@ -43,6 +42,6 @@ class RgbaColorResolver(StyleResolver):
     def resolve(self, match):
         color_code = match.group(1)
         alpha = match.group(2)
-        color = self.application.get_color(color_code)
+        color = self.application.style.get_color(color_code)
 
         return color.rgba(alpha)

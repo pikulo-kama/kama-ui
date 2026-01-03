@@ -6,6 +6,7 @@ from kutil.logger import get_logger
 
 from kui.core.worker import KamaWorker
 from kui.util.thread import execute_in_thread
+from kui.core._service import AppService
 
 if TYPE_CHECKING:
     from kui.core.app import KamaApplication
@@ -14,15 +15,14 @@ if TYPE_CHECKING:
 _logger = get_logger(__name__)
 
 
-class StartupJob:
+class StartupJob(AppService):
     """
     Used to perform all word needed for application to load main screen.
     Will initiate application UI build once all workers are finished.
     """
 
     def __init__(self, application: "KamaApplication"):
-
-        self.__application = application
+        super().__init__(application)
         self.__tasks = []
 
         self.__startup_threads = []
@@ -38,10 +38,10 @@ class StartupJob:
         """
 
         if len(self.__tasks) > 0:
-            self.__application.window.build("wait")
+            self.application.window.build("wait")
 
         else:
-            self.__application.window.build("root")
+            self.application.window.build("root")
 
         for task in self.__tasks:
             thread = QThread()
@@ -76,7 +76,7 @@ class StartupJob:
             # main screen build.
             if len(self.__finished_tasks) == len(self.__tasks):
                 _logger.debug("All startup tasks finished its work.")
-                self.__application.window.build("root")
+                self.application.window.build("root")
 
         return update_execution_info
 

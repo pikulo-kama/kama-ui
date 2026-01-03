@@ -1,15 +1,10 @@
 import os.path
 from typing import TYPE_CHECKING
 from kui.util.file import get_project_dir
-
-if TYPE_CHECKING:
-    from kui.core.app import KamaApplication
+from kui.core._service import AppService
 
 
-class ProjectDiscovery:
-
-    def __init__(self, application: "KamaApplication"):
-        self.__application = application
+class ProjectDiscovery(AppService):
 
     @property
     def ProjectRoot(self):  # noqa
@@ -17,14 +12,12 @@ class ProjectDiscovery:
 
     @property
     def BasePackage(self):  # noqa
-        return self.__application.prop("application.base-package", "")
+        return self.application.prop("application.base-package", "")
 
     @property
     def AppData(self):  # noqa
         app_data_directory = os.getenv("APPDATA") or ""
-        app_name = self.__application.name
-
-        return os.path.join(app_data_directory, app_name)
+        return os.path.join(app_data_directory, self.application.name)
 
     @property
     def Config(self):  # noqa

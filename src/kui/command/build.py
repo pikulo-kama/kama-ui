@@ -95,7 +95,7 @@ class WidgetBuildCommand(WidgetCommand):
             widget.setProperty(key, value)
 
         if len(meta.stylesheet) > 0:
-            stylesheet = self.application.style_builder.resolve(meta.stylesheet)
+            stylesheet = self.application.style.builder.resolve(meta.stylesheet)
             _logger.debug("stylesheet=%s", stylesheet)
             widget.setStyleSheet(stylesheet)
 

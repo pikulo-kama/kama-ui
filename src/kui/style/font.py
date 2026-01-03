@@ -21,6 +21,6 @@ class FontResolver(StyleResolver):
 
     def resolve(self, match):
         font_code = match.group(1)
-        font = self.application.fonts.get(font_code)
+        font = self.application.style.fonts.get(font_code)
 
         return font.qss
