@@ -1,24 +1,21 @@
-import os.path
 import sys
 from importlib.metadata import entry_points
-from typing import Any
 
 from PyQt6.QtWidgets import QApplication
 from kamatr.manager import TextResourceManager
 from kutil.meta import SingletonMeta
 from kutil.reflection import get_members
 
+from kui.core.config import AppConfig
 from kui.core.discovery import ProjectDiscovery
 from kui.core.holder import DataHolder
 from kui.core.provider import ProviderManager
 from kui.core.startup import StartupJob, KamaStartupWorker
 from kui.core.style import StyleManager
 from kui.core.window import KamaWindow
-from kui.core.yaml_holder import YamlHolder
 from kui.style.color import ColorResolver, RgbaColorResolver
 from kui.style.font import FontResolver
 from kui.style.image import ImageResolver
-from kui.util.file import get_project_dir
 
 
 class KamaApplication(metaclass=SingletonMeta):
@@ -26,7 +23,7 @@ class KamaApplication(metaclass=SingletonMeta):
     def __init__(self):
         self.__application = QApplication(sys.argv)
 
-        self.__config = YamlHolder(os.path.join(get_project_dir(), "kamaconfig"))
+        self.__config = AppConfig(self)
         self.__discovery = ProjectDiscovery(self)
         self.__style_manager = StyleManager(self)
         self.__startup_job = StartupJob(self)
@@ -37,11 +34,11 @@ class KamaApplication(metaclass=SingletonMeta):
 
     @property
     def name(self):
-        return self.prop("application.name", "KamaUI")
+        return self.config.get("application.name", "KamaUI")
 
     @property
     def locale(self):
-        return self.text_resources.locale or self.prop("application.locale", "en_US")
+        return self.text_resources.locale or self.config.get("application.locale", "en_US")
 
     @locale.setter
     def locale(self, locale: str):
@@ -78,6 +75,10 @@ class KamaApplication(metaclass=SingletonMeta):
     def window(self) -> KamaWindow:
         return self.__window
 
+    @property
+    def config(self) -> AppConfig:
+        return self.__config
+
     def exec(self):
         self.__discover_plugins()
         self.window.manager.load_components()
@@ -93,25 +94,6 @@ class KamaApplication(metaclass=SingletonMeta):
         self.__startup_job.start()
         return self.__application.exec()
 
-    def prop(self, property_name: str, default_value: Any = None):
-        # todo: refactor
-        app_data_token = "{AppDataDirectory}"
-        base_package_token = "{base}"
-
-        value = self.__config.get(property_name, default_value)
-
-        if not isinstance(value, str):
-            return value
-
-        if app_data_token in value:
-            path = value.replace(app_data_token, "")
-            value = self.__discovery.app_data(path)
-
-        if base_package_token in value:
-            value = value.replace(base_package_token, self.prop("application.base-package", ""))
-
-        return value
-
     def add_startup_task(self, startup_task: KamaStartupWorker):
         self.__startup_job.add_task(startup_task)
 
@@ -121,7 +103,7 @@ class KamaApplication(metaclass=SingletonMeta):
             plugin.load()
 
     def __collect_startup_tasks(self):
-        custom_startup_package = self.prop("application.startup-package", "")
+        custom_startup_package = self.config.get("application.startup-package", "")
 
         for member_name, member in get_members(custom_startup_package, KamaStartupWorker):
             task: KamaStartupWorker = member()

@@ -30,7 +30,7 @@ class KamaWindow(AppService, QMainWindow):
 
         self.__manager = WidgetManager(application, self)
         self.__settings = QSettings(
-            application.prop("application.author", "KamaUI"),
+            application.config.get("application.author", "KamaUI"),
             application.name
         )
 
@@ -44,26 +44,26 @@ class KamaWindow(AppService, QMainWindow):
         self.__is_initialized = False
 
         self.setWindowTitle(application.name)
-        logo_name = application.prop("application.icon", SVG.add_extension("application"))
+        logo_name = application.config.get("application.icon", SVG.add_extension("application"))
         self.setWindowIcon(QIcon(application.discovery.resources(logo_name)))
 
         self.resize_window()
 
     @property
     def window_width(self):
-        return self.application.prop("window.width", 1920)
+        return self.application.config.get("window.width", 1920)
 
     @property
     def window_height(self):
-        return self.application.prop("window.height", 1080)
+        return self.application.config.get("window.height", 1080)
 
     @property
     def min_width(self):
-        return self.application.prop("window.min-width", 1080)
+        return self.application.config.get("window.min-width", 1080)
 
     @property
     def min_height(self):
-        return self.application.prop("window.min-height", 720)
+        return self.application.config.get("window.min-height", 720)
 
     @property
     def manager(self):

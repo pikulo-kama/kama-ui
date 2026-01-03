@@ -103,7 +103,7 @@ def get_core_resolvers():
 
         application = KamaApplication()
         core_package = resolver_module.__package__
-        custom_package = application.prop("application.resolver-package", "")
+        custom_package = application.config.get("application.resolver-package", "")
 
         for member_name, member in get_members(core_package, ContentResolver):
             _logger.debug("Loading core content resolver with name %s", member_name)

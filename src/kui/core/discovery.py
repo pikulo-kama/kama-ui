@@ -11,7 +11,7 @@ class ProjectDiscovery(AppService):
 
     @property
     def BasePackage(self):  # noqa
-        return self.application.prop("application.base-package", "")
+        return self.application.config.get("application.base-package", "")
 
     @property
     def AppData(self):  # noqa

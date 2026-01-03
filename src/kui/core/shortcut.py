@@ -15,7 +15,7 @@ def add_dynamic_data(object_name: str, value: Any):
 
 
 def prop(property_name: str, default_value: Any = None):
-    return KamaApplication().prop(property_name, default_value)
+    return KamaApplication().config.get(property_name, default_value)
 
 
 def resolve_project_file(*paths: str):
