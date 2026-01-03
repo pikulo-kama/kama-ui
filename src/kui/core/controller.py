@@ -47,7 +47,7 @@ class WidgetController:
         # valid anymore, because of this we need to be able
         # to clear this data when refresh is happening.
         self.__state = {}
-        self.__sections: list[Section] = application.section_provider.provide(self)
+        self.__sections: list[Section] = application.provider.section.provide(self)
 
     def setup(self, widget: QWidget):  # pragma: no cover
         """
@@ -288,7 +288,7 @@ class TemplateWidgetController(WidgetController):
         Groups metadata into logical segments based on their root ancestors.
         """
 
-        metadata = self.__application.metadata_provider.provide(section_id)
+        metadata = self.__application.provider.metadata.provide(section_id)
         grouped_widgets = {}
 
         for widget_meta in metadata:

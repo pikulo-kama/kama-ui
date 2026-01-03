@@ -199,7 +199,7 @@ class WidgetManager:
         self.execute(WidgetBuildCommand(metadata))
 
     def build_section(self, section_id: str):
-        metadata = self.__application.metadata_provider.provide(section_id)
+        metadata = self.__application.provider.metadata.provide(section_id)
         self.build(metadata)
 
     def refresh(self, widget_filter: WidgetFilter = None):

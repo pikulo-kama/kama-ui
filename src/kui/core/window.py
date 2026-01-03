@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 _logger = get_logger(__name__)
 
 
-class KamaWindow(QMainWindow, AppService):
+class KamaWindow(AppService, QMainWindow):
     """
     Main class to operate with application window.
     """
@@ -25,8 +25,8 @@ class KamaWindow(QMainWindow, AppService):
     after_init = pyqtSignal()
 
     def __init__(self, application: "KamaApplication"):
-        QMainWindow.__init__(self)
         AppService.__init__(self, application)
+        QMainWindow.__init__(self)
 
         self.__manager = WidgetManager(application, self)
         self.__settings = QSettings(
@@ -43,7 +43,7 @@ class KamaWindow(QMainWindow, AppService):
         self.__is_ui_blocked = False
         self.__is_initialized = False
 
-        self.setWindowTitle(self.__application.name)
+        self.setWindowTitle(application.name)
         logo_name = application.prop("application.icon", SVG.add_extension("application"))
         self.setWindowIcon(QIcon(application.discovery.resources(logo_name)))
 

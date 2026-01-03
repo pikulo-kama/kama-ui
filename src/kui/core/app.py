@@ -10,7 +10,7 @@ from kutil.reflection import get_members
 
 from kui.core.discovery import ProjectDiscovery
 from kui.core.holder import DataHolder
-from kui.core.provider import MetadataProvider, ControllerSectionProvider
+from kui.core.provider import ProviderManager
 from kui.core.startup import StartupJob, KamaStartupWorker
 from kui.core.style import StyleManager
 from kui.core.window import KamaWindow
@@ -31,11 +31,9 @@ class KamaApplication(metaclass=SingletonMeta):
         self.__style_manager = StyleManager(self)
         self.__startup_job = StartupJob(self)
         self.__window = KamaWindow(self)
+        self.__provider_manager = ProviderManager(self)
         self.__text_resources = TextResourceManager()
         self.__data_holder = DataHolder()
-
-        self.__metadata_provider = MetadataProvider()
-        self.__section_provider = ControllerSectionProvider()
 
     @property
     def name(self):
@@ -43,7 +41,7 @@ class KamaApplication(metaclass=SingletonMeta):
 
     @property
     def locale(self):
-        return self.text_resources.locale or self.prop("locale", "en_US")
+        return self.text_resources.locale or self.prop("application.locale", "en_US")
 
     @locale.setter
     def locale(self, locale: str):
@@ -54,20 +52,8 @@ class KamaApplication(metaclass=SingletonMeta):
         return self.__text_resources.locales
 
     @property
-    def metadata_provider(self):
-        return self.__metadata_provider
-
-    @metadata_provider.setter
-    def metadata_provider(self, metadata_provider: MetadataProvider):
-        self.__metadata_provider = metadata_provider
-
-    @property
-    def section_provider(self):
-        return self.__section_provider
-
-    @section_provider.setter
-    def section_provider(self, section_provider: ControllerSectionProvider):
-        self.__section_provider = section_provider
+    def provider(self) -> ProviderManager:
+        return self.__provider_manager
 
     @property
     def discovery(self):
@@ -93,6 +79,7 @@ class KamaApplication(metaclass=SingletonMeta):
         return self.__window
 
     def exec(self):
+        self.__discover_plugins()
         self.window.manager.load_components()
         self.window.manager.load_controllers()
 
@@ -102,7 +89,6 @@ class KamaApplication(metaclass=SingletonMeta):
         self.style.builder.add_resolver(ImageResolver())
 
         self.__collect_startup_tasks()
-        self.__discover_plugins()
 
         self.__startup_job.start()
         return self.__application.exec()
