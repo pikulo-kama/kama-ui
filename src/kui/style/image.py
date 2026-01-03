@@ -1,13 +1,5 @@
-import dataclasses
 import os
 from kui.core.style import StyleResolver
-
-
-@dataclasses.dataclass
-class DynamicResource:
-    resource_name: str
-    resource_path: str
-    color_code: str
 
 
 class ImageResolver(StyleResolver):

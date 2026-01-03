@@ -1,5 +1,4 @@
 import os.path
-from typing import TYPE_CHECKING
 from kui.util.file import get_project_dir
 from kui.core._service import AppService
 

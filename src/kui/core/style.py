@@ -7,9 +7,7 @@ from kutil.file import read_file, save_file
 from kutil.logger import get_logger
 from importlib.abc import Traversable
 from kui.core._service import AppService
-from kui.style.color import KamaComposedColor
-from kui.style.font import KamaFont
-from kui.style.image import DynamicResource
+from kui.style.type import KamaComposedColor, KamaFont, DynamicResource
 
 if TYPE_CHECKING:
     from kui.core.app import KamaApplication
