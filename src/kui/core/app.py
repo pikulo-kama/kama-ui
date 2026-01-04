@@ -8,7 +8,7 @@ from kutil.reflection import get_members
 
 from kui.core.config import AppConfig
 from kui.core.discovery import ProjectDiscovery
-from kui.core.holder import DataHolder
+from kui.core.data import DataHolder
 from kui.core.provider import ProviderManager
 from kui.core.startup import StartupJob, KamaStartupWorker
 from kui.core.style import StyleManager
