@@ -1,3 +1,4 @@
+import os
 import re
 from importlib.abc import Traversable
 from typing import TYPE_CHECKING
@@ -35,6 +36,9 @@ class StyleBuilder(AppService):
         """
 
         style_string = ""
+
+        if not os.path.exists(str(directory)):
+            return style_string
 
         for entry in directory.iterdir():
             if entry.is_dir():

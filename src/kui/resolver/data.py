@@ -2,7 +2,6 @@ from kui.core.app import KamaApplication
 from kui.core.resolver import ContentResolver
 from kutil.logger import get_logger
 
-
 _logger = get_logger(__name__)
 
 
@@ -33,9 +32,19 @@ class DataResolver(ContentResolver):
 
         application = KamaApplication()
         data = application.data.get(key)
+        default_value = None
 
-        if isinstance(data, str):
-            _logger.debug("Resolved %s to %s", key, data)
-            return data
+        if len(args) > 0:
+            default_value = args[0]
 
-        return None
+        if data is None:
+            data = default_value
+
+        if isinstance(data, int) or isinstance(data, float):
+            data = str(data)
+
+        if not isinstance(data, str):
+            return None
+
+        _logger.debug("Resolved %s to %s", key, data)
+        return data
