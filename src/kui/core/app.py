@@ -38,10 +38,12 @@ class KamaApplication(metaclass=SingletonMeta):
     def __init__(self):
         self.__services: dict[str, AppService] = {}
 
-    def exec(self):
-
+    @staticmethod
+    def post_init():
         for plugin in entry_points(group="kama_ui.plugins"):
             plugin.load()
+
+    def exec(self):
 
         self.window.manager.load_components()
         self.window.manager.load_controllers()
