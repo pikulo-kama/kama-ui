@@ -3,7 +3,6 @@ from importlib.abc import Traversable
 from typing import TYPE_CHECKING
 
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QApplication
 from kui.core._service import AppService
 from kui.core.style import ColorMode, StyleResolver
 from kutil.file import read_file, save_file
@@ -166,19 +165,13 @@ class StyleManagerService(AppService):
             temp_resource_path = self.application.discovery.temp_resources(resource.resource_name)
             save_file(temp_resource_path, resource_content)
 
-    @staticmethod
-    def __get_system_color_mode():
+    def __get_system_color_mode(self):
         """
         Used to get current color mode.
         """
 
         mode = ColorMode.Light
-        application = QApplication.instance()
-
-        if application is None:
-            return mode
-
-        color_scheme = application.styleHints().colorScheme()  # noqa
+        color_scheme = self.application.window.qt_application.styleHints().colorScheme()  # noqa
 
         if color_scheme == Qt.ColorScheme.Dark:
             mode = ColorMode.Dark

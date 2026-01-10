@@ -14,6 +14,6 @@ class TextResourceService(AppService, TextResourceManager):
         AppService.__init__(self, context)
         TextResourceManager.__init__(self, provider)
 
-    @property
+    @TextResourceManager.locale.getter
     def locale(self) -> str:
         return super().locale or self.application.config.default_locale

@@ -1,9 +1,7 @@
 import dataclasses
-import sys
 from importlib.metadata import entry_points
-from typing import cast
+from typing import cast, Type
 
-from PyQt6.QtWidgets import QApplication
 from kui.core.service.tr import TextResourceService
 from kutil.meta import SingletonMeta
 from kutil.reflection import get_members
@@ -27,7 +25,6 @@ class KamaApplicationContext:
 
 
 class KamaApplication(metaclass=SingletonMeta):
-
     window_type = KamaWindow
 
     app_config_service_type = AppConfigService
@@ -39,11 +36,32 @@ class KamaApplication(metaclass=SingletonMeta):
     data_holder_service_type = DataHolderService
 
     def __init__(self):
-        self.__application = QApplication(sys.argv)
         self.__services: dict[str, AppService] = {}
 
-    def set_stylesheet(self, stylesheet: str):
-        self.__application.setStyleSheet(stylesheet)
+    def exec(self):
+
+        for plugin in entry_points(group="kama_ui.plugins"):
+            plugin.load()
+
+        self.window.manager.load_components()
+        self.window.manager.load_controllers()
+
+        self.style.builder.add_resolver(ColorResolver())
+        self.style.builder.add_resolver(RgbaResolver())
+        self.style.builder.add_resolver(FontResolver())
+        self.style.builder.add_resolver(ImageResolver())
+
+        for member_name, member in get_members(self.config.startup_package, KamaStartupWorker):
+            task: KamaStartupWorker = member()
+            self.startup.add_task(task)
+
+        self.startup.start()
+        self.window.exec()
+
+    @property
+    def window(self) -> KamaWindow:
+        service = self.get_app_service("window", self.window_type)
+        return cast(KamaWindow, service)
 
     @property
     def provider(self) -> DataProviderService:
@@ -51,19 +69,14 @@ class KamaApplication(metaclass=SingletonMeta):
         return cast(DataProviderService, service)
 
     @property
-    def discovery(self) -> ProjectDiscoveryService:
-        service = self.get_app_service("project_discovery", self.discovery_service_type)
-        return cast(ProjectDiscoveryService, service)
-
-    @property
     def style(self) -> StyleManagerService:
         service = self.get_app_service("style_manager", self.style_manager_service_type)
         return cast(StyleManagerService, service)
 
     @property
-    def window(self) -> KamaWindow:
-        service = self.get_app_service("window", self.window_type)
-        return cast(KamaWindow, service)
+    def discovery(self) -> ProjectDiscoveryService:
+        service = self.get_app_service("project_discovery", self.discovery_service_type)
+        return cast(ProjectDiscoveryService, service)
 
     @property
     def config(self) -> AppConfigService:
@@ -85,23 +98,7 @@ class KamaApplication(metaclass=SingletonMeta):
         service = self.get_app_service("dynamic_data_holder", self.data_holder_service_type)
         return cast(DataHolderService, service)
 
-    def exec(self):
-        self.__discover_plugins()
-
-        self.window.manager.load_components()
-        self.window.manager.load_controllers()
-
-        self.style.builder.add_resolver(ColorResolver())
-        self.style.builder.add_resolver(RgbaResolver())
-        self.style.builder.add_resolver(FontResolver())
-        self.style.builder.add_resolver(ImageResolver())
-
-        self.__collect_startup_tasks()
-        self.startup.start()
-
-        return self.__application.exec()
-
-    def get_app_service(self, service_name: str, service_type = None):
+    def get_app_service(self, service_name: str, service_type: Type[AppService] = None):
         if service_name in self.__services.keys():
             return self.__services.get(service_name)
 
@@ -113,13 +110,3 @@ class KamaApplication(metaclass=SingletonMeta):
 
         self.__services[service_name] = service
         return service
-
-    def __collect_startup_tasks(self):
-        for member_name, member in get_members(self.config.startup_package, KamaStartupWorker):
-            task: KamaStartupWorker = member()
-            self.startup.add_task(task)
-
-    @staticmethod
-    def __discover_plugins():
-        for plugin in entry_points(group="kama_ui.plugins"):
-            plugin.load()

@@ -1,3 +1,4 @@
+import sys
 from importlib import resources
 from typing import Callable, TYPE_CHECKING
 
@@ -24,6 +25,8 @@ class KamaWindow(AppService, QMainWindow):
     after_init = pyqtSignal()
 
     def __init__(self, context: "KamaApplicationContext"):
+        self.__qt_application = QApplication(sys.argv)
+
         AppService.__init__(self, context)
         QMainWindow.__init__(self)
 
@@ -48,6 +51,9 @@ class KamaWindow(AppService, QMainWindow):
 
         self.resize_window()
 
+    def exec(self):
+        self.__qt_application.exec()
+
     @property
     def window_width(self):
         return self.application.config.get("window.width", 1920)
@@ -63,6 +69,10 @@ class KamaWindow(AppService, QMainWindow):
     @property
     def min_height(self):
         return self.application.config.get("window.min-height", 720)
+
+    @property
+    def qt_application(self):
+        return self.__qt_application
 
     @property
     def manager(self):
@@ -95,7 +105,7 @@ class KamaWindow(AppService, QMainWindow):
         stylesheet = core_stylesheet + "\n" + user_stylesheet
 
         self.application.style.create_dynamic_resources()
-        self.application.set_stylesheet(stylesheet)
+        self.__qt_application.setStyleSheet(stylesheet)
 
     def build(self, section: str):
         """
