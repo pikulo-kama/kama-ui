@@ -3,7 +3,7 @@ from kui.core.app import KamaApplication
 
 
 def tr(text_resource_key: str, *args):
-    return KamaApplication().text_resources.get(text_resource_key, *args)
+    return KamaApplication().translations.get(text_resource_key, *args)
 
 
 def dynamic_data(object_name: str):

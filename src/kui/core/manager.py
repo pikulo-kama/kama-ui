@@ -353,13 +353,13 @@ class WidgetManager:
 
     def load_components(self):
 
-        import kui.component as component_package
+        import kui.component as core_component_package
 
         widget_types = []
         layout_types = []
 
-        core_package = component_package.__package__
-        custom_package = self.__application.config.get("application.component-package", "")
+        core_package = core_component_package.__package__
+        custom_package = self.__application.config.component_package
 
         for member_name, member in get_members(core_package, KamaComponentMixin):
             widget_types.append(member)
@@ -377,8 +377,6 @@ class WidgetManager:
         self.execute(AddLayoutTypeCommand(layout_types))
 
     def load_controllers(self):
-        custom_package = self.__application.config.get("application.controller-package", "")
-
-        for member_name, member in get_members(custom_package, WidgetController):
+        for member_name, member in get_members(self.__application.config.controller_package, WidgetController):
             controller: "WidgetController" = member(self.__application, self)
             self.__controllers[member_name] = controller

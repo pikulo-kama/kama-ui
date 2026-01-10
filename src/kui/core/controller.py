@@ -5,7 +5,7 @@ from PyQt6.QtCore import QThread
 from PyQt6.QtWidgets import QWidget
 
 from kui.core.component import KamaComponent, KamaComponentMixin
-from kui.core.provider import Section
+from kui.core.service.provider import Section
 from kui.util.thread import execute_in_blocking_thread
 from kui.core.metadata import WidgetMetadata
 from kui.core.resolver import ContentResolver

@@ -3,20 +3,16 @@ from kui.util.file import get_project_dir
 from kui.core._service import AppService
 
 
-class ProjectDiscovery(AppService):
+class ProjectDiscoveryService(AppService):
 
     @property
     def ProjectRoot(self):  # noqa
         return get_project_dir()
 
     @property
-    def BasePackage(self):  # noqa
-        return self.application.config.get("application.base-package", "")
-
-    @property
     def AppData(self):  # noqa
         app_data_directory = os.getenv("APPDATA") or ""
-        return os.path.join(app_data_directory, self.application.name)
+        return os.path.join(app_data_directory, self.application.config.name)
 
     @property
     def Config(self):  # noqa
@@ -48,7 +44,7 @@ class ProjectDiscovery(AppService):
 
     def package(self, *paths: str):
         paths = list(paths)
-        paths.insert(0, self.BasePackage)
+        paths.insert(0, self.application.config.base_package)
 
         return ".".join(paths)
 

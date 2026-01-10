@@ -1,86 +1,93 @@
+import dataclasses
 import sys
 from importlib.metadata import entry_points
+from typing import cast
 
 from PyQt6.QtWidgets import QApplication
-from kamatr.manager import TextResourceManager
+from kui.core.service.tr import TextResourceService
 from kutil.meta import SingletonMeta
 from kutil.reflection import get_members
 
-from kui.core.config import AppConfig
-from kui.core.discovery import ProjectDiscovery
-from kui.core.data import DataHolder
-from kui.core.provider import ProviderManager
-from kui.core.startup import StartupJob, KamaStartupWorker
-from kui.core.style import StyleManager
+from kui.core._service import AppService
+from kui.core.service.config import AppConfigService
+from kui.core.service.discovery import ProjectDiscoveryService
+from kui.core.service.data import DataHolderService
+from kui.core.service.provider import DataProviderService
+from kui.core.service.startup import StartupService, KamaStartupWorker
+from kui.core.service.style import StyleManagerService
 from kui.core.window import KamaWindow
 from kui.style.color import ColorResolver, RgbaResolver
 from kui.style.font import FontResolver
 from kui.style.image import ImageResolver
 
 
+@dataclasses.dataclass
+class KamaApplicationContext:
+    application: "KamaApplication"
+
+
 class KamaApplication(metaclass=SingletonMeta):
+
+    window_type = KamaWindow
+
+    app_config_service_type = AppConfigService
+    discovery_service_type = ProjectDiscoveryService
+    style_manager_service_type = StyleManagerService
+    startup_service_type = StartupService
+    data_provider_service_type = DataProviderService
+    text_resource_service_type = TextResourceService
+    data_holder_service_type = DataHolderService
 
     def __init__(self):
         self.__application = QApplication(sys.argv)
-
-        self.__config = AppConfig(self)
-        self.__discovery = ProjectDiscovery(self)
-        self.__style_manager = StyleManager(self)
-        self.__startup_job = StartupJob(self)
-        self.__window = KamaWindow(self)
-        self.__provider_manager = ProviderManager(self)
-        self.__text_resources = TextResourceManager()
-        self.__data_holder = DataHolder()
-
-    @property
-    def name(self):
-        return self.config.get("application.name", "KamaUI")
-
-    @property
-    def locale(self):
-        return self.text_resources.locale or self.config.get("application.locale", "en_US")
-
-    @locale.setter
-    def locale(self, locale: str):
-        self.text_resources.locale = locale
-
-    @property
-    def locales(self):
-        return self.__text_resources.locales
-
-    @property
-    def provider(self) -> ProviderManager:
-        return self.__provider_manager
-
-    @property
-    def discovery(self):
-        return self.__discovery
-
-    @property
-    def text_resources(self) -> TextResourceManager:
-        return self.__text_resources
-
-    @property
-    def style(self) -> StyleManager:
-        return self.__style_manager
-
-    @property
-    def data(self) -> DataHolder:
-        return self.__data_holder
+        self.__services: dict[str, AppService] = {}
 
     def set_stylesheet(self, stylesheet: str):
         self.__application.setStyleSheet(stylesheet)
 
     @property
-    def window(self) -> KamaWindow:
-        return self.__window
+    def provider(self) -> DataProviderService:
+        service = self.get_app_service("data_provider", self.data_provider_service_type)
+        return cast(DataProviderService, service)
 
     @property
-    def config(self) -> AppConfig:
-        return self.__config
+    def discovery(self) -> ProjectDiscoveryService:
+        service = self.get_app_service("project_discovery", self.discovery_service_type)
+        return cast(ProjectDiscoveryService, service)
+
+    @property
+    def style(self) -> StyleManagerService:
+        service = self.get_app_service("style_manager", self.style_manager_service_type)
+        return cast(StyleManagerService, service)
+
+    @property
+    def window(self) -> KamaWindow:
+        service = self.get_app_service("window", self.window_type)
+        return cast(KamaWindow, service)
+
+    @property
+    def config(self) -> AppConfigService:
+        service = self.get_app_service("config", self.app_config_service_type)
+        return cast(AppConfigService, service)
+
+    @property
+    def startup(self) -> StartupService:
+        service = self.get_app_service("startup", self.startup_service_type)
+        return cast(StartupService, service)
+
+    @property
+    def translations(self) -> TextResourceService:
+        service = self.get_app_service("text_resource", self.text_resource_service_type)
+        return cast(TextResourceService, service)
+
+    @property
+    def data(self) -> DataHolderService:
+        service = self.get_app_service("dynamic_data_holder", self.data_holder_service_type)
+        return cast(DataHolderService, service)
 
     def exec(self):
         self.__discover_plugins()
+
         self.window.manager.load_components()
         self.window.manager.load_controllers()
 
@@ -90,21 +97,29 @@ class KamaApplication(metaclass=SingletonMeta):
         self.style.builder.add_resolver(ImageResolver())
 
         self.__collect_startup_tasks()
+        self.startup.start()
 
-        self.__startup_job.start()
         return self.__application.exec()
 
-    def add_startup_task(self, startup_task: KamaStartupWorker):
-        self.__startup_job.add_task(startup_task)
+    def get_app_service(self, service_name: str, service_type = None):
+        if service_name in self.__services.keys():
+            return self.__services.get(service_name)
+
+        if service_type is None:
+            raise RuntimeError("Can't initialize application service without type.")
+
+        context = KamaApplicationContext(self)
+        service = service_type(context)
+
+        self.__services[service_name] = service
+        return service
+
+    def __collect_startup_tasks(self):
+        for member_name, member in get_members(self.config.startup_package, KamaStartupWorker):
+            task: KamaStartupWorker = member()
+            self.startup.add_task(task)
 
     @staticmethod
     def __discover_plugins():
         for plugin in entry_points(group="kama_ui.plugins"):
             plugin.load()
-
-    def __collect_startup_tasks(self):
-        custom_startup_package = self.config.get("application.startup-package", "")
-
-        for member_name, member in get_members(custom_startup_package, KamaStartupWorker):
-            task: KamaStartupWorker = member()
-            self.__startup_job.add_task(task)

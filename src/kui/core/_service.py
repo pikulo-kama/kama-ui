@@ -1,14 +1,14 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from kui.core.app import KamaApplication
+    from kui.core.app import KamaApplication, KamaApplicationContext
 
 
 class AppService:
 
-    def __init__(self, application: "KamaApplication"):
-        self.__application = application
+    def __init__(self, context: "KamaApplicationContext"):
+        self.__context = context
 
     @property
     def application(self) -> "KamaApplication":
-        return self.__application
+        return self.__context.application

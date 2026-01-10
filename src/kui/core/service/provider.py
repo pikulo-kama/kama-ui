@@ -6,7 +6,7 @@ from kui.core.metadata import WidgetMetadata
 
 if TYPE_CHECKING:
     from kui.core.controller import WidgetController
-    from kui.core.app import KamaApplication
+    from kui.core.app import KamaApplicationContext
 
 
 @dataclasses.dataclass
@@ -26,10 +26,10 @@ class ControllerSectionProvider:
         return []
 
 
-class ProviderManager(AppService):
+class DataProviderService(AppService):
 
-    def __init__(self, application: "KamaApplication"):
-        super().__init__(application)
+    def __init__(self, context: "KamaApplicationContext"):
+        super().__init__(context)
         self.__metadata_provider = MetadataProvider()
         self.__section_provider = ControllerSectionProvider()
 

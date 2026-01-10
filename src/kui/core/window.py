@@ -5,13 +5,12 @@ from PyQt6.QtCore import pyqtSignal, QSettings
 from PyQt6.QtGui import QCloseEvent, QIcon
 from PyQt6.QtWidgets import QMainWindow, QApplication, QWidget, QHBoxLayout
 from kutil.logger import get_logger
-from kutil.file_type import SVG
 from pathlib import Path
 from kui.core.manager import WidgetManager
 from kui.core._service import AppService
 
 if TYPE_CHECKING:
-    from kui.core.app import KamaApplication
+    from kui.core.app import KamaApplicationContext
 
 _logger = get_logger(__name__)
 
@@ -24,14 +23,14 @@ class KamaWindow(AppService, QMainWindow):
     before_destroy = pyqtSignal()
     after_init = pyqtSignal()
 
-    def __init__(self, application: "KamaApplication"):
-        AppService.__init__(self, application)
+    def __init__(self, context: "KamaApplicationContext"):
+        AppService.__init__(self, context)
         QMainWindow.__init__(self)
 
-        self.__manager = WidgetManager(application, self)
+        self.__manager = WidgetManager(self.application, self)
         self.__settings = QSettings(
-            application.config.get("application.author", "KamaUI"),
-            application.name
+            self.application.config.author,
+            self.application.config.name
         )
 
         self.__root = QWidget()
@@ -43,9 +42,9 @@ class KamaWindow(AppService, QMainWindow):
         self.__is_ui_blocked = False
         self.__is_initialized = False
 
-        self.setWindowTitle(application.name)
-        logo_name = application.config.get("application.icon", SVG.add_extension("application"))
-        self.setWindowIcon(QIcon(application.discovery.resources(logo_name)))
+        self.setWindowTitle(self.application.config.name)
+        icon_path = self.application.discovery.resources(self.application.config.icon)
+        self.setWindowIcon(QIcon(icon_path))
 
         self.resize_window()
 

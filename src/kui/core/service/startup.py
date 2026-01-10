@@ -9,20 +9,20 @@ from kui.util.thread import execute_in_thread
 from kui.core._service import AppService
 
 if TYPE_CHECKING:
-    from kui.core.app import KamaApplication
+    from kui.core.app import KamaApplicationContext
 
 
 _logger = get_logger(__name__)
 
 
-class StartupJob(AppService):
+class StartupService(AppService):
     """
     Used to perform all word needed for application to load main screen.
     Will initiate application UI build once all workers are finished.
     """
 
-    def __init__(self, application: "KamaApplication"):
-        super().__init__(application)
+    def __init__(self, context: "KamaApplicationContext"):
+        super().__init__(context)
         self.__tasks = []
 
         self.__startup_threads = []
@@ -88,7 +88,7 @@ class KamaStartupWorker(KamaWorker):
 
     def __init__(self):
         KamaWorker.__init__(self)
-        self.__job: Optional[StartupJob] = None
+        self.__job: Optional[StartupService] = None
 
     @property
     def name(self):
@@ -114,7 +114,7 @@ class KamaStartupWorker(KamaWorker):
 
         super().start()
 
-    def link(self, job: StartupJob):
+    def link(self, job: StartupService):
         """
         Used to link startup worker to the
         startup job.
