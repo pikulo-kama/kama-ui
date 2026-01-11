@@ -34,12 +34,6 @@ class JSONWidgetDataTransformer(ProviderDataTransformer):
         if "stylesheet" in parent:
             parent["stylesheet"] = json.dumps(parent.get("stylesheet"), indent=4)
 
-        if "refresh_events" in parent:
-            del parent["refresh_events"]
-
-        if "recursive_refresh_events" in parent:
-            del parent["recursive_refresh_events"]
-
         if "children" in parent:
             del parent["children"]
 
