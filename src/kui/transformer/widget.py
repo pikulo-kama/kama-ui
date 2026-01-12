@@ -6,7 +6,8 @@ class JSONWidgetDataTransformer(ProviderDataTransformer):
 
     def nest(self, data: list[dict]):
         nested_data = self.__nest_tree(data)
-        return self.__format_tree(nested_data)
+        formatted_data = self.__format_tree(nested_data)
+        return self.__assign_templates(formatted_data)
 
     def flatten(self, data: list[dict]):
         formatted_data = []
@@ -104,6 +105,9 @@ class JSONWidgetDataTransformer(ProviderDataTransformer):
                 else:
                     refresh_events.append(event_id)
 
+            if "events" in widget:
+                del widget["events"]
+
             if len(refresh_events) > 0:
                 widget["refresh_events"] = refresh_events
 
@@ -154,5 +158,35 @@ class JSONWidgetDataTransformer(ProviderDataTransformer):
             # No need to show empty children object.
             if len(children) == 0:
                 del widget["children"]
+
+        return data
+
+    @staticmethod
+    def __assign_templates(data: list[dict]):
+
+        def link_template(segment: dict, target_widget_id: str, area_name: str, widgets: list[dict]):
+
+            for widget in widgets:
+                if target_widget_id == widget.get("widget_id"):
+                    del segment["section_id"]
+
+                    template = widget.get("template", {})
+                    template_area = template.get(area_name, [])
+                    template_area.append(segment)
+                    template[area_name] = template_area
+                    widget["template"] = template
+                    break
+
+                link_template(segment, target_widget_id, area_name, widget.get("children", []))
+
+        template_segments = [segment for segment in data if "__template" in segment.get("section_id")]
+
+        for segment in template_segments:
+            section_id = segment.get("section_id")
+            parent_widget_id, segment_code = section_id.split("__")
+            segment_name = segment_code.split("_")[1]
+
+            link_template(segment, parent_widget_id, segment_name, data)
+            data.remove(segment)
 
         return data
