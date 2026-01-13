@@ -1,4 +1,5 @@
 import dataclasses
+import json
 from typing import TYPE_CHECKING
 
 from kui.core._service import AppService
@@ -19,6 +20,17 @@ class Section:
 class MetadataProvider:
     def provide(self, section_id: str) -> list[WidgetMetadata]:  # noqa
         return []
+
+    @staticmethod
+    def _parse_stylesheet(stylesheet_json: str):
+
+        stylesheet_map = json.loads(stylesheet_json)
+        stylesheet_string = ""
+
+        for key, value in stylesheet_map.items():
+            stylesheet_string += f"{key}: {value};\n"
+
+        return stylesheet_string
 
 
 class ControllerSectionProvider:
