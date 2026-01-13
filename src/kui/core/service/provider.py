@@ -1,41 +1,9 @@
-import dataclasses
-import json
 from typing import TYPE_CHECKING
-
 from kui.core._service import AppService
-from kui.core.metadata import WidgetMetadata
+from kui.core.provider import MetadataProvider, ControllerSectionProvider
 
 if TYPE_CHECKING:
-    from kui.core.controller import WidgetController
     from kui.core.app import KamaApplicationContext
-
-
-@dataclasses.dataclass
-class Section:
-    section_id: str
-    section_label: str
-    section_icon: str
-
-
-class MetadataProvider:
-    def provide(self, section_id: str) -> list[WidgetMetadata]:  # noqa
-        return []
-
-    @staticmethod
-    def _parse_stylesheet(stylesheet_json: str):
-
-        stylesheet_map = json.loads(stylesheet_json)
-        stylesheet_string = ""
-
-        for key, value in stylesheet_map.items():
-            stylesheet_string += f"{key}: {value};\n"
-
-        return stylesheet_string
-
-
-class ControllerSectionProvider:
-    def provide(self, controller: "WidgetController") -> list[Section]:  # noqa
-        return []
 
 
 class DataProviderService(AppService):
