@@ -7,7 +7,7 @@ from PyQt6.QtCore import Qt
 from kui.core._service import AppService
 from kui.core.style import ColorMode, StyleResolver
 from kutil.file import read_file, save_file
-from kui.style.type import KamaComposedColor, KamaFont, DynamicResource
+from kui.style.type import KamaComposedColor, KamaFont, DynamicImage
 from kutil.logger import get_logger
 from kutil.number import is_float
 
@@ -96,7 +96,7 @@ class StyleManagerService(AppService):
         super().__init__(context)
 
         self.__color_mode = None
-        self.__dynamic_resources: list[DynamicResource] = []
+        self.__dynamic_images: list[DynamicImage] = []
         self.__style_builder = StyleBuilder(context)
 
         self.__fonts: dict[str, KamaFont] = {}
@@ -138,10 +138,10 @@ class StyleManagerService(AppService):
     def add_color(self, color: KamaComposedColor):
         self.__colors[color.color_code] = color
 
-    def add_dynamic_resource(self, resource: DynamicResource):
-        self.__dynamic_resources.append(resource)
+    def add_dynamic_image(self, image: DynamicImage):
+        self.__dynamic_images.append(image)
 
-    def create_dynamic_resources(self):
+    def create_dynamic_images(self):
         """
         Used to create dynamic resources.
         Mainly this applies to SVG elements
@@ -153,21 +153,21 @@ class StyleManagerService(AppService):
         difference is color.
         """
 
-        for resource in self.__dynamic_resources:
-            current_color = resource.color_code
-            resolved_color = self.get_color(resource.color_code)
+        for image in self.__dynamic_images:
+            current_color = image.color_code
+            resolved_color = self.get_color(image.color_code)
 
             if resolved_color is not None:
                 current_color = resolved_color
 
-            resource_path = self.application.discovery.resources(resource.resource_path, include_temporary=False)
-            resource_content = read_file(resource_path)
+            image_path = self.application.discovery.images(image.image_path, include_temporary=False)
+            image_content = read_file(image_path)
 
             if current_color is not None:
-                resource_content = resource_content.replace("currentColor", current_color.color_hex)
+                image_content = image_content.replace("currentColor", current_color.color_hex)
 
-            temp_resource_path = self.application.discovery.temp_resources(resource.resource_name)
-            save_file(temp_resource_path, resource_content)
+            temp_image_path = self.application.discovery.temp_images(image.image_name)
+            save_file(temp_image_path, image_content)
 
     def __get_system_color_mode(self):
         """

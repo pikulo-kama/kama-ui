@@ -15,12 +15,20 @@ class ProjectDiscoveryService(AppService):
         return os.path.join(app_data_directory, self.application.config.name)
 
     @property
-    def Config(self):  # noqa
-        return os.path.join(self.ProjectRoot, "Config")
+    def Resources(self):  # noqa
+        return os.path.join(self.ProjectRoot, "Resources")
+
+    @property
+    def Data(self):  # noqa
+        return os.path.join(self.Resources, "Data")
 
     @property
     def Styles(self):  # noqa
-        return os.path.join(self.ProjectRoot, "Styles")
+        return os.path.join(self.Resources, "Styles")
+
+    @property
+    def Images(self):  # noqa
+        return os.path.join(self.Resources, "Images")
 
     @property
     def Output(self):  # noqa
@@ -35,12 +43,8 @@ class ProjectDiscoveryService(AppService):
         return os.path.join(self.AppData, "Logs")
 
     @property
-    def Resources(self):  # noqa
-        return os.path.join(self.ProjectRoot, "Resources")
-
-    @property
-    def TempResources(self):  # noqa
-        return os.path.join(self.Output, "Resources")
+    def TempImages(self):  # noqa
+        return os.path.join(self.Output, "Images")
 
     def package(self, *paths: str):
         paths = list(paths)
@@ -54,16 +58,16 @@ class ProjectDiscoveryService(AppService):
     def app_data(self, *paths: str):
         return os.path.join(self.AppData, *paths)
 
-    def config(self, *paths: str):
-        return os.path.join(self.Config, *paths)
+    def data(self, *paths: str):
+        return os.path.join(self.Data, *paths)
 
-    def resources(self, *paths: str, include_temporary: bool = True):
-        temp_resource_path = self.temp_resources(*paths)
+    def images(self, *paths: str, include_temporary: bool = True):
+        temp_resource_path = self.temp_images(*paths)
 
         if include_temporary and os.path.exists(temp_resource_path):
             return temp_resource_path
 
-        return os.path.join(self.Resources, *paths)
+        return os.path.join(self.Images, *paths)
 
     def styles(self, *paths: str):
         return os.path.join(self.Styles, *paths)
@@ -77,5 +81,5 @@ class ProjectDiscoveryService(AppService):
     def output(self, *paths: str):
         return os.path.join(self.Output, *paths)
 
-    def temp_resources(self, *paths: str):
-        return os.path.join(self.TempResources, *paths)
+    def temp_images(self, *paths: str):
+        return os.path.join(self.TempImages, *paths)

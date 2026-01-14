@@ -1,7 +1,7 @@
 from PyQt6.QtGui import QPixmap
 
 from kui.core.resolver import ContentResolver
-from kui.core.shortcut import resolve_resource
+from kui.core.shortcut import resolve_image
 from kui.util.graphics import scale_image, round_image
 from kutil.logger import get_logger
 
@@ -37,7 +37,7 @@ class PixmapResolver(ContentResolver):
             _logger.error("File path is not valid. Resolving to empty pixmap.")
             return QPixmap()
 
-        file_path = resolve_resource(file_path)
+        file_path = resolve_image(file_path)
         scale = kw.get("scale")
         radius = kw.get("radius")
         make_circular = "circle" in args

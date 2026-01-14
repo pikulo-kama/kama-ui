@@ -4,7 +4,7 @@ from typing import Final
 from PyQt6.QtGui import QIcon
 
 from kui.core.resolver import ContentResolver
-from kui.core.shortcut import resolve_resource
+from kui.core.shortcut import resolve_image
 from kutil.logger import get_logger
 
 
@@ -60,7 +60,7 @@ class IconResolver(ContentResolver):
             _logger.error("File path is not valid.")
             return None
 
-        file_path = resolve_resource(file_path)
+        file_path = resolve_image(file_path)
         size = kw.get("size") or self.DefaultSize
         width = kw.get("width") or size
         height = kw.get("height") or size

@@ -33,7 +33,7 @@ class KamaFont:
 
 
 @dataclasses.dataclass
-class DynamicResource:
-    resource_name: str
-    resource_path: str
+class DynamicImage:
+    image_name: str
+    image_path: str
     color_code: str

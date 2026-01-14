@@ -46,7 +46,7 @@ class KamaWindow(AppService, QMainWindow):
         self.__is_initialized = False
 
         self.setWindowTitle(self.application.config.name)
-        icon_path = self.application.discovery.resources(self.application.config.icon)
+        icon_path = self.application.discovery.images(self.application.config.icon)
         self.setWindowIcon(QIcon(icon_path))
 
         self.resize_window()
@@ -104,7 +104,7 @@ class KamaWindow(AppService, QMainWindow):
         user_stylesheet = self.application.style.builder.load_stylesheet(user_stylesheet_directory)
         stylesheet = core_stylesheet + "\n" + user_stylesheet
 
-        self.application.style.create_dynamic_resources()
+        self.application.style.create_dynamic_images()
         self.__qt_application.setStyleSheet(stylesheet)
 
     def build(self, section: str):

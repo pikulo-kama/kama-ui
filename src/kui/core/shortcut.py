@@ -25,18 +25,18 @@ def resolve_project_file(*paths: str):
     return KamaApplication().discovery.project(*paths)
 
 
-def resolve_config(*paths: str):
+def resolve_data(*paths: str):
     """
     Used to resolve file in '{PROJECT_ROOT}/Config' directory.
     """
-    return KamaApplication().discovery.config(*paths)
+    return KamaApplication().discovery.data(*paths)
 
 
-def resolve_resource(*paths: str, include_temporary: bool = True):
+def resolve_image(*paths: str, include_temporary: bool = True):
     """
     Used to resolve file in '{PROJECT_ROOT}/Resource' directory.
     """
-    return KamaApplication().discovery.resources(*paths, include_temporary=include_temporary)
+    return KamaApplication().discovery.images(*paths, include_temporary=include_temporary)
 
 
 def resolve_temp_file(*paths: str):
@@ -46,11 +46,11 @@ def resolve_temp_file(*paths: str):
     return KamaApplication().discovery.output(*paths)
 
 
-def resolve_temp_resource(*paths: str):
+def resolve_temp_image(*paths: str):
     """
     Used to resolve file in '{APP_DATA}/{app_name}/Output/Resources' directory.
     """
-    return KamaApplication().discovery.temp_resources(*paths)
+    return KamaApplication().discovery.temp_images(*paths)
 
 
 def resolve_app_data(*paths: str):
