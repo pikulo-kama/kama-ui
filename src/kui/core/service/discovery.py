@@ -1,9 +1,28 @@
+from typing import TYPE_CHECKING
 import os.path
 from kui.util.file import get_project_dir
 from kui.core._service import AppService
 
+if TYPE_CHECKING:
+    from kui.core.app import KamaApplicationContext
+
 
 class ProjectDiscoveryService(AppService):
+
+    def __init__(self, context: "KamaApplicationContext"):
+        super().__init__(context)
+
+        directories = [
+            self.AppData,
+            self.Output,
+            self.TempImages,
+            self.Logback,
+            self.Logs,
+        ]
+
+        for directory in directories:
+            if not os.path.exists(directory):
+                os.mkdir(directory)
 
     @property
     def ProjectRoot(self):  # noqa
@@ -44,7 +63,7 @@ class ProjectDiscoveryService(AppService):
 
     @property
     def TempImages(self):  # noqa
-        return os.path.join(self.Output, "Images")
+        return os.path.join(self.AppData, "Images")
 
     def package(self, *paths: str):
         paths = list(paths)

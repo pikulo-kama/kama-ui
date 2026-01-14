@@ -5,6 +5,7 @@ from typing import Callable, TYPE_CHECKING
 from PyQt6.QtCore import pyqtSignal, QSettings
 from PyQt6.QtGui import QCloseEvent, QIcon
 from PyQt6.QtWidgets import QMainWindow, QApplication, QWidget, QHBoxLayout
+from kutil.file import cleanup_directory
 from kutil.logger import get_logger
 from pathlib import Path
 from kui.core.manager import WidgetManager
@@ -189,6 +190,15 @@ class KamaWindow(AppService, QMainWindow):
 
         self.__settings.setValue("windowWidth", self.width())
         self.__settings.setValue("windowHeight", self.height())
+
+        # Cleanup AppData directories.
+        directories = [
+            self.application.discovery.Output,
+            self.application.discovery.TempImages
+        ]
+
+        for directory in directories:
+            cleanup_directory(directory)
 
         self.before_destroy.emit()  # noqa
         _logger.info("Application shut down.")
