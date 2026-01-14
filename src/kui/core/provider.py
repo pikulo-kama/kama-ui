@@ -2,6 +2,8 @@ from typing import TYPE_CHECKING
 import dataclasses
 import json
 
+from kui.core.metadata import WidgetMetadata
+
 if TYPE_CHECKING:
     from kui.core.controller import WidgetController
 
