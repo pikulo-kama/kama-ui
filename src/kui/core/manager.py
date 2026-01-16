@@ -377,6 +377,16 @@ class WidgetManager:
         self.execute(AddLayoutTypeCommand(layout_types))
 
     def load_controllers(self):
-        for member_name, member in get_members(self.__application.config.controller_package, WidgetController):
+
+        import kui.controller as core_controller_package
+
+        core_package = core_controller_package.__package__
+        custom_package = self.__application.config.controller_package
+
+        for member_name, member in get_members(core_package, WidgetController):
+            controller: "WidgetController" = member(self.__application, self)
+            self.__controllers[member_name] = controller
+
+        for member_name, member in get_members(custom_package, WidgetController):
             controller: "WidgetController" = member(self.__application, self)
             self.__controllers[member_name] = controller
