@@ -1,4 +1,5 @@
 from copy import deepcopy
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, List, Any, Final, Dict, Optional
 
 from PyQt6.QtCore import QThread
@@ -98,25 +99,6 @@ class WidgetController:
         self.__state[widget_key] = value
         return value
 
-    def _change_widget_parent(self, widget: KamaComponent, target_section_id: str, target_widget_id: str):
-        """
-        Moves a widget from its current layout to the layout of a target widget.
-
-        Args:
-            widget (QCustomComponent): The widget to move.
-            target_section_id (str): Section ID of the new parent.
-            target_widget_id (str): Widget ID of the new parent.
-        """
-
-        target_widget = self.manager.get_widget(target_section_id, target_widget_id)
-        target_layout = target_widget.layout()
-        original_layout = widget.layout()
-
-        _logger.debug("Rebinding '%s' to '%s'", widget.metadata.name, target_widget.metadata.name)
-
-        original_layout.removeWidget(widget)
-        target_layout.addWidget(widget)
-
     def work(self, worker: KamaWorker):
         """
         Executes a background worker in a separate blocking thread.
@@ -136,6 +118,13 @@ class WidgetController:
         execute_in_blocking_thread(self.__thread, self.__worker)
 
 
+@dataclass
+class TemplateWidgetContext:
+    root: KamaComponent
+    args: ControllerArgs
+    element: Any
+
+
 class TemplateResolver(ContentResolver):
     """
     A specialized resolver for handling tokens within dynamic templates.
@@ -145,20 +134,19 @@ class TemplateResolver(ContentResolver):
     being rendered.
     """
 
-    def __init__(self, controller: "TemplateWidgetController", element: Any, args: ControllerArgs):
+    def __init__(self, controller: "TemplateWidgetController",context: TemplateWidgetContext):
         """
         Initializes the resolver with a controller and the data element context.
         """
 
         self.__controller = controller
-        self.__controller_args = args
-        self.__element = element
+        self.__context = context
 
     def resolve(self, value: str, *args, **kw):
         """
         Resolves a string value using the associated controller.
         """
-        return self.__controller.resolve(self.__element, value, self.__controller_args, *args, **kw)
+        return self.__controller.resolve(self.__context, value, *args, **kw)
 
 
 class TemplateWidgetController(WidgetController):
@@ -211,9 +199,16 @@ class TemplateWidgetController(WidgetController):
         for metadata in header_segments.values():
             self.manager.build(metadata)
 
-        for idx, element in enumerate(self._get_data()):
+        for idx, element in enumerate(self.retrieve_data(args)):
             body_segments_copy = deepcopy(body_segments)
-            template_resolver = TemplateResolver(self, element, args)
+
+            context = TemplateWidgetContext(
+                root=widget,
+                args=args,
+                element=element
+            )
+
+            template_resolver = TemplateResolver(self, context)
 
             for root_meta, metadata in body_segments_copy.items():
                 widget_count = len(metadata) * len(body_segments)
@@ -237,31 +232,31 @@ class TemplateWidgetController(WidgetController):
                 self.manager.build(metadata)
                 segment_root = self.manager.get_widget(body_section, f"{root_meta.original_id}__{idx}")
 
-                self.__invoke_widget_handlers(segment_root, element, args)
+                self.__invoke_widget_handlers(segment_root, context)
 
         # Build footer.
         for metadata in footer_segments.values():
             self.manager.build(metadata)
 
-    def _get_data(self) -> list[Any]:  # noqa
+    def retrieve_data(self, args: ControllerArgs) -> list[Any]:  # noqa
         """
         Retrieves the dataset used to populate the template.
         """
         return []
 
-    def resolve(self, element: Any, value: str, *args, **kw):  # noqa
+    def resolve(self, context: TemplateWidgetContext, value: str, *args, **kw):  # noqa
         """
         Logic for resolving template-specific tokens based on the current data element.
         """
         return value
 
-    def __invoke_widget_handlers(self, segment_root: KamaComponent, element: Any, args: ControllerArgs):
+    def __invoke_widget_handlers(self, segment_root: KamaComponent, context: TemplateWidgetContext):
         """
         Automatically calls 'handle__' methods for widgets within a generated segment.
 
         Args:
             segment_root (QCustomComponent): The root of the newly created segment.
-            element (Any): The data element from the dataset for this segment.
+            context (Any): Template widget context (contains related element, root widget, etc.)
         """
 
         widgets: list = segment_root.findChildren(KamaComponentMixin)
@@ -271,7 +266,7 @@ class TemplateWidgetController(WidgetController):
             handler_method = self.__handlers.get(widget.metadata.original_id)
 
             if handler_method is not None:
-                handler_method(widget, element, args)
+                handler_method(widget, context)
 
     def __segment_metadata(self, section_id: str, widget: KamaComponent) \
             -> Dict[WidgetMetadata, List[WidgetMetadata]]:
