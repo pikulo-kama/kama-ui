@@ -47,7 +47,7 @@ class FilterOperand(Enum):
 
 class FilterCriterion:
 
-    def __init__(self, field: Union[str | "FilterCriterion"], operand: FilterOperand, value: Any):
+    def __init__(self, field: Union[str | "FilterCriterion"], operand: FilterOperand, value: Union[str | int | float]):
         self.__field = field
         self.__operand = operand
         self.__value = value
@@ -62,10 +62,29 @@ class FilterCriterion:
 
     @cached_property
     def value(self):
-        if self.__operand.requires_list:
-            return ", ".join(self.__value)
-
         return self.__value
+
+    def to_sql(self):
+
+        values = [self.value]
+        formatted_values = []
+
+        # Should already be a list.
+        if self.operand.requires_list:
+            values = self.value
+
+        for value in values:
+            if isinstance(value, str):
+                value = f"'{value}'"
+
+            formatted_values.append(value)
+
+        value = ", ".join(values)
+
+        if self.operand.requires_list:
+            value = f"({value})"
+
+        return f"{self.field} {self.operand.symbol} {value}"
 
 
 class KamaFilter:
@@ -73,7 +92,15 @@ class KamaFilter:
     def __init__(self, query_object: list[Union[FilterCriterion | LogicOperand]]):
         self.__query = query_object
 
-    def sql(self):
+    def get(self, field: str):
+
+        for statement in self.__query:
+            if isinstance(statement, FilterCriterion) and statement.field == field:
+                return statement.value
+
+        return None
+
+    def to_sql(self):
 
         sql_parts = []
 
@@ -84,14 +111,7 @@ class KamaFilter:
                 continue
 
             criterion: FilterCriterion = statement
-            statement_sql = f"{criterion.field} {criterion.operand.symbol}"
-
-            if criterion.operand.requires_list:
-                statement_sql += f"({criterion.field.value})"
-            else:
-                statement_sql += criterion.field.value
-
-            sql_parts.append(statement_sql)
+            sql_parts.append(criterion.to_sql())
 
         return " ".join(sql_parts)
 
