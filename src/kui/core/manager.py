@@ -202,7 +202,7 @@ class WidgetManager:
     def build_section(self, section_id: str):
         metadata = self.__application.provider.metadata.provide(
             FilterBuilder() \
-                .where("section_id").equals(section_id) \
+                .where("section").equals(section_id) \
                 .build()
         )
         self.build(metadata)

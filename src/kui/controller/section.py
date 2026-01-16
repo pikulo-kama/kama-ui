@@ -116,7 +116,7 @@ class SectionListController(TemplateWidgetController):
         """
 
         def change_tab(new_tab_id: str):
-            return lambda: self.__change_tab(list_item, new_tab_id)
+            return lambda: self.__change_tab(context.root, new_tab_id)
 
         section_id = context.element.section_id
 

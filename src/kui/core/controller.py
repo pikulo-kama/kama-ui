@@ -276,7 +276,7 @@ class TemplateWidgetController(WidgetController):
 
         metadata = self.__application.provider.metadata.provide(
             FilterBuilder() \
-                .where("section_id").equals(section_id) \
+                .where("section").equals(section_id) \
                 .build()
         )
         grouped_widgets = {}

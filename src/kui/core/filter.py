@@ -47,7 +47,7 @@ class FilterOperand(Enum):
 
 class FilterCriterion:
 
-    def __init__(self, field: Union[str | "FilterCriterion"], operand: FilterOperand, value: Union[str | int | float]):
+    def __init__(self, field: str, operand: FilterOperand, value: Union[str | int | float]):
         self.__field = field
         self.__operand = operand
         self.__value = value
@@ -79,7 +79,7 @@ class FilterCriterion:
 
             formatted_values.append(value)
 
-        value = ", ".join(values)
+        value = ", ".join(formatted_values)
 
         if self.operand.requires_list:
             value = f"({value})"
