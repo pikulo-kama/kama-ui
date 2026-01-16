@@ -1,6 +1,7 @@
 from kui.component.button import KamaPushButton
 from kui.component.dialog import KamaDialog
 from kui.core.app import KamaApplication
+from kui.core.metadata import ControllerArgs
 from kui.core.shortcut import dynamic_data
 
 from kui.controller.dialog import DialogController
@@ -13,7 +14,7 @@ class ConfirmationDialogController(DialogController):
     and will bind dialog closing to cancel button.
     """
 
-    def setup(self, dialog: KamaDialog):
+    def setup(self, dialog: KamaDialog, args: ControllerArgs):
 
         application = KamaApplication()
 
@@ -39,4 +40,4 @@ class ConfirmationDialogController(DialogController):
         confirm_button.clicked.connect(on_confirm)
         cancel_button.clicked.connect(on_cancel)
 
-        super().setup(dialog)
+        super().setup(dialog, args)

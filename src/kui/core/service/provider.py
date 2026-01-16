@@ -14,7 +14,7 @@ class DataProviderService(AppService):
         self.__section_provider = ControllerSectionProvider()
 
     @property
-    def metadata(self):
+    def metadata(self) -> MetadataProvider:
         return self.__metadata_provider
 
     @metadata.setter
@@ -22,7 +22,7 @@ class DataProviderService(AppService):
         self.__metadata_provider = provider
 
     @property
-    def section(self):
+    def section(self) -> ControllerSectionProvider:
         return self.__section_provider
 
     @section.setter

@@ -1,13 +1,11 @@
 from copy import deepcopy
-from typing import TYPE_CHECKING, List, Any, Final, Dict
+from typing import TYPE_CHECKING, List, Any, Final, Dict, Optional
 
 from PyQt6.QtCore import QThread
-from PyQt6.QtWidgets import QWidget
-
 from kui.core.component import KamaComponent, KamaComponentMixin
-from kui.core.provider import Section
+from kui.core.filter import FilterBuilder
 from kui.util.thread import execute_in_blocking_thread
-from kui.core.metadata import WidgetMetadata
+from kui.core.metadata import WidgetMetadata, ControllerArgs
 from kui.core.resolver import ContentResolver
 from kui.core.worker import KamaWorker
 from kutil.logger import get_logger
@@ -34,10 +32,11 @@ class WidgetController:
         Initializes the controller with a reference to the WidgetManager.
         """
 
+        self.__application = application
         self.__manager = manager
 
-        self.__thread: QThread
-        self.__worker: KamaWorker
+        self.__thread: Optional[QThread] = None
+        self.__worker: Optional[KamaWorker] = None
 
         # Dynamic controller state.
         # Since controllers are being created
@@ -47,31 +46,34 @@ class WidgetController:
         # valid anymore, because of this we need to be able
         # to clear this data when refresh is happening.
         self.__state = {}
-        self.__sections: list[Section] = application.provider.section.provide(self)
 
-    def setup(self, widget: QWidget):  # pragma: no cover
+    def setup(self, widget: KamaComponent, args: ControllerArgs):  # pragma: no cover
         """
         Hook called during the initial construction of the widget.
         """
         pass
 
-    def refresh(self, widget: QWidget):  # pragma: no cover
+    def refresh(self, widget: KamaComponent, args: ControllerArgs):  # pragma: no cover
         """
         Hook called whenever the widget requires a data refresh.
         """
         pass
 
-    def enable(self, widget: QWidget):  # pragma: no cover
+    def enable(self, widget: KamaComponent, args: ControllerArgs):  # pragma: no cover
         """
         Hook called when the widget is transitioned to an enabled state.
         """
         pass
 
-    def disable(self, widget: QWidget):  # pragma: no cover
+    def disable(self, widget: KamaComponent, args: ControllerArgs):  # pragma: no cover
         """
         Hook called when the widget is transitioned to a disabled state.
         """
         pass
+
+    @property
+    def application(self):
+        return self.__application
 
     @property
     def manager(self):
@@ -80,34 +82,21 @@ class WidgetController:
         """
         return self.__manager
 
-    @property
-    def sections(self):
-        """
-        Returns the database rows for sections managed by this controller.
-        """
-        return self.__sections
-
-    @sections.setter
-    def sections(self, section_list: list):
-        self.__sections = section_list
-
     def reset_state(self):
         """
         Clears the dynamic state dictionary.
         """
         self.__state.clear()
 
-    def _get_state(self, key: str):
-        """
-        Retrieves a value from the dynamic controller state.
-        """
-        return self.__state.get(key)
+    def state(self, widget: KamaComponent, key: str, value: Any = None):
 
-    def _set_state(self, key: str, value):
-        """
-        Stores a value in the dynamic controller state.
-        """
-        self.__state[key] = value
+        widget_key = f"{widget.metadata.name}.{key}"
+
+        if value is None:
+            return self.__state.get(widget_key)
+
+        self.__state[widget_key] = value
+        return value
 
     def _change_widget_parent(self, widget: KamaComponent, target_section_id: str, target_widget_id: str):
         """
@@ -128,7 +117,7 @@ class WidgetController:
         original_layout.removeWidget(widget)
         target_layout.addWidget(widget)
 
-    def _do_work(self, worker: KamaWorker):
+    def work(self, worker: KamaWorker):
         """
         Executes a background worker in a separate blocking thread.
 
@@ -156,19 +145,20 @@ class TemplateResolver(ContentResolver):
     being rendered.
     """
 
-    def __init__(self, controller: "TemplateWidgetController", element: Any):
+    def __init__(self, controller: "TemplateWidgetController", element: Any, args: ControllerArgs):
         """
         Initializes the resolver with a controller and the data element context.
         """
 
         self.__controller = controller
+        self.__controller_args = args
         self.__element = element
 
     def resolve(self, value: str, *args, **kw):
         """
         Resolves a string value using the associated controller.
         """
-        return self.__controller.resolve(self.__element, value, *args, **kw)
+        return self.__controller.resolve(self.__element, value, self.__controller_args, *args, **kw)
 
 
 class TemplateWidgetController(WidgetController):
@@ -194,7 +184,7 @@ class TemplateWidgetController(WidgetController):
             widget_id = name.replace(self.HandlerPrefix, "")
             self.__handlers[widget_id] = member
 
-    def refresh(self, widget: KamaComponent):
+    def refresh(self, widget: KamaComponent, args: ControllerArgs):
         """
         Orchestrates the building of the template structure.
 
@@ -204,6 +194,7 @@ class TemplateWidgetController(WidgetController):
 
         Args:
             widget (QCustomComponent): The parent widget containing the template.
+            args (ControllerArgs): Controller arguments defined for current widget.
         """
 
         header_section = f"{widget.metadata.id}__template_header"
@@ -222,7 +213,7 @@ class TemplateWidgetController(WidgetController):
 
         for idx, element in enumerate(self._get_data()):
             body_segments_copy = deepcopy(body_segments)
-            template_resolver = TemplateResolver(self, element)
+            template_resolver = TemplateResolver(self, element, args)
 
             for root_meta, metadata in body_segments_copy.items():
                 widget_count = len(metadata) * len(body_segments)
@@ -246,7 +237,7 @@ class TemplateWidgetController(WidgetController):
                 self.manager.build(metadata)
                 segment_root = self.manager.get_widget(body_section, f"{root_meta.original_id}__{idx}")
 
-                self.__invoke_widget_handlers(segment_root, element)
+                self.__invoke_widget_handlers(segment_root, element, args)
 
         # Build footer.
         for metadata in footer_segments.values():
@@ -264,7 +255,7 @@ class TemplateWidgetController(WidgetController):
         """
         return value
 
-    def __invoke_widget_handlers(self, segment_root: KamaComponent, element: Any):
+    def __invoke_widget_handlers(self, segment_root: KamaComponent, element: Any, args: ControllerArgs):
         """
         Automatically calls 'handle__' methods for widgets within a generated segment.
 
@@ -280,7 +271,7 @@ class TemplateWidgetController(WidgetController):
             handler_method = self.__handlers.get(widget.metadata.original_id)
 
             if handler_method is not None:
-                handler_method(widget, element)
+                handler_method(widget, element, args)
 
     def __segment_metadata(self, section_id: str, widget: KamaComponent) \
             -> Dict[WidgetMetadata, List[WidgetMetadata]]:
@@ -288,7 +279,11 @@ class TemplateWidgetController(WidgetController):
         Groups metadata into logical segments based on their root ancestors.
         """
 
-        metadata = self.__application.provider.metadata.provide(section_id)
+        metadata = self.__application.provider.metadata.provide(
+            FilterBuilder() \
+                .where("section_id").equals(section_id) \
+                .build()
+        )
         grouped_widgets = {}
 
         for widget_meta in metadata:

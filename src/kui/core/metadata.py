@@ -1,7 +1,7 @@
 import re
 from PyQt6.QtCore import Qt
 from dataclasses import dataclass
-from typing import Optional, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING, Any
 from kutil.logger import get_logger
 
 if TYPE_CHECKING:
@@ -18,6 +18,14 @@ _alignment_map = {
     "right": Qt.AlignmentFlag.AlignRight,
     "bottom": Qt.AlignmentFlag.AlignBottom
 }
+
+class ControllerArgs:
+
+    def __init__(self, args: dict[str, Any]):
+        self.__args = args
+
+    def get(self, name: str, default_value: Any = None):
+        return self.__args.get(name, default_value)
 
 
 @dataclass
@@ -47,6 +55,7 @@ class WidgetMetadata:
                  grid_columns: int = None,
                  parent_widget_id: str = None,
                  controller: str = None,
+                 controller_args: dict[str, Any] = None,
                  order_id: int = None,
                  spacing: int = None,
                  width: int = None,
@@ -75,6 +84,7 @@ class WidgetMetadata:
         self.__parent: Optional[WidgetMetadata] = None
         self.__is_interactable = None
         self.__controller = controller
+        self.__controller_args = ControllerArgs(controller_args or {})
         self.__order_id = order_id or 0
 
         self.__widget_type = widget_type
@@ -195,6 +205,10 @@ class WidgetMetadata:
         Retrieves the name of the associated controller class.
         """
         return self.__controller
+
+    @property
+    def controller_args(self) -> ControllerArgs:
+        return self.__controller_args
 
     @property
     def resolvers(self) -> dict[str, "ContentResolver"]:

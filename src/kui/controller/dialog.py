@@ -1,6 +1,7 @@
 from kui.component.dialog import KamaDialog
 from kui.core.app import KamaApplication
 from kui.core.controller import WidgetController
+from kui.core.metadata import ControllerArgs
 
 
 class DialogController(WidgetController):
@@ -13,7 +14,7 @@ class DialogController(WidgetController):
     on top of other components.
     """
 
-    def setup(self, dialog: KamaDialog):
+    def setup(self, dialog: KamaDialog, args: ControllerArgs):
         application = KamaApplication()
 
         dialog.setParent(application.window)

@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING, Callable, Type
 
+from kui.core.filter import FilterBuilder
 from kutil.reflection import get_members
 
 from kui.command.type import AddWidgetTypeCommand, AddLayoutTypeCommand
@@ -199,7 +200,11 @@ class WidgetManager:
         self.execute(WidgetBuildCommand(metadata))
 
     def build_section(self, section_id: str):
-        metadata = self.__application.provider.metadata.provide(section_id)
+        metadata = self.__application.provider.metadata.provide(
+            FilterBuilder() \
+                .where("section_id").equals(section_id) \
+                .build()
+        )
         self.build(metadata)
 
     def refresh(self, widget_filter: WidgetFilter = None):
@@ -275,7 +280,7 @@ class WidgetManager:
                 continue
 
             method = getattr(controller, target)
-            method(widget)
+            method(widget, widget.metadata.controller_args)
 
     def __execute_with_filter(self, command: Type, widget_filter: WidgetFilter = None):
         """

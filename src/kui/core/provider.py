@@ -1,11 +1,8 @@
-from typing import TYPE_CHECKING
 import dataclasses
 import json
 
+from kui.core.filter import KamaFilter
 from kui.core.metadata import WidgetMetadata
-
-if TYPE_CHECKING:
-    from kui.core.controller import WidgetController
 
 
 @dataclasses.dataclass
@@ -16,7 +13,7 @@ class Section:
 
 
 class MetadataProvider:
-    def provide(self, section_id: str) -> list[WidgetMetadata]:  # noqa
+    def provide(self, filter: KamaFilter) -> list[WidgetMetadata]:  # noqa
         return []
 
     @staticmethod
@@ -32,5 +29,5 @@ class MetadataProvider:
 
 
 class ControllerSectionProvider:
-    def provide(self, controller: "WidgetController") -> list[Section]:  # noqa
+    def provide(self, filter: KamaFilter) -> list[Section]:  # noqa
         return []

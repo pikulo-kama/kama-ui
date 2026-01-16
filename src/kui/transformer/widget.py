@@ -42,6 +42,9 @@ class JSONWidgetDataTransformer(ProviderDataTransformer):
         if "children" in parent:
             del parent["children"]
 
+        if "args" in parent:
+            parent["args"] = json.dumps(parent.get("args"), indent=4)
+
         widgets.append(parent)
 
         order = 0
@@ -139,6 +142,7 @@ class JSONWidgetDataTransformer(ProviderDataTransformer):
             section_id = widget.get("section")
             parent_widget_id = widget.get("parent")
             stylesheet = widget.get("stylesheet")
+            controller_args = widget.get("args")
             widget_type_id = widget.get("type")
 
             # Only show section ID on root widgets.
@@ -155,6 +159,9 @@ class JSONWidgetDataTransformer(ProviderDataTransformer):
 
             if stylesheet is not None:
                 widget["stylesheet"] = json.loads(stylesheet)
+
+            if controller_args is not None:
+                widget["args"] = json.loads(controller_args)
 
             if widget_type_id == "KWidget":
                 del widget["type"]
