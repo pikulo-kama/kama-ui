@@ -30,6 +30,10 @@ class KamaComponentMixin:
 
     @property
     def is_interactable(self):
+        """
+        Returns whether the widget is currently interactable.
+        """
+
         if self.metadata.is_interactable is not None:
             return self.metadata.is_interactable
 
@@ -37,6 +41,9 @@ class KamaComponentMixin:
 
     @is_interactable.setter
     def is_interactable(self, interactable: bool):
+        """
+        Sets the interactable state of the widget.
+        """
         self.__is_interactable = interactable
 
     def set_content(self, content):  # pragma: no cover
@@ -52,6 +59,10 @@ class KamaComponentMixin:
         pass
 
     def set_tooltip(self, content):
+        """
+        Resolves and sets the tooltip text for the widget.
+        """
+
         content = self._resolve_content(content)
         self.setToolTip(content)  # noqa
 
@@ -184,6 +195,9 @@ class KamaComponentMixin:
             child.update_styles()
 
     def _resolve_content(self, content: str):
+        """
+        Internal helper to resolve dynamic content strings using registered resolvers.
+        """
 
         resolvers = get_core_resolvers() or {}
         resolvers = {**resolvers, **self.metadata.resolvers}

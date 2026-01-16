@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QProgressBar
 
 from kui.component.button import KamaPushButton
-from kui.core.constants import QAttr, QBool
+from kui.core.constants import KamaAttr, QBool
 
 
 class KamaProgressPushButton(KamaPushButton):
@@ -84,5 +84,5 @@ class KamaProgressPushButton(KamaPushButton):
         # If kind is being set for
         # button then also update kind
         # of progress bar.
-        if name == QAttr.Kind:
-            self.__progress_bar.setProperty(QAttr.Kind, f"{self.__class__.__name__}-{value}")
+        if name == KamaAttr.Kind:
+            self.__progress_bar.setProperty(KamaAttr.Kind, f"{self.__class__.__name__}-{value}")

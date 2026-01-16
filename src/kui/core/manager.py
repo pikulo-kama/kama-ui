@@ -44,9 +44,11 @@ class ManagerContext:
         Initializes the context with current manager state.
 
         Args:
-            manager: The parent WidgetManager instance.
-            widgets: List of currently active widgets in the manager.
-            controllers: Mapping of controller names to their instances.
+            manager (WidgetManager): The parent WidgetManager instance.
+            widgets (list): List of currently active widgets.
+            controllers (dict): Mapping of controller names to instances.
+            widget_types (dict): Mapping of registered widget types.
+            layout_types (dict): Mapping of registered layout types.
         """
 
         self.__manager = manager
@@ -60,15 +62,27 @@ class ManagerContext:
         self.__new_layout_types = []
 
     def get_widget_type(self, name: str):
+        """
+        Retrieves a registered widget type by name.
+        """
         return self.__widget_types.get(name)
 
     def get_layout_type(self, name: str):
+        """
+        Retrieves a registered layout type by name.
+        """
         return self.__layout_types.get(name)
 
     def add_widget_type(self, widget_type: Type["KamaComponentMixin"]):
+        """
+        Schedules a new widget type for registration.
+        """
         self.__new_widget_types.append(widget_type)
 
     def add_layout_type(self, layout_type: Type["KamaLayoutMixin"]):
+        """
+        Schedules a new layout type for registration.
+        """
         self.__new_layout_types.append(layout_type)
 
     def add_widget(self, widget: KamaComponent):
@@ -76,7 +90,7 @@ class ManagerContext:
         Registers a new widget to be built and added to the UI.
 
         Args:
-            widget: The component instance to be added.
+            widget (KamaComponent): The component instance to be added.
         """
         self.__new_widgets.append(widget)
 
@@ -85,7 +99,7 @@ class ManagerContext:
         Schedules an existing widget for removal and cleanup.
 
         Args:
-            widget: The component instance to be removed.
+            widget (KamaComponent): The component instance to be removed.
         """
         self.__removed_widgets.append(widget)
 
@@ -121,18 +135,21 @@ class ManagerContext:
     def removed_widgets(self) -> list[KamaComponent]:
         """
         Returns a unique list of widgets scheduled for removal.
-
-        Uses a set internally to ensure that even if a widget was requested
-        to be removed multiple times, it is only processed once.
         """
         return list(set(self.__removed_widgets))
 
     @property
     def new_widget_types(self) -> list[Type["KamaComponentMixin"]]:
+        """
+        Returns a list of newly registered widget types.
+        """
         return self.__new_widget_types
 
     @property
     def new_layout_types(self) -> list[Type["KamaLayoutMixin"]]:
+        """
+        Returns a list of newly registered layout types.
+        """
         return self.__new_layout_types
 
 
@@ -143,10 +160,11 @@ class WidgetManager:
 
     def __init__(self, application: "KamaApplication", window: "KamaWindow"):
         """
-        Initializes the manager and loads the widget controllers.
+        Initializes the manager and pre-allocates storage for types, widgets, and controllers.
 
         Args:
-            window: Reference to the main GUI application.
+            application (KamaApplication): The global application instance.
+            window (KamaWindow): Reference to the main GUI window.
         """
 
         self.__application = application
@@ -158,10 +176,10 @@ class WidgetManager:
 
     def execute(self, command: "WidgetCommand"):
         """
-        Executes a widget command and applies the resulting additions or removals.
+        Executes a widget command and applies the resulting state changes to the UI.
 
         Args:
-            command: The command object to execute.
+            command (WidgetCommand): The command object to execute.
         """
 
         context = ManagerContext(
@@ -192,14 +210,21 @@ class WidgetManager:
 
     def build(self, metadata: list[WidgetMetadata]):
         """
-        Executes a build command for the given metadata list.
+        Instantiates and builds widgets based on the provided metadata.
 
         Args:
-            metadata: Metadata defining the widgets to build.
+            metadata (list): Metadata defining the widgets to build.
         """
         self.execute(WidgetBuildCommand(metadata))
 
     def build_section(self, section_id: str):
+        """
+        Queries metadata for a specific section and initiates a build.
+
+        Args:
+            section_id (str): The unique identifier of the section to build.
+        """
+
         metadata = self.__application.provider.metadata.provide(
             FilterBuilder() \
                 .where("section").equals(section_id) \
@@ -209,56 +234,59 @@ class WidgetManager:
 
     def refresh(self, widget_filter: WidgetFilter = None):
         """
-        Executes a refresh command using the provided filter.
+        Triggers a refresh on widgets matching the provided filter.
 
         Args:
-            widget_filter: Optional filter to select widgets for refreshing.
+            widget_filter (WidgetFilter, optional): Logic to select widgets.
         """
         self.__execute_with_filter(WidgetRefreshCommand, widget_filter)
 
     def event_refresh(self, event: str):
         """
-        Executes a refresh command triggered by a specific event.
+        Triggers a refresh based on a specific named event.
 
         Args:
-            event: The name of the event.
+            event (str): The event name triggering the refresh.
         """
         self.execute(WidgetEventRefreshCommand(event))
 
     def enable(self, widget_filter: WidgetFilter = None):
         """
-        Executes an enable command using the provided filter.
+        Enables widgets matching the filter.
 
         Args:
-            widget_filter: Optional filter to select widgets to enable.
+            widget_filter (WidgetFilter, optional): Selection logic.
         """
         self.__execute_with_filter(WidgetEnableCommand, widget_filter)
 
     def disable(self, widget_filter: WidgetFilter = None):
         """
-        Executes a disable command using the provided filter.
+        Disables widgets matching the filter.
 
         Args:
-            widget_filter: Optional filter to select widgets to disable.
+            widget_filter (WidgetFilter, optional): Selection logic.
         """
         self.__execute_with_filter(WidgetDisableCommand, widget_filter)
 
     def delete(self, widget_filter: WidgetFilter = None):
         """
-        Executes a delete command using the provided filter.
+        Deletes widgets matching the filter.
 
         Args:
-            widget_filter: Optional filter to select widgets to delete.
+            widget_filter (WidgetFilter, optional): Selection logic.
         """
         self.__execute_with_filter(WidgetDeleteCommand, widget_filter)
 
     def get_widget(self, section_id: str, widget_id: str):
         """
-        Retrieves a widget by its combined section and widget ID.
+        Retrieves an active widget instance from the manager.
 
         Args:
-            section_id: The ID of the section.
-            widget_id: The ID of the widget.
+            section_id (str): The section ID.
+            widget_id (str): The widget ID.
+
+        Returns:
+            KamaComponent: The widget instance if found, otherwise None.
         """
 
         widget_name = f"{section_id}.{widget_id}"
@@ -266,11 +294,11 @@ class WidgetManager:
 
     def invoke_controllers(self, target: str, widgets: list[KamaComponent]):
         """
-        Calls a specific method on the controllers for the provided widgets.
+        Executes a named method on the controllers for a group of widgets.
 
         Args:
-            target: The method name to call on the controller.
-            widgets: The widgets whose controllers should be invoked.
+            target (str): The controller method to call (e.g., 'setup').
+            widgets (list): The list of widgets to process.
         """
 
         for widget in widgets:
@@ -284,11 +312,7 @@ class WidgetManager:
 
     def __execute_with_filter(self, command: Type, widget_filter: WidgetFilter = None):
         """
-        Internal helper to execute filter-based commands.
-
-        Args:
-            command: The command class to instantiate.
-            widget_filter: The filter logic to pass to the command.
+        Helper to execute commands that require a selection filter.
         """
 
         if widget_filter is None:
@@ -298,10 +322,7 @@ class WidgetManager:
 
     def __add_widgets(self, widgets: list[KamaComponent]):
         """
-        Adds widgets to the UI hierarchy and registers them in the manager.
-
-        Args:
-            widgets: List of widgets to add.
+        Handles the internal logic of parenting and registering new widgets.
         """
 
         for widget in sorted(widgets, key=lambda w: w.metadata.order_id):
@@ -333,10 +354,7 @@ class WidgetManager:
 
     def __remove_widgets(self, widgets: list[KamaComponent]):
         """
-        Removes widgets and their children from the UI and manager registry.
-
-        Args:
-            widgets: List of widgets to remove.
+        Handles the internal cleanup of widgets and their children.
         """
 
         def remove_widget(window_widget: KamaComponent):
@@ -357,6 +375,9 @@ class WidgetManager:
                 remove_widget(child)
 
     def load_components(self):
+        """
+        Scans internal and external packages to register available widget and layout types.
+        """
 
         import kui.component as core_component_package
 
@@ -382,6 +403,9 @@ class WidgetManager:
         self.execute(AddLayoutTypeCommand(layout_types))
 
     def load_controllers(self):
+        """
+        Instantiates all widget controllers found in core and custom packages.
+        """
 
         import kui.controller as core_controller_package
 

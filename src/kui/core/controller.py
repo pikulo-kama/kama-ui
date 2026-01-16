@@ -30,7 +30,11 @@ class WidgetController:
 
     def __init__(self, application: "KamaApplication", manager: "WidgetManager"):
         """
-        Initializes the controller with a reference to the WidgetManager.
+        Initializes the controller with references to the application and manager.
+
+        Args:
+            application (KamaApplication): The main application instance.
+            manager (WidgetManager): The manager responsible for widget lifecycles.
         """
 
         self.__application = application
@@ -51,35 +55,60 @@ class WidgetController:
     def setup(self, widget: KamaComponent, args: ControllerArgs):  # pragma: no cover
         """
         Hook called during the initial construction of the widget.
+
+        Args:
+            widget (KamaComponent): The widget instance being initialized.
+            args (ControllerArgs): Configuration arguments passed from metadata.
         """
         pass
 
     def refresh(self, widget: KamaComponent, args: ControllerArgs):  # pragma: no cover
         """
         Hook called whenever the widget requires a data refresh.
+
+        Args:
+            widget (KamaComponent): The widget instance to refresh.
+            args (ControllerArgs): Configuration arguments passed from metadata.
         """
         pass
 
     def enable(self, widget: KamaComponent, args: ControllerArgs):  # pragma: no cover
         """
         Hook called when the widget is transitioned to an enabled state.
+
+        Args:
+            widget (KamaComponent): The widget instance being enabled.
+            args (ControllerArgs): Configuration arguments passed from metadata.
         """
         pass
 
     def disable(self, widget: KamaComponent, args: ControllerArgs):  # pragma: no cover
         """
         Hook called when the widget is transitioned to a disabled state.
+
+        Args:
+            widget (KamaComponent): The widget instance being disabled.
+            args (ControllerArgs): Configuration arguments passed from metadata.
         """
         pass
 
     @property
     def application(self):
+        """
+        Returns the KamaApplication instance.
+
+        Returns:
+            KamaApplication: The global application instance.
+        """
         return self.__application
 
     @property
     def manager(self):
         """
         Returns the WidgetManager instance.
+
+        Returns:
+            WidgetManager: The manager handling the widget tree.
         """
         return self.__manager
 
@@ -90,6 +119,17 @@ class WidgetController:
         self.__state.clear()
 
     def state(self, widget: KamaComponent, key: str, value: Any = None):
+        """
+        Gets or sets state values associated with a specific widget instance.
+
+        Args:
+            widget (KamaComponent): The widget associated with the state.
+            key (str): The state key name.
+            value (Any, optional): The value to set. If None, retrieves existing value.
+
+        Returns:
+            Any: The current or newly set state value.
+        """
 
         widget_key = f"{widget.metadata.name}.{key}"
 
@@ -120,6 +160,15 @@ class WidgetController:
 
 @dataclass
 class TemplateWidgetContext:
+    """
+    Data container for the context of a specific element within a template.
+
+    Attributes:
+        root (KamaComponent): The main container widget of the template.
+        args (ControllerArgs): The controller arguments.
+        element (Any): The specific data item being rendered.
+    """
+
     root: KamaComponent
     args: ControllerArgs
     element: Any
@@ -134,9 +183,13 @@ class TemplateResolver(ContentResolver):
     being rendered.
     """
 
-    def __init__(self, controller: "TemplateWidgetController",context: TemplateWidgetContext):
+    def __init__(self, controller: "TemplateWidgetController", context: TemplateWidgetContext):
         """
         Initializes the resolver with a controller and the data element context.
+
+        Args:
+            controller (TemplateWidgetController): The parent template controller.
+            context (TemplateWidgetContext): The current iteration context.
         """
 
         self.__controller = controller
@@ -145,6 +198,12 @@ class TemplateResolver(ContentResolver):
     def resolve(self, value: str, *args, **kw):
         """
         Resolves a string value using the associated controller.
+
+        Args:
+            value (str): The token or string to resolve.
+
+        Returns:
+            Any: The resolved content.
         """
         return self.__controller.resolve(self.__context, value, *args, **kw)
 
@@ -162,6 +221,10 @@ class TemplateWidgetController(WidgetController):
     def __init__(self, application: "KamaApplication", manager: "WidgetManager"):
         """
         Initializes the template controller and maps handler methods for dynamic widgets.
+
+        Args:
+            application (KamaApplication): The main application instance.
+            manager (WidgetManager): The manager responsible for widget lifecycles.
         """
 
         super().__init__(application, manager)
@@ -181,7 +244,7 @@ class TemplateWidgetController(WidgetController):
         contextual resolvers to each.
 
         Args:
-            widget (QCustomComponent): The parent widget containing the template.
+            widget (KamaComponent): The parent widget containing the template.
             args (ControllerArgs): Controller arguments defined for current widget.
         """
 
@@ -241,12 +304,25 @@ class TemplateWidgetController(WidgetController):
     def retrieve_data(self, args: ControllerArgs) -> list[Any]:  # noqa
         """
         Retrieves the dataset used to populate the template.
+
+        Args:
+            args (ControllerArgs): Arguments used to filter or find the data.
+
+        Returns:
+            list[Any]: A list of items to be rendered in the template body.
         """
         return []
 
     def resolve(self, context: TemplateWidgetContext, value: str, *args, **kw):  # noqa
         """
         Logic for resolving template-specific tokens based on the current data element.
+
+        Args:
+            context (TemplateWidgetContext): The current rendering context.
+            value (str): The token to resolve.
+
+        Returns:
+            Any: The resolved value.
         """
         return value
 
@@ -255,8 +331,8 @@ class TemplateWidgetController(WidgetController):
         Automatically calls 'handle__' methods for widgets within a generated segment.
 
         Args:
-            segment_root (QCustomComponent): The root of the newly created segment.
-            context (Any): Template widget context (contains related element, root widget, etc.)
+            segment_root (KamaComponent): The root of the newly created segment.
+            context (TemplateWidgetContext): Context containing the element and root widget.
         """
 
         widgets: list = segment_root.findChildren(KamaComponentMixin)
@@ -272,6 +348,13 @@ class TemplateWidgetController(WidgetController):
             -> Dict[WidgetMetadata, List[WidgetMetadata]]:
         """
         Groups metadata into logical segments based on their root ancestors.
+
+        Args:
+            section_id (str): The ID of the template section (header/body/footer).
+            widget (KamaComponent): The parent widget context.
+
+        Returns:
+            Dict[WidgetMetadata, List[WidgetMetadata]]: Mapped segment roots to their children.
         """
 
         metadata = self.__application.provider.metadata.provide(
@@ -298,6 +381,13 @@ class TemplateWidgetController(WidgetController):
     def __get_segment_root(self, target: WidgetMetadata, all_metadata: list[WidgetMetadata]) -> WidgetMetadata:
         """
         Recursively finds the top-level metadata object for a given widget metadata.
+
+        Args:
+            target (WidgetMetadata): The metadata to trace back.
+            all_metadata (list[WidgetMetadata]): The pool of available metadata.
+
+        Returns:
+            WidgetMetadata: The root ancestor metadata.
         """
 
         for meta in all_metadata:

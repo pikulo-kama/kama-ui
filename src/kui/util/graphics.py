@@ -6,6 +6,13 @@ def round_image(pixmap: QPixmap, radius: int = None) -> QPixmap:
     """
     Takes a QPixmap and returns a new QPixmap rounded to specified radius.
     If radius is not provided then pixmap would be clipped to circle shape.
+
+    Args:
+        pixmap (QPixmap): The source image to round.
+        radius (int, optional): The corner radius in pixels. Defaults to circle shape.
+
+    Returns:
+        QPixmap: A new pixmap containing the rounded/clipped image.
     """
 
     width = pixmap.width()
@@ -40,7 +47,15 @@ def round_image(pixmap: QPixmap, radius: int = None) -> QPixmap:
 
 def scale_image(pixmap: QPixmap, width: int, height: int = None) -> QPixmap:
     """
-    Used to scale image to provided size.
+    Used to scale image to provided size while maintaining aspect ratio.
+
+    Args:
+        pixmap (QPixmap): The source image to scale.
+        width (int): The target width.
+        height (int, optional): The target height. Defaults to width (square).
+
+    Returns:
+        QPixmap: The scaled pixmap using smooth transformation.
     """
 
     if height is None:

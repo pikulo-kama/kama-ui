@@ -19,12 +19,23 @@ _logger = get_logger(__name__)
 
 
 class StyleBuilder(AppService):
+    """
+    Service responsible for loading QSS files and resolving style tokens.
+    """
 
     def __init__(self, context: "KamaApplicationContext"):
+        """
+        Initializes the StyleBuilder with an empty registry of resolvers.
+        """
+
         super().__init__(context)
         self.__resolvers: dict[str, StyleResolver] = {}
 
     def add_resolver(self, resolver: StyleResolver):
+        """
+        Registers a new StyleResolver and associates it with a token name.
+        """
+
         resolver_name = resolver.__class__.__name__.replace("Resolver", "").lower()
         resolver.application = self.application
         self.__resolvers[resolver_name] = resolver
@@ -91,8 +102,15 @@ class StyleBuilder(AppService):
 
 
 class StyleManagerService(AppService):
+    """
+    Main service for managing application-wide themes, fonts, and colors.
+    """
 
     def __init__(self, context: "KamaApplicationContext"):
+        """
+        Initializes the StyleManager with registries for colors, fonts, and dynamic images.
+        """
+
         super().__init__(context)
 
         self.__color_mode = None
@@ -104,6 +122,10 @@ class StyleManagerService(AppService):
 
     @property
     def color_mode(self):
+        """
+        Returns the current color mode, falling back to system settings if not explicitly set.
+        """
+
         if self.__color_mode is not None:
             return self.__color_mode
 
@@ -111,9 +133,16 @@ class StyleManagerService(AppService):
 
     @color_mode.setter
     def color_mode(self, color_mode: str):
+        """
+        Manually sets the application color mode (e.g., 'light' or 'dark').
+        """
         self.__color_mode = color_mode
 
     def get_color(self, color_code: str):
+        """
+        Retrieves the appropriate color from a composed color object based on the current mode.
+        """
+
         color = self.__colors.get(color_code)
 
         if not color:
@@ -126,19 +155,34 @@ class StyleManagerService(AppService):
 
     @property
     def fonts(self):
+        """
+        Returns the dictionary of registered fonts.
+        """
         return self.__fonts
 
     @property
     def builder(self):
+        """
+        Returns the StyleBuilder instance associated with this service.
+        """
         return self.__style_builder
 
     def add_font(self, font: KamaFont):
+        """
+        Adds a font definition to the manager.
+        """
         self.__fonts[font.font_code] = font
 
     def add_color(self, color: KamaComposedColor):
+        """
+        Adds a composed color definition (light/dark pair) to the manager.
+        """
         self.__colors[color.color_code] = color
 
     def add_dynamic_image(self, image: DynamicImage):
+        """
+        Registers an image for dynamic color processing.
+        """
         self.__dynamic_images.append(image)
 
     def create_dynamic_images(self):

@@ -16,6 +16,10 @@ class DataHolderService(AppService):
     """
 
     def __init__(self, context: "KamaApplicationContext"):
+        """
+        Initializes the service and creates the internal storage dictionary.
+        """
+
         AppService.__init__(self, context)
         self.__data = {}
 

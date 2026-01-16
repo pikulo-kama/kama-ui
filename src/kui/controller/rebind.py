@@ -13,6 +13,24 @@ class RebindParentController(WidgetController):
     """
 
     def setup(self, widget: KamaWidget, args: ControllerArgs):
+        """
+        Relocates a widget from its current layout to a target widget's layout.
+
+        This method parses a target identifier from the provided arguments,
+        locates the target widget via the manager, and performs the layout
+        transfer by removing the widget from its source and adding it to the
+        destination layout.
+
+        Args:
+            widget (KamaWidget): The widget instance to be rebound.
+            args (ControllerArgs): Arguments containing the 'parent' key.
+                The 'parent' value must be a string in 'section.widget_id' format.
+
+        Raises:
+            RuntimeError: If the 'parent' argument is missing.
+            ValueError: If the 'parent' string does not contain a '.' separator.
+        """
+
         new_parent = args.get("parent")
 
         if new_parent is None:

@@ -8,9 +8,9 @@ into QSS compatible.
 """
 
 
-class QAttr:
+class KamaAttr:
     """
-    Contains names of QT properties
+    Contains names of properties
     used in QSS.
     """
 

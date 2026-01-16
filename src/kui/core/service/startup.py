@@ -22,6 +22,10 @@ class StartupService(AppService):
     """
 
     def __init__(self, context: "KamaApplicationContext"):
+        """
+        Initializes the service with empty task and thread tracking lists.
+        """
+
         super().__init__(context)
         self.__tasks = []
 
@@ -29,6 +33,9 @@ class StartupService(AppService):
         self.__finished_tasks = []
 
     def add_task(self, task: "KamaStartupWorker"):
+        """
+        Adds a new startup worker to the execution queue.
+        """
         self.__tasks.append(task)
 
     def start(self):
@@ -87,6 +94,10 @@ class KamaStartupWorker(KamaWorker):
     """
 
     def __init__(self):
+        """
+        Initializes the startup worker and internal job reference.
+        """
+
         KamaWorker.__init__(self)
         self.__job: Optional[StartupService] = None
 

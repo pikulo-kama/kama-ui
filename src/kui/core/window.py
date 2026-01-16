@@ -26,6 +26,13 @@ class KamaWindow(AppService, QMainWindow):
     after_init = pyqtSignal()
 
     def __init__(self, context: "KamaApplicationContext"):
+        """
+        Initializes the window, sets up the central widget, and loads configuration.
+
+        Args:
+            context (KamaApplicationContext): The application context for service access.
+        """
+
         self.__qt_application = QApplication(sys.argv)
 
         AppService.__init__(self, context)
@@ -53,40 +60,85 @@ class KamaWindow(AppService, QMainWindow):
         self.resize_window()
 
     def exec(self):
+        """
+        Enters the main Qt event loop.
+        """
         self.__qt_application.exec()
 
     @property
     def window_width(self):
+        """
+        Returns the default window width from configuration.
+
+        Returns:
+            int: Default width (Default: 1920).
+        """
         return self.application.config.get("window.width", 1920)
 
     @property
     def window_height(self):
+        """
+        Returns the default window height from configuration.
+
+        Returns:
+            int: Default height (Default: 1080).
+        """
         return self.application.config.get("window.height", 1080)
 
     @property
     def min_width(self):
+        """
+        Returns the minimum allowed window width.
+
+        Returns:
+            int: Min width (Default: 1080).
+        """
         return self.application.config.get("window.min-width", 1080)
 
     @property
     def min_height(self):
+        """
+        Returns the minimum allowed window height.
+
+        Returns:
+            int: Min height (Default: 720).
+        """
         return self.application.config.get("window.min-height", 720)
 
     @property
     def qt_application(self):
+        """
+        Returns the underlying QApplication instance.
+
+        Returns:
+            QApplication: The Qt application object.
+        """
         return self.__qt_application
 
     @property
     def manager(self):
+        """
+        Returns the WidgetManager associated with this window.
+
+        Returns:
+            WidgetManager: The manager handling UI components.
+        """
         return self.__manager
 
     @property
     def root(self):
         """
         Central window widget.
+
+        Returns:
+            QWidget: The root container widget.
         """
         return self.__root
 
     def show(self):
+        """
+        Displays the window and emits the after_init signal if not already initialized.
+        """
 
         if not self.__is_initialized:
             _logger.info("GUI has been initialized.")
@@ -97,6 +149,10 @@ class KamaWindow(AppService, QMainWindow):
         _logger.info("Application loop has been started.")
 
     def reload_styles(self):
+        """
+        Combines and applies core and user stylesheets to the application.
+        """
+
         import kui.stylesheet as stylesheet_module
 
         stylesheet_path = resources.files(stylesheet_module)
@@ -111,6 +167,9 @@ class KamaWindow(AppService, QMainWindow):
     def build(self, section: str):
         """
         Used to build window and all of its components.
+
+        Args:
+            section (str): The section identifier to build.
         """
 
         _logger.info("Building UI using section '%s'.", section)
@@ -126,6 +185,9 @@ class KamaWindow(AppService, QMainWindow):
     def refresh(self, event: str):
         """
         Used to refresh dynamic UI elements.
+
+        Args:
+            event (str): The refresh event name.
         """
 
         _logger.info("Refreshing UI with event '%s'.", event)
@@ -135,6 +197,9 @@ class KamaWindow(AppService, QMainWindow):
         """
         Used to present notification dialog
         using provided message.
+
+        Args:
+            message (str): The text to display in the dialog.
         """
 
         _logger.debug("Presenting notification dialog with message %s", message)
@@ -148,6 +213,10 @@ class KamaWindow(AppService, QMainWindow):
         Used to present confirmation dialog
         using provided message and confirmation
         callback.
+
+        Args:
+            message (str): The question to ask the user.
+            callback (Callable): The function to execute on confirmation.
         """
 
         _logger.debug("Presenting confirmation dialog with message %s", message)
@@ -161,6 +230,9 @@ class KamaWindow(AppService, QMainWindow):
     def is_blocked(self):
         """
         Used to check if UI is currently blocked to any interactions.
+
+        Returns:
+            bool: The blocked state.
         """
         return self.__is_ui_blocked
 
@@ -168,6 +240,9 @@ class KamaWindow(AppService, QMainWindow):
     def is_blocked(self, is_blocked: bool):
         """
         Used to block/unblock UI.
+
+        Args:
+            is_blocked (bool): True to disable interaction, False to enable.
         """
 
         self.__is_ui_blocked = is_blocked
@@ -182,7 +257,10 @@ class KamaWindow(AppService, QMainWindow):
     def closeEvent(self, event: QCloseEvent):
         """
         Used to call before application window
-        destroyed.
+        destroyed. Persists settings and cleans directories.
+
+        Args:
+            event (QCloseEvent): The close event instance.
         """
 
         _logger.debug("Persisting window geometry in registry.")
@@ -204,6 +282,10 @@ class KamaWindow(AppService, QMainWindow):
         _logger.info("Application shut down.")
 
     def resize_window(self):
+        """
+        Adjusts the window size based on user settings or defaults.
+        """
+
         user_screen_width = self.__settings.value("windowWidth", self.window_width)
         user_screen_height = self.__settings.value("windowHeight", self.window_height)
 

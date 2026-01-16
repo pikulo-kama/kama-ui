@@ -30,10 +30,29 @@ class SectionTabBarController(WidgetController):
     """
 
     def __init__(self, application: "KamaApplication", manager: "WidgetManager"):
+        """
+        Initializes the controller with application and manager references.
+
+        Args:
+            application (KamaApplication): The main application instance.
+            manager (WidgetManager): The manager responsible for widget lifecycles.
+        """
+
         super().__init__(application, manager)
         self.__sections = []
 
     def setup(self, tab_bar: KamaTabBar, args: ControllerArgs):
+        """
+        Queries sections from the provider based on arguments and populates the tab bar.
+
+        This method builds a filter to retrieve specific sections, stores them
+        in the widget's internal state, resolves their labels, and connects
+        the tab change signal.
+
+        Args:
+            tab_bar (KamaTabBar): The UI tab bar component.
+            args (ControllerArgs): Arguments containing the list of 'sections' to display.
+        """
 
         section_filter = FilterBuilder() \
             .where("section_id").among(args.get("sections", [])) \
@@ -50,6 +69,13 @@ class SectionTabBarController(WidgetController):
         self.__change_tab(tab_bar, 0)
 
     def refresh(self, tab_bar: KamaTabBar, args: ControllerArgs):
+        """
+        Updates the tab labels during a system-wide refresh.
+
+        Args:
+            tab_bar (KamaTabBar): The UI tab bar component.
+            args (ControllerArgs): Arguments provided for the refresh.
+        """
 
         for idx, section in enumerate(self.state(tab_bar, TabBarSections)):
             tab_label = resolve_content(section.section_label)
@@ -58,6 +84,13 @@ class SectionTabBarController(WidgetController):
     def __change_tab(self, tab_bar: KamaTabBar, index: int):
         """
         Used to change currently selected tab.
+
+        Handles the transition between sections by deleting the previous
+        section's widgets and building the new section's widgets.
+
+        Args:
+            tab_bar (KamaTabBar): The UI tab bar component.
+            index (int): The index of the newly selected tab.
         """
 
         sections = self.state(tab_bar, TabBarSections)
@@ -84,10 +117,24 @@ class SectionListController(TemplateWidgetController):
     ListItemActive: Final = "active"
 
     def __init__(self, application: "KamaApplication", manager: "WidgetManager"):
+        """
+        Initializes the template-based section list controller.
+        """
+
         super().__init__(application, manager)
         self.__sections: list[Section] = []
 
     def retrieve_data(self, args: ControllerArgs):
+        """
+        Fetches the section data that will drive the template generation.
+
+        Args:
+            args (ControllerArgs): Arguments containing the target 'sections'.
+
+        Returns:
+            list[Section]: A list of section objects.
+        """
+
         section_filter = FilterBuilder() \
             .where("section_id").among(args.get("sections", [])) \
             .build()
@@ -96,6 +143,14 @@ class SectionListController(TemplateWidgetController):
         return self.__sections
 
     def refresh(self, widget: KamaComponent, args: ControllerArgs):
+        """
+        Refreshes the section list and ensures a default tab is selected on startup.
+
+        Args:
+            widget (KamaComponent): The root component of the section list.
+            args (ControllerArgs): Arguments provided for the refresh.
+        """
+
         super().refresh(widget, args)
 
         if len(self.__sections) == 0:
@@ -113,6 +168,10 @@ class SectionListController(TemplateWidgetController):
         """
         Used to link callback to menu item button as
         well as apply specific styles to currently selected item.
+
+        Args:
+            list_item (KamaPushButton): The button element within the template.
+            context (TemplateWidgetContext): The current iteration context.
         """
 
         def change_tab(new_tab_id: str):
@@ -124,6 +183,16 @@ class SectionListController(TemplateWidgetController):
         list_item.clicked.connect(change_tab(section_id))  # noqa
 
     def resolve(self, context: TemplateWidgetContext, value: str, *args, **kw):
+        """
+        Resolves template placeholders like 'label' and 'icon'.
+
+        Args:
+            context (TemplateWidgetContext): The iteration context.
+            value (str): The placeholder key to resolve.
+
+        Returns:
+            The resolved string value or None.
+        """
 
         if value == "label":
             return context.element.section_label
@@ -149,6 +218,13 @@ class SectionListController(TemplateWidgetController):
     def __change_tab(self, widget: KamaComponent, new_section_id: str):
         """
         Used to change current menu tab.
+
+        Performs the logic of switching context: deleting the old section
+        content and building the new one.
+
+        Args:
+            widget (KamaComponent): The root component.
+            new_section_id (str): The ID of the section to activate.
         """
 
         current_section_id = self.state(widget, CurrentSection)

@@ -12,6 +12,12 @@ class JsonConfigHolder:
     """
 
     def __init__(self, config_path: str):
+        """
+        Initializes the holder by setting the path, performing setup, and loading data.
+
+        Args:
+            config_path (str): The path to the JSON configuration file.
+        """
 
         self._config_path = JSON.add_extension(config_path)
         self._data = dict()
@@ -23,6 +29,13 @@ class JsonConfigHolder:
     def get_value(self, property_name, default_value=None):
         """
         Used to get property value from configuration.
+
+        Args:
+            property_name (str): The key of the property to retrieve.
+            default_value (Any, optional): Fallback value if key is not found.
+
+        Returns:
+            Any: The configuration value or the default_value.
         """
 
         if property_name not in self._data:
@@ -33,6 +46,9 @@ class JsonConfigHolder:
     def get(self):
         """
         Used to get full configuration as map.
+
+        Returns:
+            dict: The complete configuration data.
         """
         return self._data
 
@@ -62,7 +78,12 @@ class EditableJsonConfigHolder(JsonConfigHolder):
     def set_value(self, property_name: str, value: Any):
         """
         Used to set json property in configuration.
+
+        Args:
+            property_name (str): The key to update or create.
+            value (Any): The value to store.
         """
+
         self._data[property_name] = value
         save_file(self._config_path, self._data, as_json=True)
 
@@ -70,11 +91,18 @@ class EditableJsonConfigHolder(JsonConfigHolder):
         """
         Used to set configuration.
         This will fully replace existing configuration.
+
+        Args:
+            value (Any): The new dictionary to replace current configuration.
         """
+
         self._data = value
         save_file(self._config_path, self._data, as_json=True)
 
     def _before_file_open(self):
+        """
+        Ensures the directory and the file exist before the application attempts to read them.
+        """
 
         # Create any missing intermediate directories.
         os.makedirs(os.path.dirname(self._config_path), exist_ok=True)

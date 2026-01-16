@@ -15,10 +15,27 @@ class ConfirmationDialogController(DialogController):
     """
 
     def setup(self, dialog: KamaDialog, args: ControllerArgs):
+        """
+        Initializes the confirmation dialog by blocking the main application window
+        and connecting button click signals to their respective logic.
+
+        This method retrieves the confirm and cancel buttons from the manager,
+        enables them, and sets up local event handlers for handling the
+        confirmation callback and dialog closure.
+
+        Args:
+            dialog (KamaDialog): The dialog instance being controlled.
+            args (ControllerArgs): Metadata and arguments passed to the controller.
+        """
 
         application = KamaApplication()
 
         def on_confirm():
+            """
+            Handles the confirm button click. Retrieves a dynamic callback,
+            hides the dialog, unblocks the window, and executes the callback.
+            """
+
             confirm_callback = dynamic_data("confirmationCallback")
 
             dialog.hide()
@@ -26,6 +43,11 @@ class ConfirmationDialogController(DialogController):
             confirm_callback()
 
         def on_cancel():
+            """
+            Handles the cancel button click. Hides the dialog and
+            unblocks the application window.
+            """
+
             dialog.hide()
             application.window.is_blocked = False
 

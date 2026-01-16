@@ -4,16 +4,16 @@ from pathlib import Path
 
 def get_project_dir() -> Path:
     """
-    Returns the root directory of the application.
-    Works for:
-    1. Standard Python scripts (searching for markers).
-    2. Compiled .exe files (PyInstaller/Nuitka).
+    Determines the root directory of the project using frozen detection or marker search.
+
+    Returns:
+        Path: The absolute path to the project root directory.
     """
 
     # 1. Check if the app is running as a compiled bundle (.exe)
     if getattr(sys, "frozen", False):
-
-        # If frozen, sys.executable is the path to the actual .exe file
+        # If frozen, sys.executable is the path to the actual .exe file.
+        # PyInstaller specific: _MEIPASS holds the temporary extraction path.
         if hasattr(sys, "_MEIPASS"):
             return Path(sys._MEIPASS)  # noqa
 
@@ -28,6 +28,7 @@ def get_project_dir() -> Path:
 
     root_markers = {"kamaconfig.yaml", "kamaconfig.yml"}
 
+    # Recursively check parent directories for the config file
     for parent in [start_path] + list(start_path.parents):
         for marker in root_markers:
             marker_path = parent / marker

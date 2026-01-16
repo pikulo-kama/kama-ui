@@ -3,7 +3,7 @@ from PyQt6.QtGui import QKeyEvent, QMouseEvent
 from PyQt6.QtWidgets import QPushButton
 
 from kui.core.component import KamaComponentMixin
-from kui.core.constants import QAttr, QBool
+from kui.core.constants import KamaAttr, QBool
 from kui.resolver.icon import QIconWrapper
 
 
@@ -31,7 +31,7 @@ class KamaPushButton(KamaComponentMixin, QPushButton):
 
         self.__is_enabled = True
         self.is_interactable = True
-        self.setProperty(QAttr.Disabled, QBool(False))
+        self.setProperty(KamaAttr.Disabled, QBool(False))
 
     def set_content(self, content):
         """
@@ -67,7 +67,7 @@ class KamaPushButton(KamaComponentMixin, QPushButton):
         """
 
         self.__is_enabled = is_enabled
-        self.setProperty(QAttr.Disabled, QBool(not is_enabled))
+        self.setProperty(KamaAttr.Disabled, QBool(not is_enabled))
         self.style().polish(self)
 
     def mousePressEvent(self, event: QMouseEvent):
