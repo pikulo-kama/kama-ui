@@ -1,8 +1,8 @@
 import importlib.metadata
 import os
 
-from PyInstaller.utils.hooks import collect_entry_point, copy_metadata  # noqa
-from PyInstaller.utils.hooks import collect_submodules, collect_data_files  # noqa
+from PyInstaller.utils.hooks import collect_entry_point, copy_metadata
+from PyInstaller.utils.hooks import collect_submodules, collect_data_files
 
 
 datas, hiddenimports = collect_entry_point("kama_ui.plugins")
