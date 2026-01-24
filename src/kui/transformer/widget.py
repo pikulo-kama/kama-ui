@@ -2,6 +2,69 @@ import json
 from kui.core.transformer import ProviderDataTransformer
 
 
+class WidgetMetadataTransformer:
+    """
+    Utility class for normalizing widget metadata structures.
+
+    This transformer maps shorthand or external key names to a standardized
+    internal schema. It is typically used during data ingestion to ensure
+    consistency across widget-based UI components.
+    """
+
+    _KEY_MAPPINGS = {
+        "id": "widget_id",
+        "type": "widget_type",
+        "layout": "layout_type",
+        "section": "section_id",
+        "parent": "parent_widget_id",
+        "style_id": "style_object_name",
+        "alignment": "alignment_string",
+        "args": "controller_args"
+    }
+
+    def transform(self, widgets: list[dict]) -> list[dict]:
+        """
+        Standardizes keys within a list of widget dictionaries.
+
+        This method iterates through each widget and renames keys based on the
+        internal `_KEY_MAPPINGS`. If a key from the mapping is found in a
+        widget, it is 'popped' (removed) and re-inserted under its new name.
+
+        Args:
+            widgets (list[dict]): A list of dictionaries containing widget
+                configuration data.
+
+        Returns:
+            list[dict]: The list of modified dictionaries. Note that this
+                operation modifies the dictionaries in-place.
+        """
+
+        for widget in widgets:
+            self.transform_single(widget)
+
+        return widgets
+
+    def transform_single(self, widget: dict) -> dict:
+        """
+        Standardizes the keys of a single widget dictionary.
+
+        Maps external or shorthand keys to internal schema names defined in
+        `_KEY_MAPPINGS`. This operation modifies the input dictionary in-place.
+
+        Args:
+            widget (dict): The dictionary containing widget metadata to be transformed.
+
+        Returns:
+            dict: The updated dictionary with standardized keys.
+        """
+
+        for key, target_key in self._KEY_MAPPINGS.items():
+            if key in widget:
+                widget[target_key] = widget.pop(key)
+
+        return widget
+
+
 class JSONWidgetDataTransformer(ProviderDataTransformer):
     """
     Advanced transformer for widget metadata.
