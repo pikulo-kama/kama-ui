@@ -155,14 +155,16 @@ class KamaWindow(AppService, QMainWindow):
 
         import kui.stylesheet as stylesheet_module
 
-        stylesheet_path = resources.files(stylesheet_module)
-        core_stylesheet = self.application.style.builder.load_stylesheet(stylesheet_path)
+        core_path = resources.files(stylesheet_module)
+        core_stylesheet = self.application.style.builder.load_stylesheet(core_path)
+
         user_stylesheet_directory = Path(self.application.discovery.Styles)
         user_stylesheet = self.application.style.builder.load_stylesheet(user_stylesheet_directory)
-        stylesheet = core_stylesheet + "\n" + user_stylesheet
+
+        composed_stylesheet = core_stylesheet + "\n" + user_stylesheet
 
         self.application.style.create_dynamic_images()
-        self.__qt_application.setStyleSheet(stylesheet)
+        self.__qt_application.setStyleSheet(composed_stylesheet)
 
     def build(self, section: str):
         """

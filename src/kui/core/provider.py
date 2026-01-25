@@ -17,7 +17,7 @@ class Section:
     """
     section_id: str
     section_label: str
-    section_icon: str
+    section_icon: str = None
 
 
 class MetadataProvider:

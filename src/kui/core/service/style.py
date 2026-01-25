@@ -1,6 +1,5 @@
-import os
 import re
-from importlib.abc import Traversable
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from PyQt6.QtCore import Qt
@@ -40,18 +39,19 @@ class StyleBuilder(AppService):
         resolver.application = self.application
         self.__resolvers[resolver_name] = resolver
 
-    def load_stylesheet(self, directory: Traversable):
+    def load_stylesheet(self, directory: str | Path):
         """
         Load all stylesheets recursively using Traversable API.
         Works for both standard OS paths and bundled resources.
         """
 
+        path = Path(directory)
         style_string = ""
 
-        if not os.path.exists(str(directory)):
+        if not path.exists():
             return style_string
 
-        for entry in directory.iterdir():
+        for entry in path.iterdir():
             if entry.is_dir():
                 style_string += self.load_stylesheet(entry)
 
