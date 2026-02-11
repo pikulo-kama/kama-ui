@@ -15,10 +15,10 @@ if TYPE_CHECKING:
     from kui.core.app import KamaApplication
     from kui.core.manager import WidgetManager
 
-
 _logger = get_logger(__name__)
 
 CurrentSection = "current_section"
+VisibleSection = "visible_section"
 TabBarSections = "sections"
 
 
@@ -160,9 +160,12 @@ class SectionListController(TemplateWidgetController):
         # Since this would be the only time when selected section is None.
         selected_section_id = self.state(widget, CurrentSection)
         default_section_id = self.__sections[0].section_id
+        is_custom_section_id = selected_section_id not in [section.section_id for section in self.__sections]
 
-        if selected_section_id is None:
-            self.__change_tab(widget, default_section_id)
+        if is_custom_section_id:
+            selected_section_id = default_section_id
+
+        self.change_tab(widget, selected_section_id or default_section_id)
 
     def handle__section_button(self, list_item: KamaPushButton, context: TemplateWidgetContext):
         """
@@ -175,7 +178,7 @@ class SectionListController(TemplateWidgetController):
         """
 
         def change_tab(new_tab_id: str):
-            return lambda: self.__change_tab(context.root, new_tab_id)
+            return lambda: self.change_tab(context.root, new_tab_id)
 
         section_id = context.element.section_id
 
@@ -212,10 +215,10 @@ class SectionListController(TemplateWidgetController):
         Used to check whether provided section is active.
         """
 
-        selected_section_id = self.state(widget, CurrentSection)
+        selected_section_id = self.state(widget, VisibleSection)
         return selected_section_id == section.section_id
 
-    def __change_tab(self, widget: KamaComponent, new_section_id: str):
+    def change_tab(self, widget: KamaComponent, new_section_id: str, visible_section_id: str = None):
         """
         Used to change current menu tab.
 
@@ -225,14 +228,20 @@ class SectionListController(TemplateWidgetController):
         Args:
             widget (KamaComponent): The root component.
             new_section_id (str): The ID of the section to activate.
+            visible_section_id (str): ID of section that should be marked as currently selected.
+                If not provided then value of `new_section_id` would be taken.
         """
 
         current_section_id = self.state(widget, CurrentSection)
+
+        if visible_section_id is None:
+            visible_section_id = new_section_id
 
         if new_section_id == current_section_id:
             return
 
         self.state(widget, CurrentSection, new_section_id)
+        self.state(widget, VisibleSection, visible_section_id)
 
         _logger.info("Changing current menu item to %s", new_section_id)
         self.manager.delete(lambda meta: meta.section_id == current_section_id)
