@@ -341,6 +341,13 @@ class WidgetManager:
                         if widget.metadata.name == meta.parent_widget_name
                     ), None)
 
+                if parent is None:
+                    _logger.warning(
+                        "Can't add widget %s to manager since parent %s doesn't exist.",
+                        meta.name, meta.parent_widget_name
+                    )
+                    continue
+
                 widget.metadata.parent = parent.metadata
                 parent_layout: KamaLayout = parent.layout()
 
