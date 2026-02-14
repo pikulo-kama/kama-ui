@@ -68,7 +68,7 @@ class StyleBuilder(AppService):
     Service responsible for loading QSS files and resolving style tokens.
     """
 
-    __BLOCK_REGEX = r"([&.\w\s:-!]+\s*\{((?:[^{}]|\{[^{}]*\})*)\})"
+    __BLOCK_REGEX = r"([&.\w\s:!-]+\s*\{((?:[^{}]|\{[^{}]*\})*)\})"
     __PROPERTY_REGEX = r"([\w-]+)\s*:\s*([^;]+)"
 
     def __init__(self, context: "KamaApplicationContext"):
@@ -88,7 +88,7 @@ class StyleBuilder(AppService):
         resolver.application = self.application
         self.__resolvers[resolver_name] = resolver
 
-    def load_stylesheet(self, directory: str | Path):
+    def load_stylesheet(self, directory: str | Path) -> list[StyleBlock]:
         """
         Load all stylesheets recursively using Traversable API.
         Works for both standard OS paths and bundled resources.
@@ -98,17 +98,18 @@ class StyleBuilder(AppService):
         style_blocks: list[StyleBlock] = []
 
         if not path.exists():
-            return ""
+            return style_blocks
 
         for entry in path.iterdir():
-            entry_blocks = []
-
             if entry.is_dir():
-                entry_blocks = self.load_stylesheet(entry)
+                style_blocks.extend(self.load_stylesheet(entry))
+                continue
 
-            elif entry.name.endswith(KSS.extension):
-                style_string = entry.read_text(encoding="utf-8")
-                entry_blocks = self.parse_qss(style_string)
+            if not entry.name.endswith(KSS.extension):
+                continue
+
+            style_string = entry.read_text(encoding="utf-8")
+            entry_blocks = self.parse_qss(style_string)
 
             for block in entry_blocks:
                 for prop in block.properties:
@@ -116,7 +117,7 @@ class StyleBuilder(AppService):
 
                 style_blocks.append(block)
 
-        return "".join([f"{block.qss}\n" for block in style_blocks])
+        return style_blocks
 
     def parse_qss(self, stylesheet: str, parent_selector: str = "") -> list[StyleBlock]:
         blocks = []

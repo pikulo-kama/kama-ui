@@ -32,7 +32,7 @@ include-package-data = true
 where = ["src"]
 
 [tool.setuptools.package-data]
-"kui.stylesheet" = ["*.qss"]
+"kui.stylesheet" = ["*.kss"]
 
 [project.entry-points."pyinstaller40"]
 hook-dirs = "kui._pyinstaller_hooks:get_hook_dirs"
