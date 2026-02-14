@@ -5,6 +5,8 @@ from typing import TYPE_CHECKING
 from dataclasses import dataclass
 
 from PyQt6.QtCore import Qt
+from kutil.file_type import KSS
+
 from kui.core._service import AppService
 from kui.core.style import ColorMode, StyleResolver
 from kutil.file import read_file, save_file
@@ -104,7 +106,7 @@ class StyleBuilder(AppService):
             if entry.is_dir():
                 entry_blocks = self.load_stylesheet(entry)
 
-            elif entry.name.endswith(".kss"):
+            elif entry.name.endswith(KSS.extension):
                 style_string = entry.read_text(encoding="utf-8")
                 entry_blocks = self.parse_qss(style_string)
 
