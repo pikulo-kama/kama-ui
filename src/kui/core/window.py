@@ -161,7 +161,7 @@ class KamaWindow(AppService, QMainWindow):
         user_stylesheet_directory = Path(self.application.discovery.Styles)
         user_stylesheet = self.application.style.builder.load_stylesheet(user_stylesheet_directory)
 
-        composed_stylesheet = core_stylesheet + "\n" + user_stylesheet
+        composed_stylesheet = core_stylesheet + user_stylesheet
 
         self.application.style.create_dynamic_images()
         self.__qt_application.setStyleSheet(composed_stylesheet)

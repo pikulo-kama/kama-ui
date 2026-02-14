@@ -1,6 +1,8 @@
 import re
+from functools import cached_property
 from pathlib import Path
 from typing import TYPE_CHECKING
+from dataclasses import dataclass
 
 from PyQt6.QtCore import Qt
 from kui.core._service import AppService
@@ -13,14 +15,59 @@ from kutil.number import is_float
 if TYPE_CHECKING:
     from kui.core.app import KamaApplicationContext
 
-
 _logger = get_logger(__name__)
+
+
+@dataclass
+class StyleProperty:
+    name: str
+    value: str
+
+    @property
+    def qss(self):
+        return f"{self.name}: {self.value};"
+
+
+class StyleBlock:
+
+    def __init__(self, selector: str, properties: list[StyleProperty]):
+        self.__selector = re.sub(r"\.([a-zA-Z0-9_-]+)", r"[\1='true']", selector.strip())
+        self.__properties = properties
+
+    @cached_property
+    def selector(self) -> str:
+        return self.__selector
+
+    @property
+    def properties(self) -> list[StyleProperty]:
+        return self.__properties
+
+    @property
+    def qss(self) -> str:
+        properties_style = ""
+
+        for prop in self.__properties:
+            properties_style += f"\t{prop.qss}\n"
+
+        return f"{self.selector} {{\n{properties_style}}}\n"
+
+    def __add__(self, other):
+        if isinstance(other, str):
+            return self.__str__() + other
+
+        return None
+
+    def __str__(self):
+        return self.qss
 
 
 class StyleBuilder(AppService):
     """
     Service responsible for loading QSS files and resolving style tokens.
     """
+
+    __BLOCK_REGEX = r"([&.\w\s:-!]+\s*\{((?:[^{}]|\{[^{}]*\})*)\})"
+    __PROPERTY_REGEX = r"([\w-]+)\s*:\s*([^;]+)"
 
     def __init__(self, context: "KamaApplicationContext"):
         """
@@ -46,19 +93,98 @@ class StyleBuilder(AppService):
         """
 
         path = Path(directory)
-        style_string = ""
+        style_blocks: list[StyleBlock] = []
 
         if not path.exists():
-            return style_string
+            return ""
 
         for entry in path.iterdir():
+            entry_blocks = []
+
             if entry.is_dir():
-                style_string += self.load_stylesheet(entry)
+                entry_blocks = self.load_stylesheet(entry)
 
-            elif entry.name.endswith(".qss"):
-                style_string += entry.read_text(encoding="utf-8")
+            elif entry.name.endswith(".kss"):
+                style_string = entry.read_text(encoding="utf-8")
+                entry_blocks = self.parse_qss(style_string)
 
-        return self.resolve(style_string)
+            for block in entry_blocks:
+                for prop in block.properties:
+                    prop.value = self.resolve(prop.value)
+
+                style_blocks.append(block)
+
+        return "".join([f"{block.qss}\n" for block in style_blocks])
+
+    def parse_qss(self, stylesheet: str, parent_selector: str = "") -> list[StyleBlock]:
+        blocks = []
+
+        while "{" in stylesheet:
+            selector, style, block_end = self.get_style_block(stylesheet)
+            selector = selector.replace("&", parent_selector)
+
+            # Find all blocks before removing them.
+            first_level_blocks = re.findall(self.__BLOCK_REGEX, style)
+            # Remove the blocks from the string to isolate attributes.
+            style = re.sub(self.__BLOCK_REGEX, "", style)
+            raw_properties = re.findall(self.__PROPERTY_REGEX, style)
+
+            child_block_stylesheet = ""
+            properties = []
+
+            # Collect all block properties.
+            for prop in raw_properties:
+                properties.append(
+                    StyleProperty(
+                        name=prop[0].strip(),
+                        value=prop[1].strip()
+                    )
+                )
+
+            # Concatenate all first level child blocks
+            # into single string.
+            for block in first_level_blocks:
+                child_block_stylesheet += block[0].strip()
+
+            blocks.append(StyleBlock(selector, properties))
+            blocks.extend(self.parse_qss(child_block_stylesheet, selector))
+
+            stylesheet = stylesheet[block_end + 1:]
+
+        return blocks
+
+    @staticmethod
+    def get_style_block(content: str, start: int = 0, open_char: str = "{", close_char: str = "}"):
+        selector_start = 0
+        style_start = 0
+        style_end = -1
+        depth = 0
+
+        for char_index in range(start, len(content)):
+            char = content[char_index]
+
+            # This way we will skip all the properties
+            # and would be able to get selector of style block.
+            if depth == 0 and char == ";":
+                selector_start = char_index + 1
+
+            if char == open_char:
+                if depth == 0:
+                    style_start = char_index
+
+                depth += 1
+
+            elif char == close_char:
+                depth -= 1
+
+                if depth == 0:
+                    style_end = char_index
+                    break
+
+        selector = content[selector_start:style_start].strip()
+        style = content[style_start + 1:style_end].strip()
+
+        return selector, style, style_end
 
     def resolve(self, style_string: str):
         """

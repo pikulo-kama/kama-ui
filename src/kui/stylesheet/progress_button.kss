@@ -7,10 +7,11 @@ QProgressBar {
     text-align: center;
     font: font("label");
     font-weight: bold;
-}
+    color: color("text-primary");
 
-QProgressBar::chunk {
-    border-radius: 5px;
+    &::chunk {
+        border-radius: 5px;
+    }
 }
 
 KamaProgressPushButton {
@@ -19,26 +20,23 @@ KamaProgressPushButton {
     color: color("text-primary");
     border: 1px solid color("surface-a30");
     font: font("label");
-}
 
-/* Remove icon when progress bar is active. */
-KamaProgressPushButton[in-progress="true"] {
-    color: transparent;
-    icon: none;
+    /* Remove icon when progress bar is active. */
+    .in-progress {
+        color: transparent;
+        icon: none;
+    }
 }
 
 KamaProgressPushButton,
 KamaProgressPushButton:pressed,
-KamaProgressPushButton[is-disabled="true"]:hover,
+KamaProgressPushButton.is-disabled:hover,
 QProgressBar:pressed {
     background-color: color("surface-a10");
     color: color("text-primary");
     border: 1px solid color("surface-a30");
 }
 
-QProgressBar {
-    color: color("text-primary");
-}
 
 KamaProgressPushButton:hover,
 QProgressBar::chunk,
@@ -48,9 +46,9 @@ QProgressBar::chunk:hover {
 
 
 /* Style for primary button */
-KamaProgressPushButton[kind="primary"],
-KamaProgressPushButton[kind="primary"]:pressed,
-KamaProgressPushButton[kind="primary"][is-disabled="true"]:hover,
+KamaProgressPushButton.primary,
+KamaProgressPushButton.primary:pressed,
+KamaProgressPushButton.primary.is-disabled:hover,
 QProgressBar[kind="KamaProgressPushButton-primary"]:pressed {
     background-color: color("primary-a20");
     border-color: color("primary-a20");

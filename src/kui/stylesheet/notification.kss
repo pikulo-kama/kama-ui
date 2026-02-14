@@ -10,9 +10,9 @@ KamaDialog#notificationDialog {
         stop:0.5  color("success-a10"),
         stop:1    color("success-a20")
     );
-}
 
-KamaDialog#notificationDialog QWordWrapLabel {
-    color: color("text-inverted");
-    min-height: 50px;
+    & QWordWrapLabel {
+        color: color("text-inverted");
+        min-height: 50px;
+    }
 }
