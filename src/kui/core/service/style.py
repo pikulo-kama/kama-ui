@@ -3,6 +3,7 @@ from functools import cached_property
 from pathlib import Path
 from typing import TYPE_CHECKING
 from dataclasses import dataclass
+from copy import deepcopy
 
 from PyQt6.QtCore import Qt
 from kutil.file_type import KSS
@@ -51,7 +52,7 @@ class StyleBlock:
         for prop in self.__properties:
             properties_style += f"\t{prop.qss}\n"
 
-        return f"{self.selector} {{\n{properties_style}}}\n"
+        return f"{self.selector} {{\n{properties_style}}}\n\n"
 
     def __add__(self, other):
         if isinstance(other, str):
@@ -68,7 +69,7 @@ class StyleBuilder(AppService):
     Service responsible for loading QSS files and resolving style tokens.
     """
 
-    __BLOCK_REGEX = r"([&.\w\s:!-]+\s*\{((?:[^{}]|\{[^{}]*\})*)\})"
+    __BLOCK_REGEX = r"(?m)^[ \t]*([^{;]+?)\s*\{((?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*)\}"
     __PROPERTY_REGEX = r"([\w-]+)\s*:\s*([^;]+)"
 
     def __init__(self, context: "KamaApplicationContext"):
@@ -109,7 +110,7 @@ class StyleBuilder(AppService):
                 continue
 
             style_string = entry.read_text(encoding="utf-8")
-            entry_blocks = self.parse_qss(style_string)
+            entry_blocks = self.__parse_qss(style_string)
 
             for block in entry_blocks:
                 for prop in block.properties:
@@ -119,75 +120,89 @@ class StyleBuilder(AppService):
 
         return style_blocks
 
-    def parse_qss(self, stylesheet: str, parent_selector: str = "") -> list[StyleBlock]:
+    def __parse_qss(self, stylesheet: str, parent_selector: str = "") -> list[StyleBlock]:
+        string_blocks = self.__read_blocks(stylesheet)
         blocks = []
 
-        while "{" in stylesheet:
-            selector, style, block_end = self.get_style_block(stylesheet)
+        for block, selector, content, props in string_blocks:
             selector = selector.replace("&", parent_selector)
 
-            # Find all blocks before removing them.
-            first_level_blocks = re.findall(self.__BLOCK_REGEX, style)
-            # Remove the blocks from the string to isolate attributes.
-            style = re.sub(self.__BLOCK_REGEX, "", style)
-            raw_properties = re.findall(self.__PROPERTY_REGEX, style)
-
-            child_block_stylesheet = ""
-            properties = []
-
-            # Collect all block properties.
-            for prop in raw_properties:
-                properties.append(
-                    StyleProperty(
-                        name=prop[0].strip(),
-                        value=prop[1].strip()
-                    )
-                )
-
-            # Concatenate all first level child blocks
-            # into single string.
-            for block in first_level_blocks:
-                child_block_stylesheet += block[0].strip()
-
-            blocks.append(StyleBlock(selector, properties))
-            blocks.extend(self.parse_qss(child_block_stylesheet, selector))
-
-            stylesheet = stylesheet[block_end + 1:]
+            blocks.append(StyleBlock(selector, [StyleProperty(name, value) for name, value in props]))
+            blocks.extend(self.__parse_qss(content, selector))
 
         return blocks
 
     @staticmethod
-    def get_style_block(content: str, start: int = 0, open_char: str = "{", close_char: str = "}"):
-        selector_start = 0
-        style_start = 0
-        style_end = -1
+    def __read_blocks(stylesheet: str):
+        blocks = []
+        properties = []
+
         depth = 0
 
-        for char_index in range(start, len(content)):
-            char = content[char_index]
+        selector_start = 0
+        content_start = -1
 
-            # This way we will skip all the properties
-            # and would be able to get selector of style block.
+        property_key_start = -1
+        property_key_end = -1
+        property_value_start = -1
+        property_found = False
+
+        for current_char_index, char in enumerate(stylesheet):
+            next_char_index = current_char_index + 1
+
+            # Process properties.
+            if depth == 1:
+                if char == ":" and not property_found:
+                    property_key_end = current_char_index
+                    property_value_start = next_char_index
+
+                    property_found = True
+
+                elif char == ";":
+                    property_key = stylesheet[property_key_start:property_key_end].strip()
+                    property_value = stylesheet[property_value_start:current_char_index].strip()
+                    properties.append((property_key, property_value))
+
+                    property_key_start = next_char_index
+                    property_found = False
+
+            # Assume that after each property on first level
+            # goes nested style block.
             if depth == 0 and char == ";":
-                selector_start = char_index + 1
+                selector_start = next_char_index
 
-            if char == open_char:
+            if char == "{":
+
+                # When we step into first level block
+                # then mark character as beginning of block
+                # as well as beginning of first property key.
                 if depth == 0:
-                    style_start = char_index
+                    content_start = current_char_index
+                    property_key_start = next_char_index
 
                 depth += 1
+                # Reset property identification flag once we get
+                # deeper into block stylesheet, since it may mess up
+                # consequent properties by treating block selectors with :
+                # as properties.
+                property_found = False
 
-            elif char == close_char:
+            elif char == "}":
                 depth -= 1
 
                 if depth == 0:
-                    style_end = char_index
-                    break
+                    block = stylesheet[selector_start:next_char_index].strip()
+                    selector = stylesheet[selector_start:content_start].strip()
+                    content = stylesheet[content_start + 1:current_char_index].strip()
 
-        selector = content[selector_start:style_start].strip()
-        style = content[style_start + 1:style_end].strip()
+                    blocks.append((block, selector, content, deepcopy(properties)))
+                    properties.clear()
 
-        return selector, style, style_end
+                    # Change starting position of next block.
+                    # We will assume that it goes right after this one.
+                    selector_start = next_char_index
+
+        return blocks
 
     def resolve(self, style_string: str):
         """

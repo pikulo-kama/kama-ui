@@ -22,7 +22,7 @@ KamaProgressPushButton {
     font: font("label");
 
     /* Remove icon when progress bar is active. */
-    .in-progress {
+    &.in-progress {
         color: transparent;
         icon: none;
     }
