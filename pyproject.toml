@@ -16,7 +16,8 @@ dependencies = [
     "kama-tr @ git+https://github.com/pikulo-kama/kama-tr.git",
     "PyQt6 >= 6.10.0, < 7.0.0",
     "pyqt6-sip >= 13.10.2, < 14.0.0",
-    "PyYAML >= 6.0.3, < 7.0.0"
+    "PyYAML >= 6.0.3, < 7.0.0",
+    "xmltodict >= 1.0.3, < 2.0.0"
 ]
 
 [project.optional-dependencies]

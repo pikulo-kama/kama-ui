@@ -38,3 +38,24 @@ def get_project_dir() -> Path:
 
     # Fallback to current working directory
     return Path.cwd().resolve()
+
+
+def get_files_from_directory(path: str | Path, recursive: bool = False, extension: str = None):
+    path = Path(path)
+    content: list[str] = []
+
+    if not path.exists():
+        return content
+
+    for entry in path.iterdir():
+        if entry.is_dir():
+            if recursive:
+                content.extend(get_files_from_directory(entry))
+            continue
+
+        if extension is not None and not entry.name.endswith(extension):
+            continue
+
+        content.append(entry.read_text(encoding="utf-8"))
+
+    return content

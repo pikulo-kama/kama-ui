@@ -54,6 +54,7 @@ class ProjectDiscoveryService(AppService):
         """
         return os.path.join(self.ProjectRoot, "Resources")
 
+    # todo: remove
     @property
     def Data(self):  # noqa
         """
@@ -74,6 +75,20 @@ class ProjectDiscoveryService(AppService):
         Returns the path to the static Images directory within Resources.
         """
         return os.path.join(self.Resources, "Images")
+
+    @property
+    def Locales(self):  # noqa
+        """
+        Returns the path to the static Images directory within Resources.
+        """
+        return os.path.join(self.Resources, "Locales")
+
+    @property
+    def Layouts(self):  # noqa
+        """
+        Returns the path to the static Images directory within Resources.
+        """
+        return os.path.join(self.Resources, "Layouts")
 
     @property
     def Output(self):  # noqa
@@ -125,6 +140,9 @@ class ProjectDiscoveryService(AppService):
         """
         return os.path.join(self.AppData, *paths)
 
+    def resources(self, *paths: str):
+        return os.path.join(self.Resources, *paths)
+
     def data(self, *paths: str):
         """
         Constructs a path relative to the static Data directory.
@@ -148,6 +166,18 @@ class ProjectDiscoveryService(AppService):
         Constructs a path relative to the Styles directory.
         """
         return os.path.join(self.Styles, *paths)
+
+    def locales(self, *paths: str):
+        """
+        Constructs a path relative to the Styles directory.
+        """
+        return os.path.join(self.Locales, *paths)
+
+    def layouts(self, *paths: str):
+        """
+        Constructs a path relative to the Styles directory.
+        """
+        return os.path.join(self.Layouts, *paths)
 
     def logback(self, *paths: str):
         """

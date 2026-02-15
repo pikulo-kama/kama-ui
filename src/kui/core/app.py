@@ -2,6 +2,7 @@ import dataclasses
 from importlib.metadata import entry_points
 from typing import cast, Type
 
+from kui.core.service.reader import ResourceReader
 from kui.core.service.tr import TextResourceService
 from kutil.meta import SingletonMeta
 from kutil.reflection import get_members
@@ -41,6 +42,7 @@ class KamaApplication(metaclass=SingletonMeta):
     data_provider_service_type = DataProviderService
     text_resource_service_type = TextResourceService
     data_holder_service_type = DataHolderService
+    resource_reader_service_type = ResourceReader
 
     def __init__(self):
         """
@@ -61,6 +63,8 @@ class KamaApplication(metaclass=SingletonMeta):
         """
         Begins the application execution sequence, including service setup and window display.
         """
+
+        self.resources.read()
 
         self.window.manager.load_components()
         self.window.manager.load_controllers()
@@ -94,6 +98,11 @@ class KamaApplication(metaclass=SingletonMeta):
 
         service = self.get_app_service("data_provider", self.data_provider_service_type)
         return cast(DataProviderService, service)
+
+    @property
+    def resources(self) -> ResourceReader:
+        service = self.get_app_service("resource_reader", self.resource_reader_service_type)
+        return cast(ResourceReader, service)
 
     @property
     def style(self) -> StyleManagerService:
