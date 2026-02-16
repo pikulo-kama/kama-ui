@@ -2,7 +2,7 @@ import os
 from typing import TYPE_CHECKING, Any
 
 from kui.core._service import AppService
-from kui.core.yaml_holder import YamlHolder
+from kui.holder.yaml import YamlHolder
 from kui.util.file import get_project_dir
 from kutil.file_type import SVG
 
