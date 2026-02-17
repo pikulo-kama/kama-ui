@@ -46,8 +46,8 @@ class WidgetController:
         # Dynamic controller state.
         # Since controllers are being created
         # only once when application starts we can't
-        # use instance variables to store some data
-        # since after widget refreshed it could be not
+        # use instance variables to store some data.
+        # Reason for that is after widget is refreshed it could be not
         # valid anymore, because of this we need to be able
         # to clear this data when refresh is happening.
         self.__state = {}
@@ -300,6 +300,28 @@ class TemplateWidgetController(WidgetController):
         # Build footer.
         for metadata in footer_segments.values():
             self.manager.build(metadata)
+
+    def soft_refresh(self, widget: KamaComponent, args: ControllerArgs):
+        body_widgets = self.manager.get_widgets(f"{widget.metadata.id}__template_body")
+        body_widgets = sorted(body_widgets, key=lambda widget: widget.metadata.order_id)
+
+        for idx, element in enumerate(self.retrieve_data(args)):
+
+            context = TemplateWidgetContext(
+                root=widget,
+                args=args,
+                element=element
+            )
+
+            for template_widget in body_widgets:
+                if not template_widget.metadata.id.endswith(f"__{idx}"):
+                    continue
+
+                template_widget.refresh()
+                handler_method = self.__handlers.get(template_widget.metadata.original_id)
+
+                if handler_method is not None:
+                    handler_method(template_widget, context)
 
     def retrieve_data(self, args: ControllerArgs) -> list[Any]:  # noqa
         """

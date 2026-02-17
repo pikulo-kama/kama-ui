@@ -231,12 +231,14 @@ class WidgetManager:
         """
         self.execute(WidgetBuildCommand(metadata))
 
-    def build_section(self, section_id: str):
+    def build_section(self, section_id: str, parent_widget_name: str = None):
         """
         Queries metadata for a specific section and initiates a build.
 
         Args:
             section_id (str): The unique identifier of the section to build.
+            parent_widget_name (str): Could be used to specify parent widget
+            to which section's root should be linked.
         """
 
         metadata = self.__application.provider.metadata.provide(
@@ -244,6 +246,10 @@ class WidgetManager:
                 .where("section").equals(section_id) \
                 .build()
         )
+
+        if len(metadata) > 0 and parent_widget_name is not None:
+            metadata[0].parent_widget_name = parent_widget_name
+
         self.build(metadata)
 
     def refresh(self, widget_filter: WidgetFilter = None):
@@ -291,7 +297,7 @@ class WidgetManager:
         """
         self.__execute_with_filter(WidgetDeleteCommand, widget_filter)
 
-    def get_widget(self, section_id: str, widget_id: str):
+    def get_widget(self, section_id: str, widget_id: str) -> KamaComponent:
         """
         Retrieves an active widget instance from the manager.
 
@@ -305,6 +311,12 @@ class WidgetManager:
 
         widget_name = f"{section_id}.{widget_id}"
         return self.__widgets.get(widget_name)
+
+    def get_widgets(self, section_id: str) -> list[KamaComponent]:
+        return [
+            widget for widget_name, widget in self.__widgets.items()
+            if widget_name.startswith(f"{section_id}.")
+        ]
 
     def add_section(self, section: Section, metadata: list[WidgetMetadata] = None):
         section_metadata = self.__metadata.get(section.section_id, [])
