@@ -103,6 +103,7 @@ class WidgetMetadata:
         self.__id = widget_id
         self.__original_id = widget_id
         self.__section_id = section_id
+        self.__parent_widget_section_id = None
         self.__parent_widget_id = parent_widget_id
         self.__parent: Optional[WidgetMetadata] = None
         self.__is_interactable = None
@@ -243,7 +244,22 @@ class WidgetMetadata:
         if self.parent is not None:
             return self.parent.name
 
-        return f"{self.section_id}.{self.parent_widget_id}"
+        section_id = self.__parent_widget_section_id
+
+        if section_id is None:
+            section_id = self.section_id
+
+        return f"{section_id}.{self.parent_widget_id}"
+
+    @parent_widget_name.setter
+    def parent_widget_name(self, name: str):
+        parts = name.split(".")
+
+        if len(parts) != 2:
+            return
+
+        self.__parent_widget_section_id = parts[0]
+        self.parent_widget_id = parts[1]
 
     @property
     def is_interactable(self):

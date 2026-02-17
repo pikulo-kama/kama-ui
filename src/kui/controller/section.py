@@ -106,8 +106,11 @@ class SectionTabBarController(WidgetController):
         self.state(tab_bar, CurrentSection, new_section_id)
         _logger.info("Changing tab to '%s' on '%s'", new_section_id, tab_bar.metadata.name)
 
+        target_widget_id = tab_bar.metadata.controller_args.get("parent")
+        target_widget_name = f"{tab_bar.metadata.section_id}.{target_widget_id}"
+
         self.manager.delete(lambda meta: meta.section_id == current_section_id)
-        self.manager.build_section(new_section_id)
+        self.manager.build_section(new_section_id, parent_widget_name=target_widget_name)
         self.manager.refresh(lambda meta: meta.section_id == new_section_id)
         self.manager.enable()
 
@@ -190,9 +193,14 @@ class SectionListController(TemplateWidgetController):
             return lambda: self.change_tab(context.root, new_tab_id)
 
         section_id = context.element.section_id
+        list_item.remove_class(self.ListItemActive)
 
         if self.__is_selected(context.root, context.element):
             list_item.add_class(self.ListItemActive)
+
+        # Check if the signal has any connected slots
+        if list_item.receivers(list_item.clicked) > 0:
+            list_item.clicked.disconnect()
 
         list_item.clicked.connect(change_tab(section_id))  # noqa
 
@@ -254,9 +262,12 @@ class SectionListController(TemplateWidgetController):
         self.state(widget, CurrentSection, new_section_id)
         self.state(widget, VisibleSection, visible_section_id)
 
+        target_widget_id = widget.metadata.controller_args.get("parent")
+        target_widget_name = f"{widget.metadata.section_id}.{target_widget_id}"
+
         _logger.info("Changing current menu item to %s", new_section_id)
         self.manager.delete(lambda meta: meta.section_id == current_section_id)
-        self.manager.build_section(new_section_id)
+        self.manager.build_section(new_section_id, parent_widget_name=target_widget_name)
         self.manager.refresh(lambda meta: meta.section_id == new_section_id)
-        self.refresh(widget, widget.metadata.controller_args)
+        self.soft_refresh(widget, widget.metadata.controller_args)
         self.manager.enable()
