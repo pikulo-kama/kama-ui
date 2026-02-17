@@ -60,6 +60,12 @@ class WidgetBuildCommand(WidgetCommand):
         _logger.debug("Building widget %s", widget.metadata.name)
         _logger.debug("type=%s", widget.metadata.widget_type_name)
 
+        widget.setObjectName(meta.id)
+
+        for style_class in meta.classes:
+            _logger.debug("Added class %s", style_class)
+            widget.add_class(style_class)
+
         if meta.layout_type_name is not None:
             _logger.debug("layout=%s", meta.layout_type_name)
 
@@ -85,14 +91,10 @@ class WidgetBuildCommand(WidgetCommand):
             _logger.debug("tooltip=%s", meta.tooltip)
             widget.set_tooltip(meta.tooltip)
 
-        if meta.object_name is not None:
-            _logger.debug("object_name=%s", meta.object_name)
-            widget.setObjectName(meta.object_name)
-
-        _logger.debug("Setting properties")
-        for key, value in meta.properties.items():
-            _logger.debug("%s=%s", key, value)
-            widget.setProperty(key, value)
+        # _logger.debug("Setting properties")
+        # for key, value in meta.properties.items():
+        #     _logger.debug("%s=%s", key, value)
+        #     widget.setProperty(key, value)
 
         if len(meta.stylesheet) > 0:
             stylesheet = self.application.style.builder.resolve(meta.stylesheet)

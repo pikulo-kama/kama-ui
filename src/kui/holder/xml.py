@@ -1,13 +1,13 @@
 from functools import cached_property
-from typing import Any
-
-import xmltodict
+from lxml import etree
 
 
 class XMLTag:
 
-    def __init__(self, name: str):
+    def __init__(self, name: str, parent: XMLTag):
         self.__name = name
+        self.__parent = parent
+        self.__content = None
         self.__properties = {}
         self.__children = []
 
@@ -16,55 +16,72 @@ class XMLTag:
         return self.__name
 
     @property
+    def content(self):
+        return self.__content
+
+    @content.setter
+    def content(self, content: str):
+        self.__content = content
+
+    @property
+    def parent(self) -> XMLTag:
+        return self.__parent
+
+    @property
     def properties(self):
         return self.__properties
 
     @property
-    def children(self):
+    def children(self) -> list[XMLTag]:
         return self.__children
 
     @children.setter
     def children(self, children: list[XMLTag]):
         self.__children = children
 
-    def get_property(self, name: str):
-        if not self.has_property(name):
-            return None
+    def get(self, name: str, default_value=None):
+        if not self.has(name):
+            return default_value
 
-        return self.properties.get(name)
+        value = self.properties.get(name)
 
-    def has_property(self, name: str):
+        if str(value).isdigit():
+            value = int(value)
+
+        return value
+
+    def set(self, name: str, value: str):
+        self.properties[name] = value
+
+    def has(self, name: str):
         return name in self.__properties
 
-    def add_property(self, name: str, value: str):
-        self.__properties[name.replace("@", "")] = value
+    def add(self, name: str, value: str):
+        self.__properties[name] = value
 
-    def add_children(self, tag: XMLTag):
-        self.__children.append(tag)
+    def __str__(self):
+        return self.name
 
 
 class XMLHolder:
 
     def __init__(self, content: str):
-        self.__data = self.__parse_xml(xmltodict.parse(content))
-        super().__init__(self.__data[0].name)
+        xml_data = etree.fromstring(content, parser=etree.XMLParser(remove_comments=True))  # noqa
+        self.__root = self.__process_xml(xml_data)
 
     @property
     def root(self):
-        return self.__data[0]
+        return self.__root
 
-    def __parse_xml(self, data: dict[str, Any], parent_tag: XMLTag = None) -> list[XMLTag]:
-        tags = []
+    def __process_xml(self, element, parent_tag: XMLTag = None) -> XMLTag:
+        tag = XMLTag(element.tag, parent_tag)
 
-        for key, value in data.items():
+        if element.text and len(element.text.strip()) > 0:
+            tag.content = element.text.strip()
 
-            # Handle properties.
-            if key.startswith("@") and parent_tag is not None:
-                parent_tag.add_property(key, value)
+        # Handle properties.
+        for key, value in element.items():
+            tag.add(key, value)
 
-            else:
-                tag = XMLTag(key)
-                tag.children = self.__parse_xml(value, tag)
-                tags.append(tag)
-
-        return tags
+        tag.children = [self.__process_xml(child, tag) for child in element]
+        return tag

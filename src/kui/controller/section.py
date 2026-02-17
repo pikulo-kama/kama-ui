@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING, Final
 from kui.component.button import KamaPushButton
 from kui.component.tab_bar import KamaTabBar
 from kui.core.component import KamaComponent
-from kui.core.constants import QBool
 from kui.core.controller import WidgetController, TemplateWidgetController, TemplateWidgetContext
 from kui.core.filter import FilterBuilder
 from kui.core.metadata import ControllerArgs
@@ -54,11 +53,15 @@ class SectionTabBarController(WidgetController):
             args (ControllerArgs): Arguments containing the list of 'sections' to display.
         """
 
-        section_filter = FilterBuilder() \
-            .where("section_id").among(args.get("sections", [])) \
-            .build()
+        sections = []
 
-        sections = self.application.provider.section.provide(section_filter)
+        for section in args.get("sections", []):
+            section_filter = FilterBuilder() \
+                .where("section_id").equals(section) \
+                .build()
+
+            sections.extend(self.application.provider.section.provide(section_filter))
+
         self.state(tab_bar, TabBarSections, sections)
 
         for section in sections:
@@ -134,12 +137,6 @@ class SectionListController(TemplateWidgetController):
         Returns:
             list[Section]: A list of section objects.
         """
-
-        section_filter = FilterBuilder() \
-            .where("section_id").among(args.get("sections", [])) \
-            .build()
-
-        self.__sections = self.application.provider.section.provide(section_filter)
         return self.__sections
 
     def refresh(self, widget: KamaComponent, args: ControllerArgs):
@@ -151,7 +148,14 @@ class SectionListController(TemplateWidgetController):
             args (ControllerArgs): Arguments provided for the refresh.
         """
 
-        super().refresh(widget, args)
+        self.__sections.clear()
+
+        for section in args.get("sections", []):
+            section_filter = FilterBuilder() \
+                .where("section_id").equals(section) \
+                .build()
+
+            self.__sections.extend(self.application.provider.section.provide(section_filter))
 
         if len(self.__sections) == 0:
             return
@@ -165,9 +169,14 @@ class SectionListController(TemplateWidgetController):
         if is_custom_section_id:
             selected_section_id = default_section_id
 
+        if self.state(widget, VisibleSection) is None:
+            self.state(widget, VisibleSection, default_section_id)
+
+        super().refresh(widget, args)
+
         self.change_tab(widget, selected_section_id or default_section_id)
 
-    def handle__section_button(self, list_item: KamaPushButton, context: TemplateWidgetContext):
+    def handle__sectionItem(self, list_item: KamaPushButton, context: TemplateWidgetContext):  # noqa
         """
         Used to link callback to menu item button as
         well as apply specific styles to currently selected item.
@@ -182,7 +191,9 @@ class SectionListController(TemplateWidgetController):
 
         section_id = context.element.section_id
 
-        list_item.setProperty(self.ListItemActive, QBool(self.__is_selected(list_item, context.element)))
+        if self.__is_selected(context.root, context.element):
+            list_item.add_class(self.ListItemActive)
+
         list_item.clicked.connect(change_tab(section_id))  # noqa
 
     def resolve(self, context: TemplateWidgetContext, value: str, *args, **kw):
@@ -247,5 +258,5 @@ class SectionListController(TemplateWidgetController):
         self.manager.delete(lambda meta: meta.section_id == current_section_id)
         self.manager.build_section(new_section_id)
         self.manager.refresh(lambda meta: meta.section_id == new_section_id)
-        widget.refresh(refresh_children=True)
+        self.refresh(widget, widget.metadata.controller_args)
         self.manager.enable()

@@ -49,19 +49,19 @@ QProgressBar::chunk:hover {
 KamaProgressPushButton.primary,
 KamaProgressPushButton.primary:pressed,
 KamaProgressPushButton.primary.is-disabled:hover,
-QProgressBar[kind="KamaProgressPushButton-primary"]:pressed {
+QProgressBar.KamaProgressPushButton-primary:pressed {
     background-color: color("primary-a20");
     border-color: color("primary-a20");
     color: color("text-inverted");
 }
 
-QProgressBar[kind="KamaProgressPushButton-primary"] {
+QProgressBar.KamaProgressPushButton-primary {
     color: color("text-inverted");
 }
 
-KamaProgressPushButton[kind="primary"]:hover,
-QProgressBar[kind="KamaProgressPushButton-primary"]::chunk,
-QProgressBar[kind="KamaProgressPushButton-primary"]::chunk:hover {
+KamaProgressPushButton.primary:hover,
+QProgressBar.KamaProgressPushButton-primary::chunk,
+QProgressBar.KamaProgressPushButton-primary::chunk:hover {
     background-color: color("primary-a10");
     color: color("text-inverted");
 }

@@ -37,13 +37,14 @@ class KamaComposedColor:
 
     Attributes:
         color_code (str): The unique identifier for this composed color.
-        light_color (KamaColor): The color instance for Light Mode.
-        dark_color (KamaColor): The color instance for Dark Mode.
+        variations (dict[str, KamaColor]): Mapping of themes and their colors.
     """
 
     color_code: str
-    light_color: KamaColor
-    dark_color: KamaColor
+    variations: dict[str, KamaColor]
+
+    def get(self, theme: str):
+        return self.variations.get(theme)
 
 
 @dataclasses.dataclass

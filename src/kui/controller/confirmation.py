@@ -51,15 +51,17 @@ class ConfirmationDialogController(DialogController):
             dialog.hide()
             application.window.is_blocked = False
 
-        confirm_button: KamaPushButton = self.manager.get_widget("confirmation", "confirm_button")
-        cancel_button: KamaPushButton = self.manager.get_widget("confirmation", "cancel_button")
+        confirm_button: KamaPushButton = self.manager.get_widget("confirmation", args.get("confirm"))
+        cancel_button: KamaPushButton = self.manager.get_widget("confirmation", args.get("cancel"))
 
         application.window.is_blocked = True
 
-        confirm_button.enable()
-        cancel_button.enable()
+        if confirm_button is not None:
+            confirm_button.enable()
+            confirm_button.clicked.connect(on_confirm)
 
-        confirm_button.clicked.connect(on_confirm)
-        cancel_button.clicked.connect(on_cancel)
+        if cancel_button is not None:
+            cancel_button.enable()
+            cancel_button.clicked.connect(on_cancel)
 
         super().setup(dialog, args)

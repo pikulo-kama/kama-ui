@@ -2,9 +2,9 @@ import os.path
 from typing import Any
 
 import yaml
+from kutil.file import remove_extension_from_path
 from kutil.file_type import YML, YAML
 from kutil.logger import get_logger
-
 
 _logger = get_logger(__name__)
 
@@ -28,6 +28,8 @@ class YamlHolder:
         self.__data = {}
 
         file_path = None
+
+        config_path = remove_extension_from_path(config_path)
         yml_file_path = YML.add_extension(config_path)
         yaml_file_path = YAML.add_extension(config_path)
 
@@ -70,3 +72,27 @@ class YamlHolder:
             value = default_value
 
         return value
+
+    def to_json(self):
+        return self.__data
+
+    def to_flat_json(self, data: dict = None, join_char: str = ".", prefix: str = None):
+
+        formatted_data = {}
+
+        if data is None:
+            data = self.__data
+
+        for key, value in data.items():
+
+            if prefix is not None:
+                key = f"{prefix}{join_char}{key}"
+
+            if isinstance(value, dict):
+                child_data = self.to_flat_json(value, join_char, key)
+                formatted_data = {**formatted_data, **child_data}
+
+            else:
+                formatted_data[key] = value
+
+        return formatted_data

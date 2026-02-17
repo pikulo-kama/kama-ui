@@ -1,7 +1,6 @@
 from PyQt6.QtWidgets import QProgressBar
 
 from kui.component.button import KamaPushButton
-from kui.core.constants import KamaAttr, QBool
 
 
 class KamaProgressPushButton(KamaPushButton):
@@ -14,12 +13,14 @@ class KamaProgressPushButton(KamaPushButton):
     styling changes via Qt Style Sheets.
     """
 
-    InProgressFlag = "in-progress"
+    InProgress = "in-progress"
 
     def __init__(self, *args, **kw):
         """
         Initializes the progress button and creates the internal progress bar overlay.
         """
+
+        self.__progress_bar = None
 
         KamaPushButton.__init__(self, *args, **kw)
 
@@ -54,7 +55,12 @@ class KamaProgressPushButton(KamaPushButton):
         in_progress = progress > 0
 
         self.__progress_bar.setTextVisible(in_progress is True)
-        self.setProperty(self.InProgressFlag, QBool(in_progress))
+
+        if in_progress:
+            self.add_class(self.InProgress)
+        else:
+            self.remove_class(self.InProgress)
+
         self.setEnabled(in_progress is False)
 
     def resizeEvent(self, event):
@@ -81,8 +87,5 @@ class KamaProgressPushButton(KamaPushButton):
 
         super().setProperty(name, value)
 
-        # If kind is being set for
-        # button then also update kind
-        # of progress bar.
-        if name == KamaAttr.Kind:
-            self.__progress_bar.setProperty(KamaAttr.Kind, f"{self.__class__.__name__}-{value}")
+        if self.__progress_bar is not None:
+            self.__progress_bar.setProperty(f"{self.__class__.__name__}-{name}", value)

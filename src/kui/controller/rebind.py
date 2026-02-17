@@ -3,7 +3,6 @@ from kui.core.controller import WidgetController
 from kui.core.metadata import ControllerArgs
 from kutil.logger import get_logger
 
-
 _logger = get_logger(__name__)
 
 
@@ -39,7 +38,15 @@ class RebindParentController(WidgetController):
         target_section_id, target_widget_id = str(new_parent).split(".")
 
         target_widget = self.manager.get_widget(target_section_id, target_widget_id)
+
+        if target_widget is None:
+            raise RuntimeError(f"Target widget '{new_parent}' doesn't exist.")
+
         target_layout = target_widget.layout()
+
+        if target_layout is None:
+            raise RuntimeError(f"Target widget '{new_parent}' doesn't have layout.")
+
         original_layout = widget.layout()
 
         _logger.debug("Rebinding '%s' to '%s'", widget.metadata.name, target_widget.metadata.name)

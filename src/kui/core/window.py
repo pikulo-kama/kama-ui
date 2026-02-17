@@ -4,10 +4,12 @@ from typing import Callable, TYPE_CHECKING
 
 from PyQt6.QtCore import pyqtSignal, QSettings
 from PyQt6.QtGui import QCloseEvent, QIcon
-from PyQt6.QtWidgets import QMainWindow, QApplication, QWidget, QHBoxLayout
+from PyQt6.QtWidgets import QMainWindow, QApplication, QHBoxLayout
 from kutil.file import cleanup_directory
 from kutil.logger import get_logger
 from pathlib import Path
+
+from kui.component.widget import KamaWidget
 from kui.core.manager import WidgetManager
 from kui.core._service import AppService
 
@@ -44,11 +46,11 @@ class KamaWindow(AppService, QMainWindow):
             self.application.config.name
         )
 
-        self.__root = QWidget()
-        self.setCentralWidget(self.__root)
-        self.__root.setObjectName("root")
+        self.__root = KamaWidget()
+        self.__root.add_class("applicationRoot")
         self.__root_layout = QHBoxLayout(self.__root)
         self.__root_layout.setContentsMargins(0, 0, 0, 0)
+        self.setCentralWidget(self.__root)
 
         self.__is_ui_blocked = False
         self.__is_initialized = False
@@ -131,7 +133,7 @@ class KamaWindow(AppService, QMainWindow):
         Central window widget.
 
         Returns:
-            QWidget: The root container widget.
+            KamaWidget: The root container widget.
         """
         return self.__root
 

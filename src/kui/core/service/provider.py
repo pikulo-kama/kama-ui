@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 from kui.core._service import AppService
-from kui.core.provider import MetadataProvider, ControllerSectionProvider
+from kui.core.provider import MetadataProvider, SectionProvider, KMLLayoutProvider, KMLSectionProvider
 
 if TYPE_CHECKING:
     from kui.core.app import KamaApplicationContext
@@ -17,8 +17,11 @@ class DataProviderService(AppService):
         """
 
         super().__init__(context)
-        self.__metadata_provider = MetadataProvider()
-        self.__section_provider = ControllerSectionProvider()
+        self.__metadata_provider = None
+        self.__section_provider = None
+
+        self.metadata = KMLLayoutProvider()
+        self.section = KMLSectionProvider()
 
     @property
     def metadata(self) -> MetadataProvider:
@@ -32,18 +35,22 @@ class DataProviderService(AppService):
         """
         Sets a new metadata provider instance.
         """
+
+        provider.application = self.application
         self.__metadata_provider = provider
 
     @property
-    def section(self) -> ControllerSectionProvider:
+    def section(self) -> SectionProvider:
         """
         Returns the current section provider instance.
         """
         return self.__section_provider
 
     @section.setter
-    def section(self, provider: ControllerSectionProvider):
+    def section(self, provider: SectionProvider):
         """
         Sets a new section provider instance.
         """
+
+        provider.application = self.application
         self.__section_provider = provider

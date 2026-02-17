@@ -94,7 +94,8 @@ class WidgetMetadata:
                  stylesheet: str = "",
                  properties: dict[str, str] = None,
                  refresh_events: list[str] = None,
-                 refresh_events_meta: dict[str, RefreshEventMetadata] = None):
+                 refresh_events_meta: dict[str, RefreshEventMetadata] = None,
+                 classes: list[str] = None):
         """
         Initializes a metadata instance with layout, style, and lifecycle parameters.
         """
@@ -128,6 +129,7 @@ class WidgetMetadata:
         self.__refresh_events = refresh_events or []
         self.__refresh_event_meta = refresh_events_meta or {}
         self.__resolvers: list["ContentResolver"] = []
+        self.__classes = classes or []
 
         self.__object_name = None
         self.__parse_style_object_name(style_object_name)
@@ -498,6 +500,10 @@ class WidgetMetadata:
             list: List of event strings.
         """
         return self.__refresh_events
+
+    @property
+    def classes(self):
+        return self.__classes
 
     def should_refresh_children(self, event: str):
         """

@@ -14,6 +14,8 @@ from kui.command.refresh import WidgetEventRefreshCommand, WidgetRefreshCommand
 from kui.core.metadata import WidgetMetadata
 from kutil.logger import get_logger
 
+from kui.core.provider import Section
+
 if TYPE_CHECKING:
     from kui.core.window import KamaWindow
     from kui.core.app import KamaApplication
@@ -174,6 +176,17 @@ class WidgetManager:
         self.__widgets: dict[str, KamaComponent] = {}
         self.__controllers: dict[str, WidgetController] = {}
 
+        self.__sections: dict[str, Section] = {}
+        self.__metadata: dict[str, list[WidgetMetadata]] = {}
+
+    @property
+    def metadata(self):
+        return self.__metadata
+
+    @property
+    def sections(self):
+        return self.__sections
+
     def execute(self, command: "WidgetCommand"):
         """
         Executes a widget command and applies the resulting state changes to the UI.
@@ -201,12 +214,10 @@ class WidgetManager:
 
         # Add widget and layout types.
         for widget_type in context.new_widget_types:
-            name = widget_type.__name__.replace("Kama", "K")
-            self.__widget_types[name] = widget_type
+            self.__widget_types[widget_type.__name__] = widget_type
 
         for layout_type in context.new_layout_types:
-            name = layout_type.__name__.replace("Kama", "K")
-            self.__layout_types[name] = layout_type
+            self.__layout_types[layout_type.__name__] = layout_type
 
     def build(self, metadata: list[WidgetMetadata]):
         """
@@ -291,6 +302,15 @@ class WidgetManager:
 
         widget_name = f"{section_id}.{widget_id}"
         return self.__widgets.get(widget_name)
+
+    def add_section(self, section: Section, metadata: list[WidgetMetadata] = None):
+        section_metadata = self.__metadata.get(section.section_id, [])
+
+        for widget_meta in metadata or []:
+            section_metadata.append(widget_meta)
+
+        self.__metadata[section.section_id] = section_metadata
+        self.__sections[section.section_id] = section
 
     def invoke_controllers(self, target: str, widgets: list[KamaComponent]):
         """

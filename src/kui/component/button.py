@@ -1,9 +1,10 @@
+from typing import Final
+
 from PyQt6.QtCore import QSize
 from PyQt6.QtGui import QKeyEvent, QMouseEvent
 from PyQt6.QtWidgets import QPushButton
 
 from kui.core.component import KamaComponentMixin
-from kui.core.constants import KamaAttr, QBool
 from kui.resolver.icon import QIconWrapper
 
 
@@ -18,6 +19,8 @@ class KamaPushButton(KamaComponentMixin, QPushButton):
     CSS styling while selectively blocking user input events.
     """
 
+    Disabled: Final[str] = "disabled"
+
     def __init__(self, *args, **kw):
         """
         Initializes the button and the component mixin.
@@ -31,7 +34,7 @@ class KamaPushButton(KamaComponentMixin, QPushButton):
 
         self.__is_enabled = True
         self.is_interactable = True
-        self.setProperty(KamaAttr.Disabled, QBool(False))
+        self.remove_class(self.Disabled)
 
     def set_content(self, content):
         """
@@ -67,7 +70,13 @@ class KamaPushButton(KamaComponentMixin, QPushButton):
         """
 
         self.__is_enabled = is_enabled
-        self.setProperty(KamaAttr.Disabled, QBool(not is_enabled))
+
+        if is_enabled:
+            self.remove_class(self.Disabled)
+
+        else:
+            self.add_class(self.Disabled)
+
         self.style().polish(self)
 
     def mousePressEvent(self, event: QMouseEvent):

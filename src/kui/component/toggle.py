@@ -2,7 +2,6 @@ from PyQt6.QtCore import QPropertyAnimation, QEasingCurve, QRect, pyqtProperty, 
 from PyQt6.QtGui import QPainter, QBrush, QPen, QColor
 from PyQt6.QtWidgets import QPushButton
 from kui.core.component import KamaComponentMixin
-from kui.core.constants import QBool
 
 
 class KamaToggle(KamaComponentMixin, QPushButton):
@@ -40,7 +39,7 @@ class KamaToggle(KamaComponentMixin, QPushButton):
         self.__animation.setDuration(250)  # milliseconds
 
         self.clicked.connect(self.__animate_toggle)  # noqa
-        self.toggled.connect(self.__on_toggle)   # noqa
+        self.toggled.connect(self.__on_toggle)  # noqa
 
     @pyqtProperty(int)
     def thumb_offset(self):
@@ -201,7 +200,11 @@ class KamaToggle(KamaComponentMixin, QPushButton):
             checked (bool): The new checked state.
         """
 
-        self.setProperty("checked", QBool(checked))
+        if checked:
+            self.add_class("checked")
+        else:
+            self.remove_class("checked")
+
         self.__polish()
         self.update()
 

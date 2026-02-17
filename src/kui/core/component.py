@@ -46,6 +46,14 @@ class KamaComponentMixin:
         """
         self.__is_interactable = interactable
 
+    def add_class(self, *names: str):
+        for name in names:
+            self.setProperty(f"cls-{name}", "true")  # noqa
+
+    def remove_class(self, *names: str):
+        for name in names:
+            self.setProperty(f"cls-{name}", "false")  # noqa
+
     def set_content(self, content):  # pragma: no cover
         """
         Sets the visual or textual content of the widget.

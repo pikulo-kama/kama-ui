@@ -34,7 +34,7 @@ class StyleProperty:
 class StyleBlock:
 
     def __init__(self, selector: str, properties: list[StyleProperty]):
-        self.__selector = re.sub(r"\.([a-zA-Z0-9_-]+)", r"[\1='true']", selector.strip())
+        self.__selector = re.sub(r"\.([a-zA-Z0-9_-]+)", r"[cls-\1='true']", selector.strip())
         self.__properties = properties
 
     @cached_property
@@ -292,10 +292,12 @@ class StyleManagerService(AppService):
         if not color:
             return None
 
-        if self.color_mode == ColorMode.Light:
-            return color.light_color
+        color_hex = color.get(self.color_mode)
 
-        return color.dark_color
+        if color_hex is None:
+            color_hex = color.get(ColorMode.Dark)
+
+        return color_hex
 
     @property
     def fonts(self):
