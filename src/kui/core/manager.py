@@ -23,7 +23,6 @@ if TYPE_CHECKING:
 
 _logger = get_logger(__name__)
 
-
 WidgetFilter = Callable[[WidgetMetadata], bool]
 
 
@@ -186,6 +185,10 @@ class WidgetManager:
     @property
     def sections(self):
         return self.__sections
+
+    def clear(self):
+        self.__sections.clear()
+        self.__metadata.clear()
 
     def execute(self, command: "WidgetCommand"):
         """

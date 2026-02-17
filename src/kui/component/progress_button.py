@@ -75,17 +75,20 @@ class KamaProgressPushButton(KamaPushButton):
         # Update the progress bar's geometry to match the button's size
         self.__progress_bar.setGeometry(0, 0, self.width(), self.height())
 
-    def setProperty(self, name, value):
-        """
-        Sets a property on the button and synchronizes specific attributes
-        with the internal progress bar.
+    def add_class(self, *names: str):
+        super().add_class(*names)
 
-        Args:
-            name (str): The name of the property.
-            value (Any): The value to set.
-        """
+        if self.__progress_bar is None:
+            return
 
-        super().setProperty(name, value)
+        for name in names:
+            self.__progress_bar.setProperty(f"cls-{self.__class__.__name__}-{name}", "true")
 
-        if self.__progress_bar is not None:
-            self.__progress_bar.setProperty(f"{self.__class__.__name__}-{name}", value)
+    def remove_class(self, *names: str):
+        super().remove_class(*names)
+
+        if self.__progress_bar is None:
+            return
+
+        for name in names:
+            self.__progress_bar.setProperty(f"cls-{self.__class__.__name__}-{name}", "false")

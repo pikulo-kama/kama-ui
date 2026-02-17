@@ -264,6 +264,11 @@ class StyleManagerService(AppService):
         self.__fonts: dict[str, KamaFont] = {}
         self.__colors: dict[str, KamaComposedColor] = {}
 
+    def clear(self):
+        self.__dynamic_images.clear()
+        self.__fonts.clear()
+        self.__colors.clear()
+
     @property
     def color_mode(self):
         """

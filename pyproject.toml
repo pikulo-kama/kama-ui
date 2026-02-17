@@ -32,9 +32,6 @@ include-package-data = true
 [tool.setuptools.packages.find]
 where = ["src"]
 
-[tool.setuptools.package-data]
-"kui.stylesheet" = ["*.kss"]
-
 [project.entry-points."pyinstaller40"]
 hook-dirs = "kui._pyinstaller_hooks:get_hook_dirs"
 

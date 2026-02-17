@@ -26,7 +26,7 @@ class KamaScrollableWidget(KamaComponentMixin, QScrollArea):
         self.setFrameShape(QFrame.Shape.NoFrame)
 
         self.__content = KamaWidget()
-        self.__content.add_class("scrollableRoot")
+        self.__content.add_class("root")
         self.setWidget(self.__content)
         self.setWidgetResizable(True)
 

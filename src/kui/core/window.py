@@ -1,5 +1,4 @@
 import sys
-from importlib import resources
 from typing import Callable, TYPE_CHECKING
 
 from PyQt6.QtCore import pyqtSignal, QSettings
@@ -47,7 +46,7 @@ class KamaWindow(AppService, QMainWindow):
         )
 
         self.__root = KamaWidget()
-        self.__root.add_class("applicationRoot")
+        self.__root.add_class("root")
         self.__root_layout = QHBoxLayout(self.__root)
         self.__root_layout.setContentsMargins(0, 0, 0, 0)
         self.setCentralWidget(self.__root)
@@ -155,20 +154,12 @@ class KamaWindow(AppService, QMainWindow):
         Combines and applies core and user stylesheets to the application.
         """
 
-        import kui.stylesheet as stylesheet_module
-
-        core_path = resources.files(stylesheet_module)
-        core_stylesheet = self.application.style.builder.load_stylesheet(core_path)
-
         user_stylesheet_directory = Path(self.application.discovery.Styles)
         user_stylesheet = self.application.style.builder.load_stylesheet(user_stylesheet_directory)
-
-        core_stylesheet = "".join([f"{block.qss}\n" for block in core_stylesheet])
         user_stylesheet = "".join([f"{block.qss}\n" for block in user_stylesheet])
-        composed_stylesheet = core_stylesheet + user_stylesheet
 
         self.application.style.create_dynamic_images()
-        self.__qt_application.setStyleSheet(composed_stylesheet)
+        self.__qt_application.setStyleSheet(user_stylesheet)
 
     def build(self, section: str):
         """

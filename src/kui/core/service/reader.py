@@ -20,6 +20,10 @@ class ResourceReader(AppService):
     }
 
     def read(self):
+
+        self.application.style.clear()
+        self.application.window.manager.clear()
+
         self.read_layouts()
         self.read_text_resources()
         self.read_colors()

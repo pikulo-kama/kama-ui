@@ -26,9 +26,8 @@ for dist in importlib.metadata.distributions():
         hiddenimports += collect_submodules(package_name)
         datas += collect_data_files(package_name)
 
-# Collect resolvers, components, controllers and stylesheet
+# Collect resolvers, components and controllers
 # since they're not being imported anywhere.
-datas += collect_data_files("kui.stylesheet")
 hiddenimports += collect_submodules("kui.component")
 hiddenimports += collect_submodules("kui.controller")
 hiddenimports += collect_submodules("kui.resolver")
