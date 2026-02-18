@@ -54,14 +54,6 @@ class ProjectDiscoveryService(AppService):
         """
         return os.path.join(self.ProjectRoot, "Resources")
 
-    # todo: remove
-    @property
-    def Data(self):  # noqa
-        """
-        Returns the path to the Data directory within Resources.
-        """
-        return os.path.join(self.Resources, "Data")
-
     @property
     def Styles(self):  # noqa
         """
@@ -142,12 +134,6 @@ class ProjectDiscoveryService(AppService):
 
     def resources(self, *paths: str):
         return os.path.join(self.Resources, *paths)
-
-    def data(self, *paths: str):
-        """
-        Constructs a path relative to the static Data directory.
-        """
-        return os.path.join(self.Data, *paths)
 
     def images(self, *paths: str, include_temporary: bool = True):
         """

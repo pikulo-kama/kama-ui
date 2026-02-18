@@ -67,19 +67,6 @@ def resolve_project_file(*paths: str):
     return KamaApplication().discovery.project(*paths)
 
 
-def resolve_data(*paths: str):
-    """
-    Used to resolve file in '{PROJECT_ROOT}/Config' directory.
-
-    Args:
-        *paths (str): Sub-path segments to join.
-
-    Returns:
-        str: The absolute path to the data/config directory.
-    """
-    return KamaApplication().discovery.data(*paths)
-
-
 def resolve_image(*paths: str, include_temporary: bool = True):
     """
     Used to resolve file in '{PROJECT_ROOT}/Resource' directory.

@@ -75,7 +75,7 @@ def resolve_content(content: str, resolvers: dict[str, "ContentResolver"] = None
         _logger.debug("param=%s, args=%s, kw=%s", parameter, args, kw)
         resolved_content = resolver.resolve(parameter, *args, **kw) or ""
 
-        # This will allow to have tokenised values together with other text.
+        # This will allow to have tokenized values together with other text.
         if isinstance(resolved_content, str):
             resolved_content = content.replace(full_token, resolved_content)
 

@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-import json
 from typing import TYPE_CHECKING
 
 from kui.core.filter import KamaFilter
@@ -52,26 +51,6 @@ class MetadataProvider:
             list[WidgetMetadata]: A list of metadata objects.
         """
         return []
-
-    @staticmethod
-    def _parse_stylesheet(stylesheet_json: str):
-        """
-        Converts a JSON-formatted stylesheet string into a standard QSS string.
-
-        Args:
-            stylesheet_json (str): A JSON string representing style properties.
-
-        Returns:
-            str: A formatted QSS string (e.g., "color: red;").
-        """
-
-        stylesheet_map = json.loads(stylesheet_json)
-        stylesheet_string = ""
-
-        for key, value in stylesheet_map.items():
-            stylesheet_string += f"{key}: {value};\n"
-
-        return stylesheet_string
 
 
 class SectionProvider:

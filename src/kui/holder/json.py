@@ -77,7 +77,7 @@ class EditableJsonConfigHolder(JsonConfigHolder):
 
     def set_value(self, property_name: str, value: Any):
         """
-        Used to set json property in configuration.
+        Used to set JSON property in configuration.
 
         Args:
             property_name (str): The key to update or create.

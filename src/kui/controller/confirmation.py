@@ -1,3 +1,5 @@
+from typing import cast
+
 from kui.component.button import KamaPushButton
 from kui.component.dialog import KamaDialog
 from kui.core.app import KamaApplication
@@ -51,8 +53,14 @@ class ConfirmationDialogController(DialogController):
             dialog.hide()
             application.window.is_blocked = False
 
-        confirm_button: KamaPushButton = self.manager.get_widget("confirmation", args.get("confirm"))
-        cancel_button: KamaPushButton = self.manager.get_widget("confirmation", args.get("cancel"))
+        confirm_button: KamaPushButton = cast(
+            KamaPushButton,
+            self.manager.get_widget("confirmation", args.get("confirm"))
+        )
+        cancel_button: KamaPushButton = cast(
+            KamaPushButton,
+            self.manager.get_widget("confirmation", args.get("cancel"))
+        )
 
         application.window.is_blocked = True
 

@@ -72,7 +72,7 @@ class KamaFont:
         Returns:
             str: A CSS-compatible font declaration.
         """
-        return f"{self.font_size}px '{self.font_family}'; font-weight: {self.font_weight}"
+        return f"{self.font_size}px '{self.font_family}';\n\tfont-weight: {self.font_weight}"
 
 
 @dataclasses.dataclass

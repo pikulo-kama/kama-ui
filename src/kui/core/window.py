@@ -161,9 +161,13 @@ class KamaWindow(AppService, QMainWindow):
         self.application.style.create_dynamic_images()
         self.__qt_application.setStyleSheet(user_stylesheet)
 
-    def build(self, section: str):
+    def build(self, section: str = "root"):
         """
-        Used to build window and all of its components.
+        Used to build window UI from scratch
+        by removing any existing UI elements.
+
+        If target section is not provided - 'root'
+        section would be built by default.
 
         Args:
             section (str): The section identifier to build.

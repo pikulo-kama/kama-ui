@@ -1,6 +1,5 @@
 import re
 from functools import cached_property
-from pathlib import Path
 from typing import TYPE_CHECKING
 from dataclasses import dataclass
 from copy import deepcopy
@@ -14,6 +13,8 @@ from kutil.file import read_file, save_file
 from kui.style.type import KamaComposedColor, KamaFont, DynamicImage
 from kutil.logger import get_logger
 from kutil.number import is_float
+
+from kui.util.file import get_files_from_directory
 
 if TYPE_CHECKING:
     from kui.core.app import KamaApplicationContext
@@ -89,27 +90,16 @@ class StyleBuilder(AppService):
         resolver.application = self.application
         self.__resolvers[resolver_name] = resolver
 
-    def load_stylesheet(self, directory: str | Path) -> list[StyleBlock]:
+    def load_stylesheet(self, directory: str) -> list[StyleBlock]:
         """
         Load all stylesheets recursively using Traversable API.
         Works for both standard OS paths and bundled resources.
         """
 
-        path = Path(directory)
+        style_files: list[str] = get_files_from_directory(directory, recursive=True, extension=KSS.extension)
         style_blocks: list[StyleBlock] = []
 
-        if not path.exists():
-            return style_blocks
-
-        for entry in path.iterdir():
-            if entry.is_dir():
-                style_blocks.extend(self.load_stylesheet(entry))
-                continue
-
-            if not entry.name.endswith(KSS.extension):
-                continue
-
-            style_string = entry.read_text(encoding="utf-8")
+        for style_string in style_files:
             entry_blocks = self.__parse_qss(style_string)
 
             for block in entry_blocks:

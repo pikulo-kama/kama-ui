@@ -91,11 +91,6 @@ class WidgetBuildCommand(WidgetCommand):
             _logger.debug("tooltip=%s", meta.tooltip)
             widget.set_tooltip(meta.tooltip)
 
-        # _logger.debug("Setting properties")
-        # for key, value in meta.properties.items():
-        #     _logger.debug("%s=%s", key, value)
-        #     widget.setProperty(key, value)
-
         if len(meta.stylesheet) > 0:
             stylesheet = self.application.style.builder.resolve(meta.stylesheet)
             _logger.debug("stylesheet=%s", stylesheet)

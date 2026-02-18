@@ -303,7 +303,7 @@ class TemplateWidgetController(WidgetController):
 
     def soft_refresh(self, widget: KamaComponent, args: ControllerArgs):
         body_widgets = self.manager.get_widgets(f"{widget.metadata.id}__template_body")
-        body_widgets = sorted(body_widgets, key=lambda widget: widget.metadata.order_id)
+        body_widgets = sorted(body_widgets, key=lambda w: w.metadata.order_id)
 
         for idx, element in enumerate(self.retrieve_data(args)):
 

@@ -1,4 +1,3 @@
-import re
 from PyQt6.QtCore import Qt
 from dataclasses import dataclass
 from typing import Optional, TYPE_CHECKING, Any
@@ -86,13 +85,11 @@ class WidgetMetadata:
                  margin_top: int = None,
                  margin_right: int = None,
                  margin_bottom: int = None,
-                 style_object_name: str = None,
                  alignment: Qt.AlignmentFlag = Qt.AlignmentFlag(0),
                  alignment_string: str = None,
                  content: str = None,
                  tooltip: str = None,
                  stylesheet: str = "",
-                 properties: dict[str, str] = None,
                  refresh_events: list[str] = None,
                  refresh_events_meta: dict[str, RefreshEventMetadata] = None,
                  classes: list[str] = None):
@@ -126,16 +123,10 @@ class WidgetMetadata:
         self.__content = content
         self.__tooltip = tooltip
         self.__stylesheet = stylesheet
-        self.__properties = properties or {}
-        self.__refresh_events = refresh_events or []
+        self.__refresh_events = list(set(refresh_events or []))
         self.__refresh_event_meta = refresh_events_meta or {}
         self.__resolvers: list["ContentResolver"] = []
         self.__classes = classes or []
-
-        self.__object_name = None
-        self.__parse_style_object_name(style_object_name)
-
-        self.__refresh_events = list(set(self.__refresh_events))
 
     @property
     def id(self) -> str:
@@ -388,16 +379,6 @@ class WidgetMetadata:
         return self.__stylesheet
 
     @property
-    def properties(self) -> dict[str, str]:
-        """
-        Retrieves dynamic properties used for QSS targeting.
-
-        Returns:
-            dict: Key-value property mapping.
-        """
-        return self.__properties
-
-    @property
     def spacing(self) -> int:
         """
         Retrieves the internal spacing of the widget's layout.
@@ -468,16 +449,6 @@ class WidgetMetadata:
         return self.__margin_bottom
 
     @property
-    def object_name(self) -> str:
-        """
-        Retrieves the Qt internal object name for QSS identification.
-
-        Returns:
-            str: Object name.
-        """
-        return self.__object_name
-
-    @property
     def alignment(self) -> Qt.AlignmentFlag:
         """
         Retrieves the alignment flag for the widget's content.
@@ -538,39 +509,6 @@ class WidgetMetadata:
             return False
 
         return event_meta.refresh_children
-
-    def __parse_style_object_name(self, object_name: str):
-        """
-        Parses a shorthand object name string that includes dynamic properties.
-
-        Args:
-            object_name (str): Suffix following the pattern 'name[prop=val]'.
-        """
-
-        if object_name is None:
-            return
-
-        _logger.debug("Parsing composed style object name.")
-        _logger.debug("raw=%s", object_name)
-        match = re.compile(r"(\w+)?(\[.*?])?").match(object_name)
-        style_object_name = match.group(1)
-        properties_string = match.group(2)
-
-        if style_object_name is not None:
-            _logger.debug("style_object_name=%s", style_object_name)
-            self.__object_name = style_object_name
-
-        if properties_string is not None:
-            properties_string = properties_string[1:-1]
-            properties = properties_string.split(",")
-
-            for prop in properties:
-                name, value = prop.split("=")
-                name = name.strip()
-                value = value.strip()
-
-                _logger.debug("%s=%s", name, value)
-                self.__properties[name] = value
 
     @staticmethod
     def __parse_alignment(alignment: str) -> Qt.AlignmentFlag:

@@ -296,7 +296,7 @@ class CriteriaBuilder:
         Returns:
             FilterBuilder: The parent builder for further chaining or building.
         """
-        return self._add_criterion(FilterOperand.IN, values)
+        return self.add_criterion(FilterOperand.IN, values)
 
     def equals(self, value: Any):
         """
@@ -308,9 +308,9 @@ class CriteriaBuilder:
         Returns:
             FilterBuilder: The parent builder for further chaining or building.
         """
-        return self._add_criterion(FilterOperand.EQ, value)
+        return self.add_criterion(FilterOperand.EQ, value)
 
-    def _add_criterion(self, operand: FilterOperand, value):
+    def add_criterion(self, operand: FilterOperand, value):
         """
         Internal helper to create a criterion and add it to the parent builder.
 
