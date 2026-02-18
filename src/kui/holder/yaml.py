@@ -74,7 +74,7 @@ class YamlHolder:
         return value
 
     def to_json(self):
-        return self.__data
+        return self.__data or {}
 
     def to_flat_json(self, data: dict = None, join_char: str = ".", prefix: str = None):
 

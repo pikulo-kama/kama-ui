@@ -58,6 +58,9 @@ class ResourceReader(AppService):
     def read_text_resources(self):
         all_translations = {}
 
+        if not os.path.exists(self.application.discovery.Locales):
+            return
+
         for locale_file in os.listdir(self.application.discovery.Locales):
             locale_name = remove_extension_from_path(locale_file)
             resources = YamlHolder(self.application.discovery.locales(locale_file)).to_flat_json(join_char="_")

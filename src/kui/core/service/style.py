@@ -287,12 +287,12 @@ class StyleManagerService(AppService):
         if not color:
             return None
 
-        color_hex = color.get(self.color_mode)
+        variation = color.get(self.color_mode)
 
-        if color_hex is None:
-            color_hex = color.get(ColorMode.Dark)
+        if variation is None:
+            variation = color.default
 
-        return color_hex
+        return variation
 
     @property
     def fonts(self):

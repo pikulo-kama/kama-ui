@@ -43,6 +43,13 @@ class KamaComposedColor:
     color_code: str
     variations: dict[str, KamaColor]
 
+    @property
+    def default(self):
+        for color in self.variations.values():
+            return color
+
+        return None
+
     def get(self, theme: str):
         return self.variations.get(theme)
 
