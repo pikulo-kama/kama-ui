@@ -1,6 +1,7 @@
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtWidgets import QLabel, QSizePolicy
+from kui.core.app import KamaApplication
 
 from kui.core.component import KamaComponentMixin
 
@@ -82,3 +83,9 @@ class KamaRichLabel(KamaLabel):
         super().__init__(*args, **kw)
         self.setTextFormat(Qt.TextFormat.RichText)
         self.setOpenExternalLinks(True)
+
+    def set_content(self, content):
+        application = KamaApplication()
+        content = application.style.builder.resolve(content)
+
+        super().set_content(content)
