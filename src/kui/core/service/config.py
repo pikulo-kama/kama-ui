@@ -31,6 +31,13 @@ class AppConfigService(AppService, YamlHolder):
         return self.get("application.name", "KamaUI")
 
     @property
+    def version(self):
+        """
+        Returns the application version.
+        """
+        return self.get("application.version")
+
+    @property
     def author(self):
         """
         Returns the application author (Default: 'KamaUI').
