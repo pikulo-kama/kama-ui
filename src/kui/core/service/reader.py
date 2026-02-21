@@ -8,7 +8,7 @@ from kui.holder.xml import XMLHolder, XMLTag
 from kui.holder.yaml import YamlHolder
 from kui.style.type import KamaComposedColor, KamaColor, KamaFont, DynamicImage
 from kui.util.file import get_files_from_directory
-from kutil.file import remove_extension_from_path
+from kutil.file import remove_extension_from_path, list_directory
 from kutil.file_type import SVG
 
 
@@ -58,7 +58,7 @@ class ResourceReader(AppService):
     def read_text_resources(self):
         all_translations = {}
 
-        for locale_file in os.listdir(self.application.discovery.Locales):
+        for locale_file in list_directory(self.application.discovery.Locales):
             locale_name = remove_extension_from_path(locale_file)
             resources = YamlHolder(self.application.discovery.locales(locale_file)).to_flat_json(join_char="_")
 
