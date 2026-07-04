@@ -47,12 +47,20 @@ class KamaComponentMixin:
         self.__is_interactable = interactable
 
     def add_class(self, *names: str):
-        for name in names:
-            self.setProperty(f"cls-{name}", "true")  # noqa
+        self.__set_property("cls", *names)
 
     def remove_class(self, *names: str):
+        self.__set_property("cls", *names, remove=True)
+
+    def add_tag(self, *names: str):
+        self.__set_property("tag", *names)
+
+    def remove_tag(self, *names: str):
+        self.__set_property("tag", *names, remove=True)
+
+    def __set_property(self, prefix: str, *names: str, remove: bool = False):
         for name in names:
-            self.setProperty(f"cls-{name}", "false")  # noqa
+            self.setProperty(f"{prefix}-{name}", "false" if remove else "true")  # noqa
 
     def set_content(self, content):  # pragma: no cover
         """

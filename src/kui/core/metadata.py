@@ -368,6 +368,13 @@ class WidgetMetadata:
         """
         return self.__grid_columns
 
+    @grid_columns.setter
+    def grid_columns(self, columns: int):
+        """
+        Sets the column count for grid layouts.
+        """
+        self.__grid_columns = columns
+
     @property
     def stylesheet(self) -> str:
         """

@@ -36,6 +36,7 @@ class StyleBlock:
 
     def __init__(self, selector: str, properties: list[StyleProperty]):
         self.__selector = re.sub(r"\.([a-zA-Z0-9_-]+)", r"[cls-\1='true']", selector.strip())
+        self.__selector = re.sub(r"\$([a-zA-Z0-9_-]+)", r"[tag-\1='true']", self.__selector)
         self.__properties = properties
 
     @cached_property

@@ -1,4 +1,4 @@
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtWidgets import QWidget
 
 from kui.core.component import KamaComponentMixin
@@ -13,6 +13,8 @@ class KamaWidget(KamaComponentMixin, QWidget):
     via Qt Style Sheets (QSS) are rendered correctly.
     """
 
+    clicked = pyqtSignal()
+
     def __init__(self, *args, **kw):
         """
         Initializes the widget and its mixin, and configures attributes required
@@ -25,3 +27,7 @@ class KamaWidget(KamaComponentMixin, QWidget):
         # Required to properly display background-color properties
         # defined in widget style.
         self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
+
+    def mousePressEvent(self, event):
+        self.clicked.emit()
+        super().mousePressEvent(event)

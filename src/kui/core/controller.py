@@ -262,7 +262,9 @@ class TemplateWidgetController(WidgetController):
         for metadata in header_segments.values():
             self.manager.build(metadata)
 
-        for idx, element in enumerate(self.retrieve_data(args)):
+        data = self.retrieve_data(args)
+
+        for idx, element in enumerate(data):
             body_segments_copy = deepcopy(body_segments)
 
             context = TemplateWidgetContext(
@@ -294,6 +296,12 @@ class TemplateWidgetController(WidgetController):
                 # Build actual widgets for segment.
                 self.manager.build(metadata)
                 segment_root = self.manager.get_widget(body_section, f"{root_meta.original_id}__{idx}")
+
+                if idx == 0:
+                    segment_root.add_tag("first")
+
+                elif idx == len(data) - 1:
+                    segment_root.add_tag("last")
 
                 self.__invoke_widget_handlers(segment_root, context)
 
