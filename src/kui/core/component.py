@@ -52,15 +52,27 @@ class KamaComponentMixin:
     def remove_class(self, *names: str):
         self.__set_property("cls", *names, remove=True)
 
+    def toggle_class(self, *names: str):
+        self.__set_property("cls", *names, toggle=True)
+
     def add_tag(self, *names: str):
         self.__set_property("tag", *names)
 
     def remove_tag(self, *names: str):
         self.__set_property("tag", *names, remove=True)
 
-    def __set_property(self, prefix: str, *names: str, remove: bool = False):
+    def toggle_tag(self, *names: str):
+        self.__set_property("tag", *names, toggle=True)
+
+    def __set_property(self, prefix: str, *names: str, remove: bool = False, toggle: bool = False):
         for name in names:
-            self.setProperty(f"{prefix}-{name}", "false" if remove else "true")  # noqa
+            property_name = f"{prefix}-{name}"
+            is_set = "false" if remove else "true"
+
+            if toggle:
+                is_set = "false" if self.property(name) == "true"  else "true"  # noqa
+
+            self.setProperty(property_name, is_set)  # noqa
 
     def set_content(self, content):  # pragma: no cover
         """
